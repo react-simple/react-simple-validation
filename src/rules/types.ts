@@ -1,19 +1,20 @@
 import { ContentType } from "@react-simple/react-simple-util";
+import { FieldType } from "../fields";
 
 export const VALIDATION_RULES_TYPES = {
 	required: "required",
-	minLength: "minLength",
-	maxLength: "maxLength",
-	minNumberValue: "minNumberValue",
-	maxNumberValue: "minNumberValue",
-	minDateValue: "minDateValue",
-	maxDateValue: "minDateValue",
-	regExp: "regExp",
-	minSize: "minSize",
-	maxSize: "maxSize",
-	contentType: "contentType",
-	minItems: "minItems",
-	maxItems: "maxItems",
+	minLength: "minLength", // only for 'text'
+	maxLength: "maxLength", // only for 'text'
+	minNumberValue: "minNumberValue", // only for 'number'
+	maxNumberValue: "minNumberValue", // only for 'number'
+	minDateValue: "minDateValue", // only for 'date'
+	maxDateValue: "minDateValue", // only for 'date'
+	regExp: "regExp", // only for 'text'
+	minSize: "minSize", // only for 'file'
+	maxSize: "maxSize", // only for 'file'
+	contentType: "contentType", // only for 'file'
+	minItems: "minItems", // only for arrays
+	maxItems: "maxItems", // only for arrays
 	custom: "custom"
 };
 
@@ -42,21 +43,25 @@ export interface MaxLengthRule extends ValidationRuleBase {
 export interface MinNumberValueRule extends ValidationRuleBase {
 	readonly type: "minNumberValue";
 	readonly minValue: number;
+	readonly mustBeGreater?: boolean; // by default great-or-equal is checked
 }
 
 export interface MaxNumberValueRule extends ValidationRuleBase {
 	readonly type: "maxNumberValue";
 	readonly maxValue: number;
+	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
 export interface MinDateValueRule extends ValidationRuleBase {
 	readonly type: "minDateValue";
 	readonly minDate: Date;
+	readonly mustBeGreater?: boolean; // by default great-or-equal is checked
 }
 
 export interface MaxDateValueRule extends ValidationRuleBase {
 	readonly type: "maxDateValue";
 	readonly maxDate: Date;
+	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
 export interface RegExpRule extends ValidationRuleBase {
@@ -91,7 +96,7 @@ export interface MaxItemsRule extends ValidationRuleBase {
 
 export interface CustomRule extends ValidationRuleBase {
 	readonly type: "custom";
-	readonly validate: (value: unknown) => boolean;
+	readonly validate: (value: unknown, fieldType: FieldType, name?: string) => boolean;
 }
 
 export type ValidationRule =

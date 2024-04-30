@@ -1,7 +1,7 @@
 import { getToday } from "@react-simple/react-simple-util";
 import {
-	BooleanArrayFieldType, BooleanFieldType, CustomFieldType, DateArrayFieldType, DateFieldType, DateTimeArrayFieldType, DateTimeFieldType,
-	FileArrayFieldType, FileFieldType, NumberArrayFieldType, NumberFieldType, ObjectArrayFieldType, ObjectFieldType, TextArrayFieldType, TextFieldType
+	BooleanArrayFieldType, BooleanFieldType, DateArrayFieldType, DateFieldType, FileArrayFieldType, FileFieldType, NumberArrayFieldType, NumberFieldType,
+	TextArrayFieldType, TextFieldType
 } from "./types";
 
 export const BASE_FIELDS: {
@@ -13,20 +13,15 @@ export const BASE_FIELDS: {
 	readonly booleanArray: BooleanArrayFieldType;
 	readonly date: DateFieldType;
 	readonly dateArray: DateArrayFieldType;
-	readonly dateTime: DateTimeFieldType;
-	readonly dateTimeArray: DateTimeArrayFieldType;
 	readonly file: FileFieldType;
 	readonly fileArray: FileArrayFieldType;
-	readonly object: ObjectFieldType;
-	readonly objectArray: ObjectArrayFieldType;
-	readonly custom: CustomFieldType;
 } = {
 	text: {
 		type: "text",
 		baseType: "text",
 		isArray: false,
 		baseValue: "",
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -35,7 +30,7 @@ export const BASE_FIELDS: {
 		baseType: "text",
 		isArray: true,
 		baseValue: [],
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -44,7 +39,7 @@ export const BASE_FIELDS: {
 		baseType: "number",
 		isArray: false,
 		baseValue: 0,
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -53,7 +48,7 @@ export const BASE_FIELDS: {
 		baseType: "number",
 		isArray: true,
 		baseValue: [],
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -62,7 +57,7 @@ export const BASE_FIELDS: {
 		baseType: "boolean",
 		isArray: false,
 		baseValue: false,
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -71,7 +66,7 @@ export const BASE_FIELDS: {
 		baseType: "boolean",
 		isArray: true,
 		baseValue: [],
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -80,7 +75,7 @@ export const BASE_FIELDS: {
 		baseType: "date",
 		isArray: false,
 		baseValue: getToday(),
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -89,25 +84,7 @@ export const BASE_FIELDS: {
 		baseType: "date",
 		isArray: true,
 		baseValue: [],
-		defaultRules: [
-			{ type: "required", required: true }
-		]
-	},
-	dateTime: {
-		type: "datetime",
-		baseType: "datetime",
-		isArray: false,
-		baseValue: new Date(),
-		defaultRules: [
-			{ type: "required", required: true }
-		]
-	},
-	dateTimeArray: {
-		type: "datetime-array",
-		baseType: "datetime",
-		isArray: true,
-		baseValue: [],
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -116,7 +93,7 @@ export const BASE_FIELDS: {
 		baseType: "file",
 		isArray: false,
 		baseValue: new File([], ""),
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	},
@@ -125,34 +102,7 @@ export const BASE_FIELDS: {
 		baseType: "file",
 		isArray: true,
 		baseValue: [],
-		defaultRules: [
-			{ type: "required", required: true }
-		]
-	},
-	object: {
-		type: "object",
-		baseType: "object",
-		isArray: false,
-		baseValue: {},
-		defaultRules: [
-			{ type: "required", required: true }
-		]
-	},
-	objectArray: {
-		type: "object-array",
-		baseType: "object",
-		isArray: true,
-		baseValue: [],
-		defaultRules: [
-			{ type: "required", required: true }
-		]
-	},
-	custom: {
-		type: "custom",
-		baseType: "custom",
-		isArray: true,
-		baseValue: {},
-		defaultRules: [
+		rules: [
 			{ type: "required", required: true }
 		]
 	}
