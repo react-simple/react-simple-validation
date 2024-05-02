@@ -1,14 +1,77 @@
-import { FieldSet, FieldType } from "fields";
-import { ValidationRule } from "rules";
-import { FieldValidationResult, RuleValidationResult, ValidationResult } from "./types";
-import { compareDates, isArray, isDate, isFile, isNumber, isString } from "@react-simple/react-simple-util";
+import { FieldType, FieldTypes, FieldValues } from "fields";
+import { FieldValidationRule } from "rules";
+import { FieldRuleValidationResult, FieldValidationResult, ObjectValidationResult } from "./types";
+import {
+	compareDates, getResolvedArray, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates,
+	isValueType, ContentType
+} from "@react-simple/react-simple-util";
 
-export function validateRule(rule: ValidationRule, fieldType: FieldType, fieldValue: unknown, name?: string): RuleValidationResult {
-	let isValid = true;
+// returns errors
+export function validateFieldRule(
+	rule: FieldValidationRule,
+	fieldValue: unknown,
+	fieldType: FieldType
+): FieldRuleValidationResult {
 	let isChecked = false;
+	let isValid = false;
 	let regExpMatch: RegExpMatchArray | undefined;
 
-	switch (rule.type) {
+	switch (rule.ruleType) {
+		case "valueType":
+			if (isNullOrUndefined(fieldValue)) {
+				isChecked = true;
+				isValid = true;
+			}
+			else {
+				switch (fieldType.baseType) {
+					case "text":
+						isChecked = true;
+						isValid = isString(fieldValue);
+						break;
+
+					case "number":
+						isChecked = true;
+						isValid = isNumber(fieldValue);
+						break;
+
+					case "date":
+						isChecked = true;
+						isValid = isDate(fieldValue);
+						break;
+
+					case "boolean":
+						isChecked = true;
+						isValid = isBoolean(fieldValue);
+						break;
+
+					case "file":
+						isChecked = true;
+						isValid = isFile(fieldValue);
+						break;
+
+					case "object":
+						isChecked = true;
+						// due to the nature of isFile() we don't check that here
+						isValid = !isValueType(fieldValue) && !isArray(fieldValue);
+						break;
+
+					case "array":
+						isChecked = true;
+						isValid = isArray(fieldValue);
+						break;
+				}
+			}
+			break;
+
+		case "required":
+			isChecked = true;
+			isValid = (
+				!isEmpty(fieldValue) &&
+				(fieldType.baseType !== "array" || (isArray(fieldValue) && !!fieldValue.length)) &&
+				(fieldType.baseType !== "object" || !isEmptyObject(fieldValue))
+			);
+			break;
+
 		case "regExp":
 			if (fieldType.baseType === "text" && isString(fieldValue) && fieldValue) {
 				isChecked = true;
@@ -17,56 +80,51 @@ export function validateRule(rule: ValidationRule, fieldType: FieldType, fieldVa
 			}
 			break;
 
-		case "required":
-			break;
-
-		case "contentType":
+		case "fileContentType":
 			if (fieldType.baseType === "file" && isFile(fieldValue)) {
 				isChecked = true;
-				isValid = !!fieldValue.type && rule.allowedTypes.some(t => t.allowedContentTypes.includes(fieldValue.type));
+
+				if (fieldValue.type && rule.allowedContentTypes.length) {
+					isValid = (rule.allowedContentTypes[0] as ContentType).allowedContentTypes
+						? (rule.allowedContentTypes as ContentType[]).some(contentType => contentType.allowedContentTypes.includes(fieldValue.type))
+						: (rule.allowedContentTypes as string[]).includes(fieldValue.type);
+				}
 			}
 			break;
 
-		case "custom":
+		case "fileExtension":
+			if (fieldType.baseType === "file" && isFile(fieldValue)) {
+				isChecked = true;
+
+				if (fieldValue.name) {
+					const i = fieldValue.name.lastIndexOf(".");
+					isValid = i >= 0 && rule.allowedExtensions.includes(fieldValue.name.substring(i + 1));
+				}
+			}
+			break;
+
+		case "fileContentTypeAndExtension":
+			if (fieldType.baseType === "file" && isFile(fieldValue)) {
+				isChecked = true;
+
+				if (fieldValue.name && fieldValue.type && rule.allowedContentTypes.length) {
+					const i = fieldValue.name.lastIndexOf(".");
+
+					if (i >= 0) {
+						const extension = fieldValue.name.substring(i + 1);
+
+						isValid = rule.allowedContentTypes.some(contentType =>
+							contentType.allowedContentTypes.includes(fieldValue.type) &&
+							contentType.allowedExtensions.includes(extension)
+						);
+					}
+				}
+			}
+			break;
+
+		case "customValidation":
 			isChecked = true;
-			isValid = rule.validate(fieldValue, fieldType, name);
-			break;
-
-		case "maxDateValue":
-			if (fieldType.baseType === "date" && isDate(fieldValue)) {
-				isChecked = true;
-				isValid = rule.mustBeLess
-					? compareDates(fieldValue, rule.maxDate) < 0
-					: compareDates(fieldValue, rule.maxDate) <= 0;
-			}
-			break;
-
-		case "maxItems":
-			if (fieldType.isArray && isArray(fieldValue)) {
-				isChecked = true;
-				isValid = fieldValue.length <= rule.maxItems;
-			}
-			break;
-
-		case "maxLength":
-			if (fieldType.baseType === "text" && isString(fieldValue)) {
-				isChecked = true;
-				isValid = fieldValue.length <= rule.maxLength;
-			}
-			break;
-
-		case "maxNumberValue":
-			if (fieldType.baseType === "number" && isNumber(fieldValue)) {
-				isChecked = true;
-				isValid = rule.mustBeLess ? fieldValue < rule.maxValue : fieldValue <= rule.maxValue;
-			}
-			break;
-
-		case "maxSize":
-			if (fieldType.baseType === "file" && isFile(fieldValue)) {
-				isChecked = true;
-				isValid = fieldValue.size <= rule.maxSize;
-			}
+			isValid = rule.validate(fieldValue, fieldType);
 			break;
 
 		case "minDateValue":
@@ -78,17 +136,78 @@ export function validateRule(rule: ValidationRule, fieldType: FieldType, fieldVa
 			}
 			break;
 
-		case "minItems":
-			if (fieldType.isArray && isArray(fieldValue)) {
+		case "maxDateValue":
+			if (fieldType.baseType === "date" && isDate(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue.length >= rule.minItems;
+				isValid = rule.mustBeLess
+					? compareDates(fieldValue, rule.maxDate) < 0
+					: compareDates(fieldValue, rule.maxDate) <= 0;
 			}
 			break;
 
-		case "minLength":
+		case "expectedDateValue":
+			if (fieldType.baseType === "date" && isDate(fieldValue)) {
+				isChecked = true;
+				isValid = sameDates(fieldValue, rule.expectedValue);
+			}
+			break;
+
+		case "maxFileSize":
+			if (fieldType.baseType === "file" && isFile(fieldValue)) {
+				isChecked = true;
+				isValid = fieldValue.size <= rule.maxFileSize;
+			}
+			break;
+
+		case "minArrayLength":
+			if (fieldType.baseType === "array" && isArray(fieldValue)) {
+				isChecked = true;
+
+				if (rule.filter) {
+					isValid = fieldValue.filter(itemValue => validateField(fieldType.itemFieldType, itemValue).isValid).length >= rule.minLength;
+				} else {
+					isValid = fieldValue.length >= rule.minLength;
+				}
+			}
+			break;
+
+		case "maxArrayLength":
+			if (fieldType.baseType === "array" && isArray(fieldValue)) {
+				isChecked = true;
+
+				if (rule.filter) {
+					isValid = fieldValue.filter(itemValue => validateField(fieldType.itemFieldType, itemValue).isValid).length <= rule.maxLength;
+				} else {
+					isValid = fieldValue.length <= rule.maxLength;
+				}
+			}
+			break;
+
+		case "minTextLength":
 			if (fieldType.baseType === "text" && isString(fieldValue)) {
 				isChecked = true;
 				isValid = fieldValue.length >= rule.minLength;
+			}
+			break;
+
+		case "maxTextLength":
+			if (fieldType.baseType === "text" && isString(fieldValue)) {
+				isChecked = true;
+				isValid = fieldValue.length <= rule.maxLength;
+			}
+			break;
+
+		case "expectedTextValue":
+			if (fieldType.baseType === "text" && isString(fieldValue)) {
+				isChecked = true;
+				isValid = fieldValue === rule.expectedValue;
+			}
+			break;
+
+		case "expectedBooleanValue":
+			if (fieldType.baseType === "boolean" && isBoolean(fieldValue)) {
+				isChecked = true;
+				isValid = fieldValue === rule.expectedValue;
 			}
 			break;
 
@@ -99,45 +218,74 @@ export function validateRule(rule: ValidationRule, fieldType: FieldType, fieldVa
 			}
 			break;
 
-		case "minSize":
-			if (fieldType.baseType === "file" && isFile(fieldValue)) {
+		case "maxNumberValue":
+			if (fieldType.baseType === "number" && isNumber(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue.size >= rule.minSize;
+				isValid = rule.mustBeLess ? fieldValue < rule.maxValue : fieldValue <= rule.maxValue;
+			}
+			break;
+
+		case "expectedNumberValue":
+			if (fieldType.baseType === "number" && isNumber(fieldValue)) {
+				isChecked = true;
+				isValid = fieldValue === rule.expectedValue;
 			}
 			break;
 	}
 
 	return {
-		isValid, isChecked, fieldType, fieldValue, rule, name, regExpMatch,
+		isValid, isChecked, rule, regExpMatch,
 		message: !isValid ? rule.message : undefined
 	};
 }
 
-export function validateRules(rules: ValidationRule[], fieldType: FieldType, fieldValue: unknown): RuleValidationResult[] {
-	return rules.map(t => validateRule(t, fieldType, fieldValue));
+export function validateRules(rules: FieldValidationRule[], fieldValue: unknown, fieldType: FieldType): FieldRuleValidationResult[] {
+	return rules.map(rule => validateFieldRule(rule, fieldValue, fieldType));
 }
 
-export function validateField(name: string, fieldType: FieldType, fieldValue: unknown): FieldValidationResult {
-	const rules = validateRules(fieldType.rules, fieldType, fieldValue);
+export function validateField(fieldValue: unknown, fieldType: FieldType): FieldValidationResult {
+	const ruleValidationResult = [
+		// validate type
+		validateFieldRule({ ruleType: "valueType", valueType: fieldType.baseType }, fieldValue, fieldType),
+
+		// validate rules
+		...validateRules(fieldType.rules, fieldValue, fieldType)
+	];
+
+	// validate object
+	const objectValidationResult = fieldType.baseType === "object"
+		? validateObject(fieldValue as FieldValues, fieldType.objectFieldTypes)
+		: undefined;
+
+	// validate array
+	const arrayValidationResult = fieldType.baseType === "array"
+		? getResolvedArray(fieldValue).map(itemValue => validateField(itemValue, fieldType.itemFieldType))
+		: undefined;
 
 	return {
 		fieldType,
 		fieldValue,
-		name,
-		rules,
-		isValid: rules.every(t => t.isValid)
+		ruleValidationResult,
+		arrayValidationResult,
+		objectValidationResult,
+
+		isValid: (
+			ruleValidationResult.every(rule => rule.isValid) &&
+			(!objectValidationResult || objectValidationResult.isValid) &&
+			(!arrayValidationResult || arrayValidationResult.every(itemRule => itemRule.isValid))
+		)
 	};
 }
 
-export function validateFieldSet(input: FieldSet): ValidationResult {
-	const output: { [name: string]: FieldValidationResult } = {};
+export function validateObject<Obj>(fieldValues: Obj, fieldTypes: FieldTypes): ObjectValidationResult<Obj> {
+	const validationResult: Partial<{ [name in keyof Obj]: FieldValidationResult }> = {};
 	let isValid = true;
 
-	for (const [name, fieldType] of Object.entries(input.fieldDefs)) {
-		const fieldValue = input.fieldValues[name];
-		const fieldValidationResult = validateField(name, fieldType, fieldValue);
+	for (const [name, fieldType] of Object.entries(fieldTypes)) {
+		const fieldValue = (fieldValues as any)[name];
+		const fieldValidationResult = validateField(fieldValue, fieldType);
 
-		output[name] = fieldValidationResult;
+		(validationResult as any)[name] = fieldValidationResult;
 
 		if (!fieldValidationResult.isValid) {
 			isValid = false;
@@ -145,6 +293,6 @@ export function validateFieldSet(input: FieldSet): ValidationResult {
 	}
 
 	return {
-		input, output, isValid
+		fieldTypes, fieldValues, isValid, validationResult
 	};
 }

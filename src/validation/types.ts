@@ -1,31 +1,28 @@
-import { FieldSet, FieldType } from "fields";
-import { ValidationRule } from "rules";
+import { FieldType, FieldTypes, FieldValues } from "fields";
+import { FieldValidationRule } from "rules";
 
-export interface RuleValidationResult {
-	isValid: boolean;
+export interface FieldRuleValidationResult {
+	rule: FieldValidationRule;
 	isChecked: boolean; // certain rules work for certain field types only; if incompatible it's isValid but !isChecked
-	rule: ValidationRule;
+	isValid: boolean;
 
-	fieldType: FieldType;
-	fieldValue: unknown;
-
-	name?: string;
 	message?: string; // custom message
 	regExpMatch?: RegExpMatchArray;
 }
 
-export interface FieldValidationResult {
-	name: string;
-	isValid: boolean; // === rules.every(t => t.isValid)
-
+export interface FieldValidationResult<Obj = unknown> {
 	fieldType: FieldType;
 	fieldValue: unknown;
+	isValid: boolean;
 
-	rules: RuleValidationResult[]; // valid and non-valid too
+	ruleValidationResult: FieldRuleValidationResult[]; // valid and non-valid too
+	objectValidationResult?: ObjectValidationResult<Obj>; // if baseType is 'object'
+	arrayValidationResult?: FieldValidationResult[]; // if baseType is 'array'
 }
 
-export interface ValidationResult {
+export interface ObjectValidationResult<Obj> {
+	fieldTypes: FieldTypes;
+	fieldValues: Obj;
 	isValid: boolean;
-	input: FieldSet;
-	output: { [name: string]: FieldValidationResult };
+	validationResult: Partial<{ [name in keyof Obj]: FieldValidationResult }>;
 } 

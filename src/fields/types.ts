@@ -1,6 +1,8 @@
 import {
-	RequiredRule, MaxLengthRule, MinLengthRule, RegExpRule, ValidationRule, MinNumberValueRule, MaxNumberValueRule,
-	MinDateValueRule, MaxDateValueRule, MinSizeRule, MaxSizeRule, ContentTypeRule, CustomRule
+	FieldCustomValidationRule, FieldExpectedBooleanValueRule, FieldExpectedDateValueRule, FieldExpectedNumberValueRule, FieldExpectedTextValueRule,
+	FieldFileContentTypeRule, FieldFileExtensionRule, FieldMaxDateValueRule, FieldMaxFileSizeRule, FieldMaxNumberValueRule,
+	FieldMaxTextLengthRule, FieldMinDateValueRule, FieldMinArrayLengthRule, FieldMinNumberValueRule, FieldMinTextLengthRule,
+	FieldRegExpRule, FieldRequiredRule, FieldValidationRule, FieldFileContentAndExtensionTypeRule
 } from "rules/types";
 
 export const BASE_FIELD_TYPES = {
@@ -9,99 +11,116 @@ export const BASE_FIELD_TYPES = {
 	boolean: "boolean",
 	date: "date",
 	file: "file",
-	object: "object",
-	custom: "custom"
+	array: "array",
+	object: "object"
 };
 
 export type BaseFieldType = keyof typeof BASE_FIELD_TYPES;
 
-export interface FieldTypeBase<ValueType, Rule extends ValidationRule> {
+export interface FieldTypeBase<ValueType, Rule extends FieldValidationRule> {
 	readonly type: string;
 	readonly baseType: BaseFieldType;
-	readonly isArray: boolean;
 	readonly baseValue: ValueType; // this is the 'empty' value, the default value is always undefined
 	readonly rules: Rule[];
 }
 
-export interface TextFieldType extends FieldTypeBase<string, RequiredRule | MinLengthRule | MaxLengthRule | RegExpRule | CustomRule> {
+export type TextFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule
+	| FieldMinTextLengthRule
+	| FieldMaxTextLengthRule
+	| FieldExpectedTextValueRule
+	| FieldRegExpRule;
+
+export interface TextFieldType extends FieldTypeBase<string, TextFieldValidationRules> {
 	readonly type: "text";
 	readonly baseType: "text";
 }
 
-export interface TextArrayFieldType extends FieldTypeBase<string[], RequiredRule | MinLengthRule | MaxLengthRule | RegExpRule | CustomRule> {
-	readonly type: "text-array";
-	readonly baseType: "text";
-}
+export type NumberFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule
+	| FieldMinNumberValueRule
+	| FieldMaxNumberValueRule
+	| FieldExpectedNumberValueRule;
 
-export interface NumberFieldType extends FieldTypeBase<number, RequiredRule | MinNumberValueRule | MaxNumberValueRule | CustomRule> {
+export interface NumberFieldType extends FieldTypeBase<number, NumberFieldValidationRules> {
 	readonly type: "number";
 	readonly baseType: "number";
 }
 
-export interface NumberArrayFieldType extends FieldTypeBase<number[], RequiredRule | MinNumberValueRule | MaxNumberValueRule | CustomRule> {
-	readonly type: "number-array";
-	readonly baseType: "number";
-}
+export type BooleanFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule
+	| FieldExpectedBooleanValueRule;
 
-export interface BooleanFieldType extends FieldTypeBase<boolean, RequiredRule | CustomRule> {
+export interface BooleanFieldType extends FieldTypeBase<boolean, BooleanFieldValidationRules> {
 	readonly type: "boolean";
 	readonly baseType: "boolean";
 }
 
-export interface BooleanArrayFieldType extends FieldTypeBase<boolean[], RequiredRule | CustomRule> {
-	readonly type: "boolean-array";
-	readonly baseType: "boolean";
-}
+export type DateFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule
+	| FieldMinDateValueRule
+	| FieldMaxDateValueRule
+	| FieldExpectedDateValueRule;
 
-export interface DateFieldType extends FieldTypeBase<Date, RequiredRule | MinDateValueRule | MaxDateValueRule | CustomRule> {
+export interface DateFieldType extends FieldTypeBase<Date, DateFieldValidationRules> {
 	readonly type: "date";
 	readonly baseType: "date";
 }
 
-export interface DateArrayFieldType extends FieldTypeBase<Date[], RequiredRule | MinDateValueRule | MaxDateValueRule | CustomRule> {
-	readonly type: "date-array";
-	readonly baseType: "date";
-}
+export type FileFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule
+	| FieldMaxFileSizeRule
+	| FieldFileContentTypeRule
+	| FieldFileExtensionRule
+	| FieldFileContentAndExtensionTypeRule;
 
-export interface FileFieldType extends FieldTypeBase<File, RequiredRule | MinSizeRule | MaxSizeRule | ContentTypeRule | CustomRule> {
+export interface FileFieldType extends FieldTypeBase<File, FileFieldValidationRules> {
 	readonly type: "file";
 	readonly baseType: "file";
 }
 
-export interface FileArrayFieldType extends FieldTypeBase<File[], RequiredRule | MinSizeRule | MaxSizeRule | ContentTypeRule | CustomRule> {
-	readonly type: "file-array";
-	readonly baseType: "file";
-}
-
-export interface FieldSet {
-	readonly fieldDefs: { [name: string]: FieldType };
-	readonly fieldValues: { [name: string]: unknown };
-}
+export type ObjectFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule;
 
 // embedded objects to be validated
-export interface FieldSetFieldType extends FieldTypeBase<unknown, RequiredRule | CustomRule> {
-	readonly type: "fieldset";
+export interface ObjectFieldType extends FieldTypeBase<unknown, ObjectFieldValidationRules> {
+	readonly type: "object";
 	readonly baseType: "object";
-	readonly fieldDefs: { [name: string]: FieldType }; // to validate child members
+	readonly objectFieldTypes: FieldTypes; // to validate child members
 }
 
-// array of embedded objects to be validated
-export interface FieldSetArrayFieldType extends FieldTypeBase<unknown[], RequiredRule | CustomRule> {
-	readonly type: "fieldset-array";
-	readonly baseType: "object";
-	readonly fieldDefs: { [name: string]: FieldType }; // to validate child members of array items
+export type ArrayFieldValidationRules =
+	| FieldRequiredRule
+	| FieldCustomValidationRule
+	| FieldMinArrayLengthRule
+	| FieldMaxDateValueRule;
+
+// array of embedded values to be validated
+export interface ArrayFieldType extends FieldTypeBase<unknown[], ArrayFieldValidationRules> {
+	readonly type: "array";
+	readonly baseType: "array";
+	readonly itemFieldType: FieldType; // to validate child members of array items
 }
 
 export type FieldType =
 	| TextFieldType
-	| TextArrayFieldType
 	| NumberFieldType
-	| NumberArrayFieldType
 	| BooleanFieldType
-	| BooleanArrayFieldType
 	| DateFieldType
-	| DateArrayFieldType
 	| FileFieldType
-	| FileArrayFieldType
-	| FieldSetFieldType
-	| FieldSetArrayFieldType;
+	| ObjectFieldType
+	| ArrayFieldType;
+
+export interface FieldTypes {
+	[name: string]: FieldType
+}
+
+export interface FieldValues {
+	[name: string]: unknown
+}

@@ -1,116 +1,160 @@
 import { ContentType } from "@react-simple/react-simple-util";
-import { FieldType } from "../fields";
+import { BaseFieldType, FieldType } from "fields";
 
-export const VALIDATION_RULES_TYPES = {
+export const FIELD_VALIDATION_RULE_TYPES = {
+	valueType: "valueType", // this rule is automatically validated based on fieldType.baseType
 	required: "required",
-	minLength: "minLength", // only for 'text'
-	maxLength: "maxLength", // only for 'text'
+	minTextLength: "minTextLength", // only for 'text'
+	maxTextLength: "maxTextLength", // only for 'text'
+	expectedTextValue: "expectedTextValue", // only for 'text'
 	minNumberValue: "minNumberValue", // only for 'number'
 	maxNumberValue: "minNumberValue", // only for 'number'
+	expectedNumberValue: "expectedNumberValue", // only for 'number'
 	minDateValue: "minDateValue", // only for 'date'
 	maxDateValue: "minDateValue", // only for 'date'
+	expectedDateValue: "expectedDateValue", // only for 'date'
+	expectedBooleanValue: "expectedBooleanValue", // only for 'boolean'
 	regExp: "regExp", // only for 'text'
-	minSize: "minSize", // only for 'file'
-	maxSize: "maxSize", // only for 'file'
-	contentType: "contentType", // only for 'file'
-	minItems: "minItems", // only for arrays
-	maxItems: "maxItems", // only for arrays
-	custom: "custom"
+	maxFileSize: "maxFileSize", // only for 'file'
+	fileContentType: "fileContentType", // only for 'file'
+	fileExtension: "fileExtension", // only for 'file'
+	fileContentTypeAndExtension: "fileContentTypeAndExtension", // only for 'file'
+	minArrayLength: "minArrayLength", // only for arrays
+	maxArrayLength: "maxArrayLength", // only for arrays
+	customValidation: "customValidation"
 };
 
-export type ValidationRuleType = keyof typeof VALIDATION_RULES_TYPES;
+export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
 
-export interface ValidationRuleBase {
-	readonly type: ValidationRuleType;
+export interface FieldValidationRuleBase {
+	readonly ruleType: FieldValidationRuleType;
 	readonly message?: string;
 }
 
-export interface RequiredRule extends ValidationRuleBase {
-	readonly type: "required";
+export interface FieldValueTypeRule extends FieldValidationRuleBase {
+	readonly ruleType: "valueType";
+	readonly valueType: BaseFieldType;
+}
+
+export interface FieldRequiredRule extends FieldValidationRuleBase {
+	readonly ruleType: "required";
 	readonly required: boolean;
 }
 
-export interface MinLengthRule extends ValidationRuleBase {
-	readonly type: "minLength";
+export interface FieldMinTextLengthRule extends FieldValidationRuleBase {
+	readonly ruleType: "minTextLength";
 	readonly minLength: number;
 }
 
-export interface MaxLengthRule extends ValidationRuleBase {
-	readonly type: "maxLength";
+export interface FieldMaxTextLengthRule extends FieldValidationRuleBase {
+	readonly ruleType: "maxTextLength";
 	readonly maxLength: number;
 }
 
-export interface MinNumberValueRule extends ValidationRuleBase {
-	readonly type: "minNumberValue";
+export interface FieldExpectedTextValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "expectedTextValue";
+	readonly expectedValue: string;
+}
+
+export interface FieldMinNumberValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "minNumberValue";
 	readonly minValue: number;
 	readonly mustBeGreater?: boolean; // by default great-or-equal is checked
 }
 
-export interface MaxNumberValueRule extends ValidationRuleBase {
-	readonly type: "maxNumberValue";
+export interface FieldMaxNumberValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "maxNumberValue";
 	readonly maxValue: number;
 	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
-export interface MinDateValueRule extends ValidationRuleBase {
-	readonly type: "minDateValue";
+export interface FieldExpectedNumberValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "expectedNumberValue";
+	readonly expectedValue: number;
+}
+
+export interface FieldMinDateValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "minDateValue";
 	readonly minDate: Date;
 	readonly mustBeGreater?: boolean; // by default great-or-equal is checked
 }
 
-export interface MaxDateValueRule extends ValidationRuleBase {
-	readonly type: "maxDateValue";
+export interface FieldMaxDateValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "maxDateValue";
 	readonly maxDate: Date;
 	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
-export interface RegExpRule extends ValidationRuleBase {
-	readonly type: "regExp";
+export interface FieldExpectedDateValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "expectedDateValue";
+	readonly expectedValue: Date;
+}
+
+export interface FieldExpectedBooleanValueRule extends FieldValidationRuleBase {
+	readonly ruleType: "expectedBooleanValue";
+	readonly expectedValue: boolean;
+}
+
+export interface FieldRegExpRule extends FieldValidationRuleBase {
+	readonly ruleType: "regExp";
 	readonly regExp: RegExp;
 }
 
-export interface MinSizeRule extends ValidationRuleBase {
-	readonly type: "minSize";
-	readonly minSize: number; // bytes
+export interface FieldMaxFileSizeRule extends FieldValidationRuleBase {
+	readonly ruleType: "maxFileSize";
+	readonly maxFileSize: number; // bytes
 }
 
-export interface MaxSizeRule extends ValidationRuleBase {
-	readonly type: "maxSize";
-	readonly maxSize: number; // bytes
+export interface FieldFileContentTypeRule extends FieldValidationRuleBase {
+	readonly ruleType: "fileContentType";
+	readonly allowedContentTypes: string[] | ContentType[];
 }
 
-export interface ContentTypeRule extends ValidationRuleBase {
-	readonly type: "contentType";
-	readonly allowedTypes: ContentType[];
+export interface FieldFileExtensionRule extends FieldValidationRuleBase {
+	readonly ruleType: "fileExtension";
+	readonly allowedExtensions: string[];
 }
 
-export interface MinItemsRule extends ValidationRuleBase {
-	readonly type: "minItems";
-	readonly minItems: number;
+export interface FieldFileContentAndExtensionTypeRule extends FieldValidationRuleBase {
+	readonly ruleType: "fileContentTypeAndExtension";
+	readonly allowedContentTypes: ContentType[];
 }
 
-export interface MaxItemsRule extends ValidationRuleBase {
-	readonly type: "maxItems";
-	readonly maxItems: number;
+export interface FieldMinArrayLengthRule extends FieldValidationRuleBase {
+	readonly ruleType: "minArrayLength";
+	readonly minLength: number;
+	readonly filter?: FieldValidationRule[]; // count only matching items
 }
 
-export interface CustomRule extends ValidationRuleBase {
-	readonly type: "custom";
-	readonly validate: (value: unknown, fieldType: FieldType, name?: string) => boolean;
+export interface FieldMaxArrayLengthRule extends FieldValidationRuleBase {
+	readonly ruleType: "maxArrayLength";
+	readonly maxLength: number;
+	readonly filter?: FieldValidationRule[]; // count only matching items
 }
 
-export type ValidationRule =
-	| RequiredRule
-	| MinLengthRule
-	| MaxLengthRule
-	| MinNumberValueRule
-	| MaxNumberValueRule
-	| MinDateValueRule
-	| MaxDateValueRule
-	| RegExpRule
-	| MinSizeRule
-	| MaxSizeRule
-	| ContentTypeRule
-	| MinItemsRule
-	| MaxItemsRule
-	| CustomRule;
+export interface FieldCustomValidationRule extends FieldValidationRuleBase {
+	readonly ruleType: "customValidation";
+	readonly validate: (fieldValue: unknown, fieldType: FieldType) => boolean;
+}
+
+export type FieldValidationRule =
+	| FieldValueTypeRule
+	| FieldRequiredRule
+	| FieldMinTextLengthRule
+	| FieldMaxTextLengthRule
+	| FieldExpectedTextValueRule
+	| FieldMinNumberValueRule
+	| FieldMaxNumberValueRule
+	| FieldExpectedNumberValueRule
+	| FieldMinDateValueRule
+	| FieldMaxDateValueRule
+	| FieldExpectedDateValueRule
+	| FieldExpectedBooleanValueRule
+	| FieldRegExpRule
+	| FieldMaxFileSizeRule
+	| FieldFileContentTypeRule
+	| FieldFileExtensionRule
+	| FieldFileContentAndExtensionTypeRule
+	| FieldMinArrayLengthRule
+	| FieldMaxArrayLengthRule
+	| FieldCustomValidationRule;

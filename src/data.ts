@@ -1,5 +1,10 @@
 export const REACT_SIMPLE_VALIDATION = {
 	FIELD_DEFAULTS: {
+		validation: {
+			defaultRules: {
+				required: true
+			}
+		},
 		shortText: {
 			maxLength: 50
 		},
