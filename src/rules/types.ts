@@ -4,24 +4,36 @@ import { BaseFieldType, FieldType } from "fields";
 export const FIELD_VALIDATION_RULE_TYPES = {
 	valueType: "valueType", // this rule is automatically validated based on fieldType.baseType
 	required: "required",
-	minTextLength: "minTextLength", // only for 'text'
-	maxTextLength: "maxTextLength", // only for 'text'
-	expectedTextValue: "expectedTextValue", // only for 'text'
-	minNumberValue: "minNumberValue", // only for 'number'
-	maxNumberValue: "minNumberValue", // only for 'number'
-	expectedNumberValue: "expectedNumberValue", // only for 'number'
-	minDateValue: "minDateValue", // only for 'date'
-	maxDateValue: "minDateValue", // only for 'date'
-	expectedDateValue: "expectedDateValue", // only for 'date'
-	expectedBooleanValue: "expectedBooleanValue", // only for 'boolean'
+	customValidation: "customValidation",
+
+	// text
+	minTextLength: "minTextLength",
+	maxTextLength: "maxTextLength",
+	expectedTextValue: "expectedTextValue",
 	regExp: "regExp", // only for 'text'
-	maxFileSize: "maxFileSize", // only for 'file'
-	fileContentType: "fileContentType", // only for 'file'
-	fileExtension: "fileExtension", // only for 'file'
-	fileContentTypeAndExtension: "fileContentTypeAndExtension", // only for 'file'
-	minArrayLength: "minArrayLength", // only for arrays
-	maxArrayLength: "maxArrayLength", // only for arrays
-	customValidation: "customValidation"
+
+	// number
+	minNumberValue: "minNumberValue",
+	maxNumberValue: "minNumberValue",
+	expectedNumberValue: "expectedNumberValue",
+
+	// date
+	minDateValue: "minDateValue",
+	maxDateValue: "minDateValue",
+	expectedDateValue: "expectedDateValue",
+
+	// boolean
+	expectedBooleanValue: "expectedBooleanValue",
+
+	// file
+	maxFileSize: "maxFileSize",
+	fileContentType: "fileContentType",
+	fileExtension: "fileExtension",
+	fileContentTypeAndExtension: "fileContentTypeAndExtension",
+
+	// array
+	minArrayLength: "minArrayLength",
+	maxArrayLength: "maxArrayLength"
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -54,6 +66,7 @@ export interface FieldMaxTextLengthRule extends FieldValidationRuleBase {
 export interface FieldExpectedTextValueRule extends FieldValidationRuleBase {
 	readonly ruleType: "expectedTextValue";
 	readonly expectedValue: string;
+	readonly caseInsensitive?: boolean;
 }
 
 export interface FieldMinNumberValueRule extends FieldValidationRuleBase {

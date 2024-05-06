@@ -200,7 +200,9 @@ export function validateFieldRule(
 		case "expectedTextValue":
 			if (fieldType.baseType === "text" && isString(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue === rule.expectedValue;
+				isValid = rule.caseInsensitive
+					? fieldValue?.toLocaleLowerCase() === rule.expectedValue?.toLocaleLowerCase()
+					: fieldValue === rule.expectedValue;
 			}
 			break;
 
@@ -246,7 +248,13 @@ export function validateRules(rules: FieldValidationRule[], fieldValue: unknown,
 export function validateField(fieldValue: unknown, fieldType: FieldType): FieldValidationResult {
 	const ruleValidationResult = [
 		// validate type
-		validateFieldRule({ ruleType: "valueType", valueType: fieldType.baseType }, fieldValue, fieldType),
+		validateFieldRule(
+			{
+				ruleType: "valueType",
+				valueType: fieldType.baseType
+			},
+			fieldValue,
+			fieldType),
 
 		// validate rules
 		...validateRules(fieldType.rules, fieldValue, fieldType)
@@ -277,8 +285,11 @@ export function validateField(fieldValue: unknown, fieldType: FieldType): FieldV
 	};
 }
 
-export function validateObject<Obj>(fieldValues: Obj, fieldTypes: FieldTypes): ObjectValidationResult<Obj> {
-	const validationResult: Partial<{ [name in keyof Obj]: FieldValidationResult }> = {};
+export function validateObject<TFieldValues extends FieldValues>(
+	fieldValues: TFieldValues,
+	fieldTypes: FieldTypes
+): ObjectValidationResult<TFieldValues> {
+	const validationResult: { [name: string]: FieldValidationResult } = {};
 	let isValid = true;
 
 	for (const [name, fieldType] of Object.entries(fieldTypes)) {

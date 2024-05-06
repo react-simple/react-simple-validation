@@ -20,9 +20,9 @@ export interface FieldValidationResult<Obj = unknown> {
 	arrayValidationResult?: FieldValidationResult[]; // if baseType is 'array'
 }
 
-export interface ObjectValidationResult<Obj> {
+export interface ObjectValidationResult<TFieldValues extends FieldValues> {
 	fieldTypes: FieldTypes;
-	fieldValues: Obj;
+	fieldValues: TFieldValues;
 	isValid: boolean;
-	validationResult: Partial<{ [name in keyof Obj]: FieldValidationResult }>;
+	validationResult: { [name: string]: FieldValidationResult };
 } 

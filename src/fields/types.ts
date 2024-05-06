@@ -2,7 +2,7 @@ import {
 	FieldCustomValidationRule, FieldExpectedBooleanValueRule, FieldExpectedDateValueRule, FieldExpectedNumberValueRule, FieldExpectedTextValueRule,
 	FieldFileContentTypeRule, FieldFileExtensionRule, FieldMaxDateValueRule, FieldMaxFileSizeRule, FieldMaxNumberValueRule,
 	FieldMaxTextLengthRule, FieldMinDateValueRule, FieldMinArrayLengthRule, FieldMinNumberValueRule, FieldMinTextLengthRule,
-	FieldRegExpRule, FieldRequiredRule, FieldValidationRule, FieldFileContentAndExtensionTypeRule
+	FieldRegExpRule, FieldRequiredRule, FieldValidationRule, FieldFileContentAndExtensionTypeRule, FieldMaxArrayLengthRule
 } from "rules/types";
 
 export const BASE_FIELD_TYPES = {
@@ -99,7 +99,7 @@ export type ArrayFieldValidationRules =
 	| FieldRequiredRule
 	| FieldCustomValidationRule
 	| FieldMinArrayLengthRule
-	| FieldMaxDateValueRule;
+	| FieldMaxArrayLengthRule;
 
 // array of embedded values to be validated
 export interface ArrayFieldType extends FieldTypeBase<unknown[], ArrayFieldValidationRules> {
