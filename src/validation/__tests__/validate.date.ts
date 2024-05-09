@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -14,8 +14,8 @@ it('validateFields.date-min', () => {
 			bad: new Date(1999, 12, 31, 23, 59, 59)
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 
@@ -37,8 +37,8 @@ it('validateFields.date-min.mustBeGreater', () => {
 			bad: new Date(2000, 1, 1)
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 
@@ -59,8 +59,8 @@ it('validateFields.date-max', () => {
 			bad: new Date(2000, 1, 1, 0, 0, 1)
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 
@@ -82,8 +82,8 @@ it('validateFields.date-max.mustBeLess', () => {
 			bad: new Date(2000, 1, 1)
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 
@@ -106,9 +106,9 @@ it('validateFields.date-range', () => {
 			bad2: new Date(1999, 1, 1),
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad1: FIELD_TYPES.date([rule]),
-			bad2: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad1: FIELDS.date([rule]),
+			bad2: FIELDS.date([rule])
 		}
 	);
 
@@ -130,8 +130,8 @@ it('validateFields.date-value', () => {
 			bad: new Date(2000, 1, 1),
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 
@@ -153,8 +153,8 @@ it('validateFields.date-value.negative', () => {
 			bad: new Date(2000, 1, 2, 3, 4, 5, 6)
 		},
 		{
-			good: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 
@@ -176,9 +176,9 @@ it('validateFields.date-value.array', () => {
 			bad: new Date(2000, 1, 1),
 		},
 		{
-			good1: FIELD_TYPES.date([rule]),
-			good2: FIELD_TYPES.date([rule]),
-			bad: FIELD_TYPES.date([rule])
+			good1: FIELDS.date([rule]),
+			good2: FIELDS.date([rule]),
+			bad: FIELDS.date([rule])
 		}
 	);
 

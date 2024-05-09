@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -14,8 +14,8 @@ it('validateFields.custom', () => {
 			bad: "1"
 		},
 		{
-			good: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 

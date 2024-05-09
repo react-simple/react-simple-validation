@@ -1,5 +1,5 @@
 import { CONTENT_TYPE, CONTENT_TYPES } from "@react-simple/react-simple-util";
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -17,9 +17,9 @@ it('validateFields.file-contenttype-extension', () => {
 			badEverything: { name: "dummy.csv", type: "text/csv", size: 1000 },
 		},
 		{
-			good: FIELD_TYPES.file([rule]),
-			badExtension: FIELD_TYPES.file([rule]),
-			badContentType: FIELD_TYPES.file([rule])
+			good: FIELDS.file([rule]),
+			badExtension: FIELDS.file([rule]),
+			badContentType: FIELDS.file([rule])
 		}
 	);
 
@@ -41,8 +41,8 @@ it('validateFields.file-contenttype', () => {
 			bad: { name: "dummy.csv", type: "text/csv", size: 1000 },
 		},
 		{
-			good: FIELD_TYPES.file([rule]),
-			bad: FIELD_TYPES.file([rule])
+			good: FIELDS.file([rule]),
+			bad: FIELDS.file([rule])
 		}
 	);
 
@@ -63,8 +63,8 @@ it('validateFields.file-contenttype.string[]', () => {
 			bad: { name: "dummy.csv", type: "text/csv", size: 1000 },
 		},
 		{
-			good: FIELD_TYPES.file([rule]),
-			bad: FIELD_TYPES.file([rule])
+			good: FIELDS.file([rule]),
+			bad: FIELDS.file([rule])
 		}
 	);
 
@@ -85,8 +85,8 @@ it('validateFields.file-extension', () => {
 			bad: { name: "dummy.csv", type: "text/csv", size: 1000 },
 		},
 		{
-			good: FIELD_TYPES.file([rule]),
-			bad: FIELD_TYPES.file([rule])
+			good: FIELDS.file([rule]),
+			bad: FIELDS.file([rule])
 		}
 	);
 
@@ -107,8 +107,8 @@ it('validateFields.file-size-max', () => {
 			bad: { name: "dummy.csv", type: "text/csv", size: 1001 },
 		},
 		{
-			good: FIELD_TYPES.file([rule]),
-			bad: FIELD_TYPES.file([rule])
+			good: FIELDS.file([rule]),
+			bad: FIELDS.file([rule])
 		}
 	);
 

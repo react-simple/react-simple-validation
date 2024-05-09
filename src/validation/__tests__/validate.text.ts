@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -14,8 +14,8 @@ it('validateFields.text-length-min', () => {
 			bad: "1"
 		},
 		{
-			good: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 
@@ -36,8 +36,8 @@ it('validateFields.text-length-max', () => {
 			bad: "12345"
 		},
 		{
-			good: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 
@@ -58,8 +58,8 @@ it('validateFields.text-length', () => {
 			bad: "12345"
 		},
 		{
-			good: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 
@@ -83,10 +83,10 @@ it('validateFields.text-length-range', () => {
 			bad2: "12345"
 		},
 		{
-			good1: FIELD_TYPES.text([rule]),
-			good2: FIELD_TYPES.text([rule]),
-			bad1: FIELD_TYPES.text([rule]),
-			bad2: FIELD_TYPES.text([rule])
+			good1: FIELDS.text([rule]),
+			good2: FIELDS.text([rule]),
+			bad1: FIELDS.text([rule]),
+			bad2: FIELDS.text([rule])
 		}
 	);
 
@@ -109,8 +109,8 @@ it('validateFields.text-regexp', () => {
 			bad: "1"
 		},
 		{
-			good: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 
@@ -133,10 +133,10 @@ it('validateFields.text-regexp.array', () => {
 			bad2: "12345",
 		},
 		{
-			good1: FIELD_TYPES.text([rule]),
-			good2: FIELD_TYPES.text([rule]),
-			bad1: FIELD_TYPES.text([rule]),
-			bad2: FIELD_TYPES.text([rule])
+			good1: FIELDS.text([rule]),
+			good2: FIELDS.text([rule]),
+			bad1: FIELDS.text([rule]),
+			bad2: FIELDS.text([rule])
 		}
 	);
 
@@ -160,8 +160,8 @@ it('validateFields.text-value', () => {
 			bad: "1"
 		},
 		{
-			good: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 
@@ -184,9 +184,9 @@ it('validateFields.text-value.array', () => {
 			bad: "1"
 		},
 		{
-			good1: FIELD_TYPES.text([rule]),
-			good2: FIELD_TYPES.text([rule]),
-			bad: FIELD_TYPES.text([rule])
+			good1: FIELDS.text([rule]),
+			good2: FIELDS.text([rule]),
+			bad: FIELDS.text([rule])
 		}
 	);
 

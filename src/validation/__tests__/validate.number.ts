@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -14,8 +14,8 @@ it('validateFields.number-max', () => {
 			bad: 4
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 
@@ -37,8 +37,8 @@ it('validateFields.number-max.mustBeLess', () => {
 			bad: 3
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 
@@ -59,8 +59,8 @@ it('validateFields.number-min', () => {
 			bad: 2
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 
@@ -82,8 +82,8 @@ it('validateFields.number-min', () => {
 			bad: 3
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 
@@ -104,8 +104,8 @@ it('validateFields.number-value', () => {
 			bad: 2
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 
@@ -130,9 +130,9 @@ it('validateFields.number-range', () => {
 			bad2: 4
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad1: FIELD_TYPES.number([rule]),
-			bad2: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad1: FIELDS.number([rule]),
+			bad2: FIELDS.number([rule])
 		}
 	);
 
@@ -155,9 +155,9 @@ it('validateFields.number-value.array', () => {
 			bad: 2
 		},
 		{
-			good1: FIELD_TYPES.number([rule]),
-			good2: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good1: FIELDS.number([rule]),
+			good2: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 
@@ -180,8 +180,8 @@ it('validateFields.number-value.negative', () => {
 			bad: 3
 		},
 		{
-			good: FIELD_TYPES.number([rule]),
-			bad: FIELD_TYPES.number([rule])
+			good: FIELDS.number([rule]),
+			bad: FIELDS.number([rule])
 		}
 	);
 

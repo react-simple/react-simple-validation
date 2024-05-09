@@ -50,7 +50,9 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	// rule collection, operators
 	["some-rules-valid"]: "some-rules-valid", // at least one rule must be valid
 	["all-rules-valid"]: "all-rules-valid", // all rules must be valid
-	["no-rules-valid"]: "no-rules-valid" // none of the rules should be valid
+	["no-rules-valid"]: "no-rules-valid", // none of the rules should be valid
+	["is-valid"]: "is-valid", // can check for isValid true/false
+	["is-not-valid"]: "is-not-valid" // this is negation
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -241,24 +243,46 @@ export interface FieldCustomValidationRule extends FieldValidationRuleBase {
 	readonly validate: (fieldValue: unknown, fieldType: FieldType) => boolean;
 }
 
-export interface FieldSomeRulesValidRule extends FieldValidationRuleBase {
+export interface SomeRulesValidRule extends FieldValidationRuleBase {
 	readonly ruleType: "some-rules-valid";
 	readonly rules: FieldValidationRule[]; // some rules must be valid
 }
 
-export interface FieldAllRulesValidRule extends FieldValidationRuleBase {
+export interface AllRulesValidRule extends FieldValidationRuleBase {
 	readonly ruleType: "all-rules-valid";
 	readonly rules: FieldValidationRule[]; // all rules must be valid
 }
 
-export interface FieldNoRulesValidRule extends FieldValidationRuleBase {
+export interface NoRulesValidRule extends FieldValidationRuleBase {
 	readonly ruleType: "no-rules-valid";
 	readonly rules: FieldValidationRule[]; // no rules should be valid
 }
 
-export type TextFieldValidationRules =
+export interface RuleIsValidRule extends FieldValidationRuleBase {
+	readonly ruleType: "is-valid";
+	readonly rule: FieldValidationRule; 
+	readonly isValid?: boolean; // default is true
+}
+
+export interface RuleIsNotValidRule extends FieldValidationRuleBase {
+	readonly ruleType: "is-not-valid";
+	readonly rule: FieldValidationRule; 
+	readonly isNotValid?: boolean; // default is true
+}
+
+export type CommonFieldValidationRules =
 	| FieldRequiredRule
-	| FieldCustomValidationRule
+	| FieldCustomValidationRule;
+
+export type OperatorValidationRules =
+	| AllRulesValidRule
+	| SomeRulesValidRule
+	| NoRulesValidRule
+	| RuleIsValidRule
+	| RuleIsNotValidRule;
+
+export type SimpleTextFieldValidationRules =
+	| CommonFieldValidationRules
 	| FieldTextMinLengthRule
 	| FieldTextMaxLengthRule
 	| FieldTextLengthRule
@@ -266,42 +290,48 @@ export type TextFieldValidationRules =
 	| FieldTextValueRule
 	| FieldTextRegExpRule;
 
-export type NumberFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
+export type TextFieldValidationRules = SimpleTextFieldValidationRules | OperatorValidationRules;	
+
+export type SimpleNumberFieldValidationRules =
+	| CommonFieldValidationRules
 	| FieldNumberMinValueRule
 	| FieldNumberMaxValueRule
 	| FieldNumberValueRule
 	| FieldNumberRangeRule;
 
-export type BooleanFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
+export type NumberFieldValidationRules = SimpleNumberFieldValidationRules | OperatorValidationRules;
+
+export type SimpleBooleanFieldValidationRules =
+	| CommonFieldValidationRules
 	| FieldBooleanValueRule;
 
-export type DateFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
+export type BooleanFieldValidationRules = SimpleBooleanFieldValidationRules | OperatorValidationRules;
+
+export type SimpleDateFieldValidationRules =
+	| CommonFieldValidationRules
 	| FieldDateMinValueRule
 	| FieldDateMaxValueRule
 	| FieldDateValueRule
 	| FieldDateRangeRule;
 
-export type FileFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
+export type DateFieldValidationRules = SimpleDateFieldValidationRules | OperatorValidationRules;
+
+export type SimpleFileFieldValidationRules =
+	| CommonFieldValidationRules
 	| FieldFileMaxSizeRule
 	| FieldFileContentTypeRule
 	| FieldFileExtensionRule
 	| FieldFileContentTypeAndExtensionRule;
 
-export type ObjectFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule;
+export type FileFieldValidationRules = SimpleFileFieldValidationRules | OperatorValidationRules;
 
-export type ArrayFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
+export type SimpleObjectFieldValidationRules =
+	| CommonFieldValidationRules;
+
+export type ObjectFieldValidationRules = SimpleObjectFieldValidationRules | OperatorValidationRules;
+
+export type SimpleArrayFieldValidationRules =
+	| CommonFieldValidationRules
 	| FieldArrayMinLengthRule
 	| FieldArrayMaxLengthRule
 	| FieldArrayLengthRule
@@ -313,11 +343,12 @@ export type ArrayFieldValidationRules =
 	| FieldArrayIncludeAllRule
 	| FieldArrayIncludeNoneRule;
 
+export type ArrayFieldValidationRules = SimpleArrayFieldValidationRules | OperatorValidationRules;
+
 export type FieldValidationRule =
 	| FieldTypeRule
-	| FieldAllRulesValidRule
-	| FieldSomeRulesValidRule
-	| FieldNoRulesValidRule
+	| CommonFieldValidationRules
+	| OperatorValidationRules 
 
 	// types
 	| TextFieldValidationRules

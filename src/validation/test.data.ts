@@ -1,5 +1,5 @@
 import { CONTENT_TYPES } from "@react-simple/react-simple-util";
-import { FIELD_TYPES, FieldType } from "fields";
+import { FIELDS, FieldType } from "fields";
 import { RULES } from "rules";
 
 const OBJ = {
@@ -26,45 +26,45 @@ const OBJ = {
 };
 
 const TYPE: Record<keyof typeof OBJ, FieldType> = {
-	text: FIELD_TYPES.text([
+	text: FIELDS.text([
 		RULES.required(),
 		RULES.text.regExp(/^t.*t$/)
 	]),
 
-	number: FIELD_TYPES.number([
+	number: FIELDS.number([
 		RULES.required(),
 		RULES.number.min(1),
 		RULES.number.max(10)
 	]),
 
-	date: FIELD_TYPES.date([
+	date: FIELDS.date([
 		RULES.required(),
 		RULES.date.min(new Date(2000, 1, 1)),
 		RULES.date.max(new Date(2099, 12, 31))
 	]),
 
-	boolean: FIELD_TYPES.boolean([
+	boolean: FIELDS.boolean([
 		RULES.required(),
 		RULES.boolean.value(true)
 	]),
 
-	file: FIELD_TYPES.file([
+	file: FIELDS.file([
 		RULES.file.contentType(CONTENT_TYPES.spreadsheets),
 		RULES.file.extension(["csv"]),
 		RULES.file.contentTypeAndExtension(CONTENT_TYPES.spreadsheets),
 		RULES.file.maxSize(20000)
 	]),
 
-	array: FIELD_TYPES.array(FIELD_TYPES.number()),
+	array: FIELDS.array(FIELDS.number()),
 
-	object: FIELD_TYPES.object({
-		text2: FIELD_TYPES.text(),
-		number2: FIELD_TYPES.number(),
+	object: FIELDS.object({
+		text2: FIELDS.text(),
+		number2: FIELDS.number(),
 	}),
 
-	arrayOfObj: FIELD_TYPES.array(FIELD_TYPES.object({
-		text3: FIELD_TYPES.text(),
-		array3: FIELD_TYPES.array(FIELD_TYPES.number()),
+	arrayOfObj: FIELDS.array(FIELDS.object({
+		text3: FIELDS.text(),
+		array3: FIELDS.array(FIELDS.number()),
 	}))
 };
 

@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -14,8 +14,8 @@ it('validateFields.boolean-value', () => {
 			bad: true
 		},
 		{
-			good: FIELD_TYPES.boolean([rule]),
-			bad: FIELD_TYPES.boolean([rule])
+			good: FIELDS.boolean([rule]),
+			bad: FIELDS.boolean([rule])
 		}
 	);
 

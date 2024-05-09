@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule, RULES } from "rules";
 import { validateObject } from "validation";
 
@@ -14,8 +14,8 @@ it('validateFields.array-length-max', () => {
 			bad: [1, 2, 3, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -37,8 +37,8 @@ it('validateFields.array-length-max.filter', () => {
 			bad: [1, 2, 3, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -59,8 +59,8 @@ it('validateFields.array-length-min', () => {
 			bad: [1]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -84,10 +84,10 @@ it('validateFields.array-length-range', () => {
 			bad2: [1, 2, 3, 4, 5]
 		},
 		{
-			good1: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			good2: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad1: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad2: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good1: FIELDS.array(FIELDS.number(), [rule]),
+			good2: FIELDS.array(FIELDS.number(), [rule]),
+			bad1: FIELDS.array(FIELDS.number(), [rule]),
+			bad2: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -111,9 +111,9 @@ it('validateFields.array-length', () => {
 			bad2: [1, 2, 3, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad1: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad2: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad1: FIELDS.array(FIELDS.number(), [rule]),
+			bad2: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -130,8 +130,8 @@ it('validateFields.array.valueType', () => {
 			bad: ["1", "2", "3"]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number()),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number())
+			good: FIELDS.array(FIELDS.number()),
+			bad: FIELDS.array(FIELDS.number())
 		}
 	);
 
@@ -153,9 +153,9 @@ it('validateFields.array-include-some', () => {
 			bad: [2, 3, 4, 5]
 		},
 		{
-			good1: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			good2: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good1: FIELDS.array(FIELDS.number(), [rule]),
+			good2: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -177,8 +177,8 @@ it('validateFields.array-include-all', () => {
 			bad: [1, 2, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -199,8 +199,8 @@ it('validateFields.array-include-none', () => {
 			bad: [1, 2, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -226,9 +226,9 @@ it('validateFields.array-predicate-some', () => {
 			bad: [2, 3, 4, 5]
 		},
 		{
-			good1: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			good2: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good1: FIELDS.array(FIELDS.number(), [rule]),
+			good2: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -254,8 +254,8 @@ it('validateFields.array-predicate-all', () => {
 			bad: [2, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 
@@ -280,8 +280,8 @@ it('validateFields.array-predicate-none', () => {
 			bad: [1, 2, 4, 5]
 		},
 		{
-			good: FIELD_TYPES.array(FIELD_TYPES.number(), [rule]),
-			bad: FIELD_TYPES.array(FIELD_TYPES.number(), [rule])
+			good: FIELDS.array(FIELDS.number(), [rule]),
+			bad: FIELDS.array(FIELDS.number(), [rule])
 		}
 	);
 

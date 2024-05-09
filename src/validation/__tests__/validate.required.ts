@@ -1,4 +1,4 @@
-import { FIELD_TYPES } from "fields";
+import { FIELDS } from "fields";
 import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
@@ -9,9 +9,9 @@ it('validateFields.required', () => {
 			bad: ""
 		},
 		{
-			good: FIELD_TYPES.text(), // required by default
-			bad: FIELD_TYPES.text(),
-			ugly: FIELD_TYPES.text()
+			good: FIELDS.text(), // required by default
+			bad: FIELDS.text(),
+			ugly: FIELDS.text()
 		}
 	);
 
@@ -49,9 +49,9 @@ it('validateFields.required.customMessage', () => {
 			bad: ""
 		},
 		{
-			good: FIELD_TYPES.text([rule]), // required by default
-			bad: FIELD_TYPES.text([rule]),
-			ugly: FIELD_TYPES.text([rule])
+			good: FIELDS.text([rule]), // required by default
+			bad: FIELDS.text([rule]),
+			ugly: FIELDS.text([rule])
 		}
 	);
 

@@ -386,6 +386,16 @@ export function validateRule(
 			isChecked = true;
 			isValid = rule.rules.every(t => !validateRule(t, fieldValue, fieldType).isValid);
 			break;
+
+		case "is-valid":
+			isChecked = true;
+			isValid = validateRule(rule.rule, fieldValue, fieldType).isValid === (rule.isValid !== false);
+			break;
+
+		case "is-not-valid":
+			isChecked = true;
+			isValid = validateRule(rule.rule, fieldValue, fieldType).isValid !== (rule.isNotValid !== false);
+			break;
 	}
 
 	return {

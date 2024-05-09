@@ -15,7 +15,8 @@ function getDefaultRules(): FieldValidationRule[] {
 	}];
 }
 
-export const FIELD_TYPES: {
+// it's actually FIELD_TYPES
+export const FIELDS: {
 	readonly text: (rules?: TextFieldValidationRules[]) => TextFieldType;
 	readonly number: (rules?: NumberFieldValidationRules[]) => NumberFieldType;
 	readonly boolean: (rules?: BooleanFieldValidationRules[]) => BooleanFieldType;
