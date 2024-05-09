@@ -1,7 +1,7 @@
 import { ContentType } from "@react-simple/react-simple-util";
 import {
-	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, FieldFileContentTypeAndExtensionRule,
-	FieldFileContentTypeRule, FieldFileExtensionRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
+	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, 
+	FieldFileContentTypeRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, NoRulesValidRule, FieldTextLengthRule,
 	FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule,
@@ -11,7 +11,6 @@ import { FieldType } from "fields/types";
 
 export interface ValidationRuleOptions {
 	readonly message?: string;
-	readonly expectFailure?: boolean;
 }
 
 export const RULES: {
@@ -49,9 +48,7 @@ export const RULES: {
 
 	readonly file: {
 		readonly maxSize: (maxSizeBytes: number, options?: ValidationRuleOptions) => FieldFileMaxSizeRule,
-		readonly contentType: (contentTypes: string[] | ContentType[], options?: ValidationRuleOptions) => FieldFileContentTypeRule,
-		readonly extension: (extensions: string[], options?: ValidationRuleOptions) => FieldFileExtensionRule,
-		readonly contentTypeAndExtension: (contentTypes: ContentType[], options?: ValidationRuleOptions) => FieldFileContentTypeAndExtensionRule
+		readonly contentType: (contentTypes: ContentType[], options?: ValidationRuleOptions) => FieldFileContentTypeRule,
 	},
 
 	readonly array: {
@@ -204,18 +201,6 @@ export const RULES: {
 			ruleType: "file-contenttype",
 			allowedContentTypes
 		}),
-
-		extension: (allowedExtensions, options) => ({
-			...options,
-			ruleType: "file-extension",
-			allowedExtensions
-		}),
-
-		contentTypeAndExtension: (allowedContentTypes, options) => ({
-			...options,
-			ruleType: "file-contenttype-extension",
-			allowedContentTypes
-		})
 	},
 
 	array: {

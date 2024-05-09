@@ -32,8 +32,6 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	// file
 	["file-size-max"]: "file-size-max",
 	["file-contenttype"]: "file-contenttype",
-	["file-extension"]: "file-extension",
-	["file-contenttype-extension"]: "file-contenttype-extension",
 
 	// array
 	["array-length-min"]: "array-length-min",
@@ -60,7 +58,6 @@ export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
 export interface FieldValidationRuleBase {
 	readonly ruleType: FieldValidationRuleType;
 	readonly message?: string;
-	readonly expectFailure?: boolean;  // the rule is valid if it fails
 }
 
 export interface FieldTypeRule extends FieldValidationRuleBase {
@@ -167,16 +164,6 @@ export interface FieldFileMaxSizeRule extends FieldValidationRuleBase {
 
 export interface FieldFileContentTypeRule extends FieldValidationRuleBase {
 	readonly ruleType: "file-contenttype";
-	readonly allowedContentTypes: string[] | ContentType[];
-}
-
-export interface FieldFileExtensionRule extends FieldValidationRuleBase {
-	readonly ruleType: "file-extension";
-	readonly allowedExtensions: string[];
-}
-
-export interface FieldFileContentTypeAndExtensionRule extends FieldValidationRuleBase {
-	readonly ruleType: "file-contenttype-extension";
 	readonly allowedContentTypes: ContentType[];
 }
 
@@ -319,9 +306,7 @@ export type DateFieldValidationRules = SimpleDateFieldValidationRules | Operator
 export type SimpleFileFieldValidationRules =
 	| CommonFieldValidationRules
 	| FieldFileMaxSizeRule
-	| FieldFileContentTypeRule
-	| FieldFileExtensionRule
-	| FieldFileContentTypeAndExtensionRule;
+	| FieldFileContentTypeRule;
 
 export type FileFieldValidationRules = SimpleFileFieldValidationRules | OperatorValidationRules;
 

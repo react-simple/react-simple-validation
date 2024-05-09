@@ -1,5 +1,6 @@
 import {
-	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType, ContentType, findValue
+	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType,
+	findNonEmptyValue
 } from "@react-simple/react-simple-util";
 import { FieldType } from "fields";
 import { FieldValidationRule } from "rules";
@@ -76,7 +77,7 @@ export function validateRule(
 				isChecked = true;
 				regExpMatch = (
 					isArray(rule.regExp)
-						? findValue(rule.regExp, t => fieldValue.match(t))
+						? findNonEmptyValue(rule.regExp, t => fieldValue.match(t))
 						: fieldValue.match(rule.regExp)
 				) || undefined;
 
@@ -89,39 +90,7 @@ export function validateRule(
 				isChecked = true;
 
 				if (fieldValue.type && rule.allowedContentTypes.length) {
-					isValid = (rule.allowedContentTypes[0] as ContentType).allowedContentTypes
-						? (rule.allowedContentTypes as ContentType[]).some(contentType => contentType.allowedContentTypes.includes(fieldValue.type))
-						: (rule.allowedContentTypes as string[]).includes(fieldValue.type);
-				}
-			}
-			break;
-
-		case "file-extension":
-			if (fieldType.baseType === "file" && isFile(fieldValue)) {
-				isChecked = true;
-
-				if (fieldValue.name) {
-					const i = fieldValue.name.lastIndexOf(".");
-					isValid = i >= 0 && rule.allowedExtensions.includes(fieldValue.name.substring(i + 1));
-				}
-			}
-			break;
-
-		case "file-contenttype-extension":
-			if (fieldType.baseType === "file" && isFile(fieldValue)) {
-				isChecked = true;
-
-				if (fieldValue.name && fieldValue.type && rule.allowedContentTypes.length) {
-					const i = fieldValue.name.lastIndexOf(".");
-
-					if (i >= 0) {
-						const extension = fieldValue.name.substring(i + 1);
-
-						isValid = rule.allowedContentTypes.some(contentType =>
-							contentType.allowedContentTypes.includes(fieldValue.type) &&
-							contentType.allowedExtensions.includes(extension)
-						);
-					}
+					isValid = rule.allowedContentTypes.some(contentType => contentType.allowedContentTypes.includes(fieldValue.type));
 				}
 			}
 			break;
@@ -399,7 +368,7 @@ export function validateRule(
 	}
 
 	return {
-		isValid: rule.expectFailure && isChecked ? !isValid : isValid,
+		isValid,
 		isChecked,
 		rule,
 		regExpMatch,

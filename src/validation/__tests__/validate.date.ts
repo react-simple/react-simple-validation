@@ -140,29 +140,6 @@ it('validateFields.date-value', () => {
 	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
-it('validateFields.date-value.negative', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-value",
-		expectedValue: new Date(2000, 1, 2, 3, 4, 5, 6),
-		expectFailure: true
-	};
-
-	let validationResult = validateObject(
-		{
-			good: new Date(2000, 1, 1),
-			bad: new Date(2000, 1, 2, 3, 4, 5, 6)
-		},
-		{
-			good: FIELDS.date([rule]),
-			bad: FIELDS.date([rule])
-		}
-	);
-
-	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
-});
-
 it('validateFields.date-value.array', () => {
 	const rule: FieldValidationRule = {
 		ruleType: "date-value",

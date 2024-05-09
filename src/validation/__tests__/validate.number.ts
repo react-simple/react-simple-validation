@@ -166,26 +166,3 @@ it('validateFields.number-value.array', () => {
 	expect(validationResult.validationResult.good2.isValid).toBe(true);
 	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
-
-it('validateFields.number-value.negative', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-value",
-		expectedValue: 3,
-		expectFailure: true
-	};
-
-	let validationResult = validateObject(
-		{
-			good: 2,
-			bad: 3
-		},
-		{
-			good: FIELDS.number([rule]),
-			bad: FIELDS.number([rule])
-		}
-	);
-
-	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
-});

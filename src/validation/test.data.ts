@@ -50,8 +50,6 @@ const TYPE: Record<keyof typeof OBJ, FieldType> = {
 
 	file: FIELDS.file([
 		RULES.file.contentType(CONTENT_TYPES.spreadsheets),
-		RULES.file.extension(["csv"]),
-		RULES.file.contentTypeAndExtension(CONTENT_TYPES.spreadsheets),
 		RULES.file.maxSize(20000)
 	]),
 
