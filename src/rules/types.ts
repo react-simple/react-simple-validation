@@ -40,15 +40,17 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["array-length-max"]: "array-length-max",
 	["array-length-range"]: "array-length-range",
 	["array-length"]: "array-length",
-	["array-include"]: "array-include",
-	["array-some"]: "array-some",
-	["array-every"]: "array-every",
-	["array-none"]: "array-none",
+	["array-include-some"]: "array-include-some",
+	["array-include-all"]: "array-include-all",
+	["array-include-none"]: "array-include-none",
+	["array-predicate-some"]: "array-predicate-some",
+	["array-predicate-all"]: "array-predicate-all",
+	["array-predicate-none"]: "array-predicate-none",
 
 	// rule collection, operators
-	["some-rules"]: "some-rules", // at least one rule must be valid
-	["all-rules"]: "all-rules", // all rules must be valid
-	["no-rules"]: "no-rules" // none of the rules should be valid
+	["some-rules-valid"]: "some-rules-valid", // at least one rule must be valid
+	["all-rules-valid"]: "all-rules-valid", // all rules must be valid
+	["no-rules-valid"]: "no-rules-valid" // none of the rules should be valid
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -153,7 +155,7 @@ export interface FieldBooleanValueRule extends FieldValidationRuleBase {
 
 export interface FieldTextRegExpRule extends FieldValidationRuleBase {
 	readonly ruleType: "text-regexp";
-	readonly regExp: RegExp;
+	readonly regExp: RegExp | RegExp[];
 }
 
 export interface FieldFileMaxSizeRule extends FieldValidationRuleBase {
@@ -201,24 +203,36 @@ export interface FieldArrayLengthRangeRule extends FieldValidationRuleBase {
 	readonly filter?: FieldValidationRule; // count only matching items
 }
 
-export interface FieldArrayIncludeRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-include";
-	readonly item: unknown;
+export interface FieldArrayIncludeSomeRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-include-some";
+	readonly item: unknown | unknown[];
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
-export interface FieldArraySomeRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-some";
+export interface FieldArrayIncludeAllRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-include-all";
+	readonly item: unknown | unknown[];
+	readonly filter?: FieldValidationRule; // inspect only matching items
+}
+
+export interface FieldArrayIncludeNoneRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-include-none";
+	readonly item: unknown | unknown[];
+	readonly filter?: FieldValidationRule; // inspect only matching items
+}
+
+export interface FieldArrayPredicateSomeRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-predicate-some";
 	readonly predicate: FieldValidationRule;
 }
 
-export interface FieldArrayEveryRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-every";
+export interface FieldArrayPredicateAllRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-predicate-all";
 	readonly predicate: FieldValidationRule;
 }
 
-export interface FieldArrayNoneRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-none";
+export interface FieldArrayPredicateNoneRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-predicate-none";
 	readonly predicate: FieldValidationRule;
 }
 
@@ -227,18 +241,18 @@ export interface FieldCustomValidationRule extends FieldValidationRuleBase {
 	readonly validate: (fieldValue: unknown, fieldType: FieldType) => boolean;
 }
 
-export interface FieldSomeValidationRules extends FieldValidationRuleBase {
-	readonly ruleType: "some-rules";
+export interface FieldSomeRulesValidRule extends FieldValidationRuleBase {
+	readonly ruleType: "some-rules-valid";
 	readonly rules: FieldValidationRule[]; // some rules must be valid
 }
 
-export interface FieldAllValidationRules extends FieldValidationRuleBase {
-	readonly ruleType: "all-rules";
+export interface FieldAllRulesValidRule extends FieldValidationRuleBase {
+	readonly ruleType: "all-rules-valid";
 	readonly rules: FieldValidationRule[]; // all rules must be valid
 }
 
-export interface FieldNoValidationRules extends FieldValidationRuleBase {
-	readonly ruleType: "no-rules";
+export interface FieldNoRulesValidRule extends FieldValidationRuleBase {
+	readonly ruleType: "no-rules-valid";
 	readonly rules: FieldValidationRule[]; // no rules should be valid
 }
 
@@ -292,16 +306,18 @@ export type ArrayFieldValidationRules =
 	| FieldArrayMaxLengthRule
 	| FieldArrayLengthRule
 	| FieldArrayLengthRangeRule
-	| FieldArrayEveryRule
-	| FieldArraySomeRule
-	| FieldArrayNoneRule
-	| FieldArrayIncludeRule;
+	| FieldArrayPredicateAllRule
+	| FieldArrayPredicateSomeRule
+	| FieldArrayPredicateNoneRule
+	| FieldArrayIncludeSomeRule
+	| FieldArrayIncludeAllRule
+	| FieldArrayIncludeNoneRule;
 
 export type FieldValidationRule =
 	| FieldTypeRule
-	| FieldAllValidationRules
-	| FieldSomeValidationRules
-	| FieldNoValidationRules
+	| FieldAllRulesValidRule
+	| FieldSomeRulesValidRule
+	| FieldNoRulesValidRule
 
 	// types
 	| TextFieldValidationRules

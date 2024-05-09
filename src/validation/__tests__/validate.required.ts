@@ -17,23 +17,23 @@ it('validateFields.required', () => {
 
 	expect(validationResult.isValid).toBe(false);
 
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["good"].ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
-	expect(validationResult.validationResult["good"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.isValid).toBe(true);
-	expect(validationResult.validationResult["good"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.isChecked).toBe(true);
-	expect(validationResult.validationResult["good"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBeUndefined();
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.good.ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
+	expect(validationResult.validationResult.good.ruleValidationResult.find(t => t.rule.ruleType === "required")?.isValid).toBe(true);
+	expect(validationResult.validationResult.good.ruleValidationResult.find(t => t.rule.ruleType === "required")?.isChecked).toBe(true);
+	expect(validationResult.validationResult.good.ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBeUndefined();
 
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
-	expect(validationResult.validationResult["bad"].ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
-	expect(validationResult.validationResult["bad"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.isValid).toBe(false);
-	expect(validationResult.validationResult["bad"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.isChecked).toBe(true);
-	expect(validationResult.validationResult["bad"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBeUndefined();
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.validationResult.bad.ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
+	expect(validationResult.validationResult.bad.ruleValidationResult.find(t => t.rule.ruleType === "required")?.isValid).toBe(false);
+	expect(validationResult.validationResult.bad.ruleValidationResult.find(t => t.rule.ruleType === "required")?.isChecked).toBe(true);
+	expect(validationResult.validationResult.bad.ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBeUndefined();
 
-	expect(validationResult.validationResult["ugly"].isValid).toBe(false);
-	expect(validationResult.validationResult["ugly"].ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
-	expect(validationResult.validationResult["ugly"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.isValid).toBe(false);
-	expect(validationResult.validationResult["ugly"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.isChecked).toBe(true);
-	expect(validationResult.validationResult["ugly"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBeUndefined();
+	expect(validationResult.validationResult.ugly.isValid).toBe(false);
+	expect(validationResult.validationResult.ugly.ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
+	expect(validationResult.validationResult.ugly.ruleValidationResult.find(t => t.rule.ruleType === "required")?.isValid).toBe(false);
+	expect(validationResult.validationResult.ugly.ruleValidationResult.find(t => t.rule.ruleType === "required")?.isChecked).toBe(true);
+	expect(validationResult.validationResult.ugly.ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBeUndefined();
 });
 
 it('validateFields.required.customMessage', () => {
@@ -56,13 +56,13 @@ it('validateFields.required.customMessage', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
 
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
-	expect(validationResult.validationResult["bad"].ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
-	expect(validationResult.validationResult["bad"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBe("Mandatory field");
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.validationResult.bad.ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
+	expect(validationResult.validationResult.bad.ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBe("Mandatory field");
 
-	expect(validationResult.validationResult["ugly"].isValid).toBe(false);
-	expect(validationResult.validationResult["ugly"].ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
-	expect(validationResult.validationResult["ugly"].ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBe("Mandatory field");
+	expect(validationResult.validationResult.ugly.isValid).toBe(false);
+	expect(validationResult.validationResult.ugly.ruleValidationResult.find(t => t.rule.ruleType === "required")).not.toBeUndefined();
+	expect(validationResult.validationResult.ugly.ruleValidationResult.find(t => t.rule.ruleType === "required")?.message).toBe("Mandatory field");
 });

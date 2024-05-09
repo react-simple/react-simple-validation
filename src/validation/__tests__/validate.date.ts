@@ -20,8 +20,8 @@ it('validateFields.date-min', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
 it('validateFields.date-min.mustBeGreater', () => {
@@ -43,8 +43,8 @@ it('validateFields.date-min.mustBeGreater', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
 it('validateFields.date-max', () => {
@@ -65,8 +65,8 @@ it('validateFields.date-max', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
 it('validateFields.date-max.mustBeLess', () => {
@@ -88,6 +88,102 @@ it('validateFields.date-max.mustBeLess', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+});
+
+it('validateFields.date-range', () => {
+	const rule: FieldValidationRule = {
+		ruleType: "date-range",
+		minDate: new Date(2000, 1, 1),
+		maxDate: new Date(2000, 12, 31)
+	};
+
+	let validationResult = validateObject(
+		{
+			good: new Date(2000, 1, 1),
+			bad1: new Date(2001, 1, 1),
+			bad2: new Date(1999, 1, 1),
+		},
+		{
+			good: FIELD_TYPES.date([rule]),
+			bad1: FIELD_TYPES.date([rule]),
+			bad2: FIELD_TYPES.date([rule])
+		}
+	);
+
+	expect(validationResult.isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad1.isValid).toBe(false);
+	expect(validationResult.validationResult.bad2.isValid).toBe(false);
+});
+
+it('validateFields.date-value', () => {
+	const rule: FieldValidationRule = {
+		ruleType: "date-value",
+		expectedValue: new Date(2000, 1, 2, 3, 4, 5, 6)
+	};
+
+	let validationResult = validateObject(
+		{
+			good: new Date(2000, 1, 2, 3, 4, 5, 6),
+			bad: new Date(2000, 1, 1),
+		},
+		{
+			good: FIELD_TYPES.date([rule]),
+			bad: FIELD_TYPES.date([rule])
+		}
+	);
+
+	expect(validationResult.isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+});
+
+it('validateFields.date-value.negative', () => {
+	const rule: FieldValidationRule = {
+		ruleType: "date-value",
+		expectedValue: new Date(2000, 1, 2, 3, 4, 5, 6),
+		expectFailure: true
+	};
+
+	let validationResult = validateObject(
+		{
+			good: new Date(2000, 1, 1),
+			bad: new Date(2000, 1, 2, 3, 4, 5, 6)
+		},
+		{
+			good: FIELD_TYPES.date([rule]),
+			bad: FIELD_TYPES.date([rule])
+		}
+	);
+
+	expect(validationResult.isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+});
+
+it('validateFields.date-value.array', () => {
+	const rule: FieldValidationRule = {
+		ruleType: "date-value",
+		expectedValue: [new Date(2000, 1, 2, 3, 4, 5, 6), new Date(2001, 1, 2, 3, 4, 5, 6)]
+	};
+
+	let validationResult = validateObject(
+		{
+			good1: new Date(2000, 1, 2, 3, 4, 5, 6),
+			good2: new Date(2001, 1, 2, 3, 4, 5, 6),
+			bad: new Date(2000, 1, 1),
+		},
+		{
+			good1: FIELD_TYPES.date([rule]),
+			good2: FIELD_TYPES.date([rule]),
+			bad: FIELD_TYPES.date([rule])
+		}
+	);
+
+	expect(validationResult.isValid).toBe(false);
+	expect(validationResult.validationResult.good1.isValid).toBe(true);
+	expect(validationResult.validationResult.good2.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });

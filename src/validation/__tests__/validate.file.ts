@@ -24,9 +24,9 @@ it('validateFields.file-contenttype-extension', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["badExtension"].isValid).toBe(false);
-	expect(validationResult.validationResult["badContentType"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.badExtension.isValid).toBe(false);
+	expect(validationResult.validationResult.badContentType.isValid).toBe(false);
 });
 
 it('validateFields.file-contenttype', () => {
@@ -47,8 +47,8 @@ it('validateFields.file-contenttype', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
 it('validateFields.file-contenttype.string[]', () => {
@@ -69,8 +69,8 @@ it('validateFields.file-contenttype.string[]', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
 it('validateFields.file-extension', () => {
@@ -91,8 +91,8 @@ it('validateFields.file-extension', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
 it('validateFields.file-size-max', () => {
@@ -113,6 +113,6 @@ it('validateFields.file-size-max', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });

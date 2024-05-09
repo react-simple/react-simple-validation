@@ -20,6 +20,6 @@ it('validateFields.custom', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });

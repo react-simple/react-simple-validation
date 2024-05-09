@@ -1,10 +1,9 @@
 import {
-	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType, ContentType
+	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType, ContentType, findValue
 } from "@react-simple/react-simple-util";
 import { FieldType } from "fields";
 import { FieldValidationRule } from "rules";
 import { FieldRuleValidationResult } from "./types";
-import { validateField } from "./functions";
 
 // returns errors
 export function validateRule(
@@ -75,7 +74,12 @@ export function validateRule(
 		case "text-regexp":
 			if (fieldType.baseType === "text" && isString(fieldValue) && fieldValue) {
 				isChecked = true;
-				regExpMatch = fieldValue.match(rule.regExp) || undefined;
+				regExpMatch = (
+					isArray(rule.regExp)
+						? findValue(rule.regExp, t => fieldValue.match(t))
+						: fieldValue.match(rule.regExp)
+				) || undefined;
+
 				isValid = !!regExpMatch;
 			}
 			break;
@@ -220,35 +224,63 @@ export function validateRule(
 			}
 			break;
 
-		case "array-include":
+		case "array-include-some":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				const items = rule.filter
 					? fieldValue.filter(itemValue => validateRule(rule.filter!, itemValue, fieldType.itemFieldType).isValid)
 					: fieldValue;
 
 				isChecked = true;
-				isValid = items.includes(rule.item);
+				isValid = isArray(rule.item)
+					? rule.item.some(t => items.includes(t))
+					: items.includes(rule.item);
 			}
 			break;
 
-		case "array-some":
+		case "array-include-all":
+			if (fieldType.baseType === "array" && isArray(fieldValue)) {
+				const items = rule.filter
+					? fieldValue.filter(itemValue => validateRule(rule.filter!, itemValue, fieldType.itemFieldType).isValid)
+					: fieldValue;
+
+				isChecked = true;
+				isValid = isArray(rule.item)
+					? rule.item.every(t => items.includes(t))
+					: items.includes(rule.item);
+			}
+			break;
+
+		case "array-include-none":
+			if (fieldType.baseType === "array" && isArray(fieldValue)) {
+				const items = rule.filter
+					? fieldValue.filter(itemValue => validateRule(rule.filter!, itemValue, fieldType.itemFieldType).isValid)
+					: fieldValue;
+
+				isChecked = true;
+				isValid = isArray(rule.item)
+					? rule.item.every(t => !items.includes(t))
+					: !items.includes(rule.item);
+			}
+			break;
+
+		case "array-predicate-some":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue.some(itemValue => validateField(rule.predicate, itemValue).isValid);
+				isValid = fieldValue.some(itemValue => validateRule(rule.predicate, itemValue, fieldType.itemFieldType).isValid);
 			}
 			break;
 
-			case "array-every":
+		case "array-predicate-all":
 				if (fieldType.baseType === "array" && isArray(fieldValue)) {
 					isChecked = true;
-					isValid = fieldValue.every(itemValue => validateField(rule.predicate, itemValue).isValid);
+					isValid = fieldValue.every(itemValue => validateRule(rule.predicate, itemValue, fieldType.itemFieldType).isValid);
 				}
 				break;
 
-		case "array-none":
+		case "array-predicate-none":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue.every(itemValue => !validateField(rule.predicate, itemValue).isValid);
+				isValid = fieldValue.every(itemValue => !validateRule(rule.predicate, itemValue, fieldType.itemFieldType).isValid);
 			}
 			break;
 
@@ -340,17 +372,17 @@ export function validateRule(
 			}
 			break;
 
-		case "some-rules":
+		case "some-rules-valid":
 			isChecked = true;
 			isValid = rule.rules.some(t => validateRule(t, fieldValue, fieldType).isValid);
 			break;
 
-		case "all-rules":
+		case "all-rules-valid":
 			isChecked = true;
 			isValid = rule.rules.every(t => validateRule(t, fieldValue, fieldType).isValid);
 			break;
 
-		case "no-rules":
+		case "no-rules-valid":
 			isChecked = true;
 			isValid = rule.rules.every(t => !validateRule(t, fieldValue, fieldType).isValid);
 			break;

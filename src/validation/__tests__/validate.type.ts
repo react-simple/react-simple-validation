@@ -16,7 +16,7 @@ it('validateFields.type', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult["good"].isValid).toBe(true);
-	expect(validationResult.validationResult["bad"].isValid).toBe(false);
-	expect(validationResult.validationResult["ugly"].isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.validationResult.ugly.isValid).toBe(false);
 });

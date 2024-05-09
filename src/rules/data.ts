@@ -3,9 +3,9 @@ import {
 	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, FieldFileContentTypeAndExtensionRule,
 	FieldFileContentTypeRule, FieldFileExtensionRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
-	FieldRequiredRule, FieldValidationRule, FieldAllValidationRules, FieldSomeValidationRules, FieldNoValidationRules, FieldTextLengthRule,
-	FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeRule, FieldArrayEveryRule,
-	FieldArraySomeRule, FieldArrayNoneRule, FieldTextLengthRangeRule
+	FieldRequiredRule, FieldValidationRule, FieldAllRulesValidRule, FieldSomeRulesValidRule, FieldNoRulesValidRule, FieldTextLengthRule,
+	FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule,
+	FieldArrayPredicateSomeRule, FieldArrayPredicateNoneRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule
 } from "./types";
 import { FieldType } from "fields/types";
 
@@ -55,7 +55,11 @@ export const RULES: {
 	},
 
 	readonly array: {
-		readonly include: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeRule,
+		readonly include: {
+			readonly some: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeSomeRule,
+			readonly all: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeAllRule,
+			readonly none: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeNoneRule,
+		},
 
 		readonly length: {
 			readonly min: (minLength: number, options?: ValidationRuleOptions) => FieldArrayMinLengthRule,
@@ -65,18 +69,18 @@ export const RULES: {
 		},
 
 		readonly operators: {
-			readonly every: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayEveryRule,
-			readonly some: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArraySomeRule,
-			readonly none: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayNoneRule
+			readonly all: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateAllRule,
+			readonly some: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateSomeRule,
+			readonly none: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateNoneRule
 		}
 	},
 
 	readonly custom: (validate: (fieldValue: unknown, fieldType: FieldType) => boolean, options?: ValidationRuleOptions) => FieldCustomValidationRule
 
 	readonly operators: {
-		readonly some: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => FieldSomeValidationRules,
-		readonly all: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => FieldAllValidationRules,
-		readonly none: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => FieldNoValidationRules
+		readonly some: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => FieldSomeRulesValidRule,
+		readonly all: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => FieldAllRulesValidRule,
+		readonly none: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => FieldNoRulesValidRule
 	}
 } = {
 	required: (required, options) => ({
@@ -215,11 +219,25 @@ export const RULES: {
 	},
 
 	array: {
-		include: (item, options) => ({
-			...options,
-			ruleType: "array-include",
-			item
-		}),
+		include: {
+			some: (item, options) => ({
+				...options,
+				ruleType: "array-include-some",
+				item
+			}),
+
+			all: (item, options) => ({
+				...options,
+				ruleType: "array-include-all",
+				item
+			}),
+
+			none: (item, options) => ({
+				...options,
+				ruleType: "array-include-none",
+				item
+			})
+		},
 
 		length: {
 			min: (minLength, options) => ({
@@ -249,21 +267,21 @@ export const RULES: {
 		},
 
 		operators: {
-			every: (predicate, options) => ({
+			all: (predicate, options) => ({
 				...options,
-				ruleType: "array-every",
+				ruleType: "array-predicate-all",
 				predicate
 			}),
 
 			some: (predicate, options) => ({
 				...options,
-				ruleType: "array-some",
+				ruleType: "array-predicate-some",
 				predicate
 			}),
 
 			none: (predicate, options) => ({
 				...options,
-				ruleType: "array-none",
+				ruleType: "array-predicate-none",
 				predicate
 			})
 		}
@@ -278,19 +296,19 @@ export const RULES: {
 	operators: {
 		some: (rules, options) => ({
 			...options,
-			ruleType: "some-rules",
+			ruleType: "some-rules-valid",
 			rules
 		}),
 
 		all: (rules, options) => ({
 			...options,
-			ruleType: "all-rules",
+			ruleType: "all-rules-valid",
 			rules
 		}),
 
 		none: (rules, options) => ({
 			...options,
-			ruleType: "no-rules",
+			ruleType: "no-rules-valid",
 			rules
 		})
 	}
