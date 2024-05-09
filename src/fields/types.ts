@@ -1,9 +1,7 @@
 import {
-	FieldCustomValidationRule, FieldExpectedBooleanValueRule, FieldExpectedDateValueRule, FieldExpectedNumberValueRule, FieldExpectedTextValueRule,
-	FieldFileContentTypeRule, FieldFileExtensionRule, FieldMaxDateValueRule, FieldMaxFileSizeRule, FieldMaxNumberValueRule,
-	FieldMaxTextLengthRule, FieldMinDateValueRule, FieldMinArrayLengthRule, FieldMinNumberValueRule, FieldMinTextLengthRule,
-	FieldRegExpRule, FieldRequiredRule, FieldValidationRule, FieldFileContentAndExtensionTypeRule, FieldMaxArrayLengthRule
-} from "rules/types";
+	ArrayFieldValidationRules, BooleanFieldValidationRules, DateFieldValidationRules, FieldValidationRule, FileFieldValidationRules,
+	NumberFieldValidationRules, ObjectFieldValidationRules, TextFieldValidationRules
+} from "rules";
 
 export const BASE_FIELD_TYPES = {
 	text: "text",
@@ -24,69 +22,30 @@ export interface FieldTypeBase<ValueType, Rule extends FieldValidationRule> {
 	readonly rules: Rule[];
 }
 
-export type TextFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
-	| FieldMinTextLengthRule
-	| FieldMaxTextLengthRule
-	| FieldExpectedTextValueRule
-	| FieldRegExpRule;
-
 export interface TextFieldType extends FieldTypeBase<string, TextFieldValidationRules> {
 	readonly type: "text";
 	readonly baseType: "text";
 }
-
-export type NumberFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
-	| FieldMinNumberValueRule
-	| FieldMaxNumberValueRule
-	| FieldExpectedNumberValueRule;
 
 export interface NumberFieldType extends FieldTypeBase<number, NumberFieldValidationRules> {
 	readonly type: "number";
 	readonly baseType: "number";
 }
 
-export type BooleanFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
-	| FieldExpectedBooleanValueRule;
-
 export interface BooleanFieldType extends FieldTypeBase<boolean, BooleanFieldValidationRules> {
 	readonly type: "boolean";
 	readonly baseType: "boolean";
 }
-
-export type DateFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
-	| FieldMinDateValueRule
-	| FieldMaxDateValueRule
-	| FieldExpectedDateValueRule;
 
 export interface DateFieldType extends FieldTypeBase<Date, DateFieldValidationRules> {
 	readonly type: "date";
 	readonly baseType: "date";
 }
 
-export type FileFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
-	| FieldMaxFileSizeRule
-	| FieldFileContentTypeRule
-	| FieldFileExtensionRule
-	| FieldFileContentAndExtensionTypeRule;
-
 export interface FileFieldType extends FieldTypeBase<File, FileFieldValidationRules> {
 	readonly type: "file";
 	readonly baseType: "file";
 }
-
-export type ObjectFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule;
 
 // embedded objects to be validated
 export interface ObjectFieldType extends FieldTypeBase<unknown, ObjectFieldValidationRules> {
@@ -94,12 +53,6 @@ export interface ObjectFieldType extends FieldTypeBase<unknown, ObjectFieldValid
 	readonly baseType: "object";
 	readonly objectFieldTypes: FieldTypes; // to validate child members
 }
-
-export type ArrayFieldValidationRules =
-	| FieldRequiredRule
-	| FieldCustomValidationRule
-	| FieldMinArrayLengthRule
-	| FieldMaxArrayLengthRule;
 
 // array of embedded values to be validated
 export interface ArrayFieldType extends FieldTypeBase<unknown[], ArrayFieldValidationRules> {
@@ -117,10 +70,6 @@ export type FieldType =
 	| ObjectFieldType
 	| ArrayFieldType;
 
-export interface FieldTypes {
-	[name: string]: FieldType
-}
-
-export interface FieldValues {
-	[name: string]: unknown
-}
+export type FieldTypes<Obj = unknown> = {
+	[name in keyof Obj]: FieldType;
+};

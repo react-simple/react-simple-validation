@@ -1,4 +1,4 @@
-import { FieldType, FieldTypes, FieldValues } from "fields";
+import { FieldType, FieldTypes } from "fields";
 import { FieldValidationRule } from "rules";
 
 export interface FieldRuleValidationResult {
@@ -10,19 +10,20 @@ export interface FieldRuleValidationResult {
 	regExpMatch?: RegExpMatchArray;
 }
 
-export interface FieldValidationResult<Obj = unknown> {
-	fieldType: FieldType;
-	fieldValue: unknown;
+export interface FieldValidationResult<TFieldType extends FieldType = FieldType, Value = unknown> {
+	fieldType: TFieldType;
+	fieldValue: Value;
 	isValid: boolean;
 
 	ruleValidationResult: FieldRuleValidationResult[]; // valid and non-valid too
-	objectValidationResult?: ObjectValidationResult<Obj>; // if baseType is 'object'
+	objectValidationResult?: ObjectValidationResult; // if baseType is 'object'
 	arrayValidationResult?: FieldValidationResult[]; // if baseType is 'array'
 }
 
-export interface ObjectValidationResult<TFieldValues extends FieldValues> {
-	fieldTypes: FieldTypes;
-	fieldValues: TFieldValues;
+export interface ObjectValidationResult<TypeObj = unknown, ValueObj = unknown> {
+	fieldTypes: FieldTypes<TypeObj>;
+	fieldValues: ValueObj;
 	isValid: boolean;
-	validationResult: { [name: string]: FieldValidationResult };
-} 
+	validationResult: { [name in keyof TypeObj]: FieldValidationResult }; // all evaluated rules
+	errors: { [name in keyof TypeObj]: FieldValidationResult }; // failed rules only
+}

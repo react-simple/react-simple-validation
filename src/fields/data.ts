@@ -1,11 +1,12 @@
 import { getToday } from "@react-simple/react-simple-util";
 import {
-	ArrayFieldType, ArrayFieldValidationRules, BooleanFieldType, BooleanFieldValidationRules, DateFieldType, DateFieldValidationRules, FieldType,
-	FieldTypes, FileFieldType, FileFieldValidationRules, NumberFieldType, NumberFieldValidationRules, ObjectFieldType, ObjectFieldValidationRules,
-	TextFieldType, TextFieldValidationRules
+	ArrayFieldType, BooleanFieldType, DateFieldType, FieldType, FieldTypes, FileFieldType, NumberFieldType, ObjectFieldType, TextFieldType
 } from "./types";
 import { REACT_SIMPLE_VALIDATION } from "data";
-import { FieldValidationRule } from "rules/types";
+import {
+	ArrayFieldValidationRules, BooleanFieldValidationRules, DateFieldValidationRules, FieldValidationRule, FileFieldValidationRules,
+	NumberFieldValidationRules, ObjectFieldValidationRules, TextFieldValidationRules
+} from "rules/types";
 
 function getDefaultRules(): FieldValidationRule[] {
 	return [{
