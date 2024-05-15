@@ -22,7 +22,7 @@ export const FIELDS: {
 	readonly boolean: (rules?: BooleanFieldValidationRules[]) => BooleanFieldType;
 	readonly date: (rules?: DateFieldValidationRules[]) => DateFieldType;
 	readonly file: (rules?: FileFieldValidationRules[]) => FileFieldType;
-	readonly object: (objectFieldTypes: FieldTypes, rules?: ObjectFieldValidationRules[]) => ObjectFieldType;
+	readonly object: (objectFieldTypes: FieldTypes, rules?: ObjectFieldValidationRules[], refName?: string) => ObjectFieldType;
 	readonly array: (itemFieldType: FieldType, rules?: ArrayFieldValidationRules[]) => ArrayFieldType;
 } = {
 	text: rules => ({
@@ -60,12 +60,13 @@ export const FIELDS: {
 		rules: rules || getDefaultRules() as FileFieldValidationRules[]
 	}),
 
-	object: (objectFieldTypes, rules) => ({
+	object: (objectFieldTypes, rules, refName) => ({
 		type: "object",
 		baseType: "object",
 		baseValue: {},
 		rules: rules || getDefaultRules() as ObjectFieldValidationRules[],
-		objectFieldTypes
+		objectFieldTypes,
+		refName
 	}),
 
 	array: (itemFieldType, rules) => ({

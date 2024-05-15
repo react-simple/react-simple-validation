@@ -8,16 +8,16 @@ it('validateFields.boolean-value', () => {
 		expectedValue: false
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: false,
 			bad: true
 		},
-		{
+		types: {
 			good: FIELDS.boolean([rule]),
 			bad: FIELDS.boolean([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);

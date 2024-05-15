@@ -8,16 +8,16 @@ it('validateFields.number-max', () => {
 		maxValue: 3
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: 3,
 			bad: 4
 		},
-		{
+		types: {
 			good: FIELDS.number([rule]),
 			bad: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -31,16 +31,16 @@ it('validateFields.number-max.mustBeLess', () => {
 		mustBeLess: true
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: 2,
 			bad: 3
 		},
-		{
+		types: {
 			good: FIELDS.number([rule]),
 			bad: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -53,16 +53,16 @@ it('validateFields.number-min', () => {
 		minValue: 3
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: 3,
 			bad: 2
 		},
-		{
+		types: {
 			good: FIELDS.number([rule]),
 			bad: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -76,16 +76,16 @@ it('validateFields.number-min', () => {
 		mustBeGreater: true
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: 4,
 			bad: 3
 		},
-		{
+		types: {
 			good: FIELDS.number([rule]),
 			bad: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -98,16 +98,16 @@ it('validateFields.number-value', () => {
 		expectedValue: 3
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: 3,
 			bad: 2
 		},
-		{
+		types: {
 			good: FIELDS.number([rule]),
 			bad: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -123,18 +123,18 @@ it('validateFields.number-range', () => {
 		mustBeLess: true
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: 3.5,
 			bad1: 3,
 			bad2: 4
 		},
-		{
+		types: {
 			good: FIELDS.number([rule]),
 			bad1: FIELDS.number([rule]),
 			bad2: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -148,18 +148,18 @@ it('validateFields.number-value.array', () => {
 		expectedValue: [3, 4]
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good1: 3,
 			good2: 4,
 			bad: 2
 		},
-		{
+		types: {
 			good1: FIELDS.number([rule]),
 			good2: FIELDS.number([rule]),
 			bad: FIELDS.number([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good1.isValid).toBe(true);

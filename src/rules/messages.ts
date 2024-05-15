@@ -1,12 +1,11 @@
 import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber, isArray } from "@react-simple/react-simple-util";
 import {
-	AllRulesValidRule, ArrayIndexMaxRule, ArrayIndexMinRule, ArrayIndexRangeRule, ArrayIndexRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule,
-	FieldArrayMaxLengthRule, FieldArrayMinLengthRule, FieldArrayPredicateAllRule, FieldArrayPredicateNoneRule, FieldArrayPredicateSomeRule,
-	FieldBooleanValueRule, FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule,
-	FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldIfThenElseConditionRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule,
-	FieldReferenceRule,
-	FieldRequiredRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule, FieldTextMinLengthRule, FieldTextRegExpRule,
-	FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
+	AllRulesValidRule, ArrayIndexMaxRule, ArrayIndexMinRule, ArrayIndexRangeRule, ArrayIndexRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule,
+	FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule, FieldArrayMinLengthRule, FieldArrayPredicateAllRule,
+	FieldArrayPredicateSomeRule, FieldBooleanValueRule, FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule,
+	FieldDateValueRule, FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldIfThenElseConditionRule, FieldNumberMaxValueRule, FieldNumberMinValueRule,
+	FieldNumberRangeRule, FieldNumberValueRule, FieldReferenceRule, FieldRequiredRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule,
+	FieldTextMinLengthRule, FieldTextRegExpRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
 } from "./types";
 
 const BLANK = {
@@ -23,7 +22,6 @@ const BLANK = {
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
 	"array-length-range": (_: FieldArrayLengthRangeRule) => "",
 	"array-predicate-all": (_: FieldArrayPredicateAllRule) => "",
-	"array-predicate-none": (_: FieldArrayPredicateNoneRule) => "",
 	"array-predicate-some": (_: FieldArrayPredicateSomeRule) => "",
 	"boolean-value": (_: FieldBooleanValueRule) => "",
 	"custom": (_: FieldCustomValidationRule) => "",

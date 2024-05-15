@@ -52,7 +52,7 @@ export interface ObjectFieldType extends FieldTypeBase<unknown, ObjectFieldValid
 	readonly type: "object";
 	readonly baseType: "object";
 	readonly objectFieldTypes: FieldTypes; // to validate child members
-	readonly name?: string; // named value in the validated object tree which can be referred to by using the '@name' format in "field-reference" rules
+	readonly refName?: string; // named value in the validated object tree which can be referred to by using the '@refName' format in "field-reference" rules
 }
 
 // array of embedded values to be validated
@@ -71,6 +71,24 @@ export type FieldType =
 	| ObjectFieldType
 	| ArrayFieldType;
 
-export type FieldTypes<Obj = unknown> = {
-	[name in keyof Obj]: FieldType;
+export type FieldTypes<TypeObj = unknown> = {
+	[name in keyof TypeObj]: FieldType;
 };
+
+export interface TypedFieldSet<TypeObj = unknown, ValueObj = unknown> {
+	readonly values: ValueObj;
+	readonly types: FieldTypes<TypeObj>;
+}
+
+export interface TypedFieldSetNamed<TypeObj = unknown, ValueObj = unknown> extends TypedFieldSet<TypeObj, ValueObj> {
+	readonly fullQualifiedName: string;
+}
+
+export interface TypedField<TFieldType = FieldType, Value = unknown> {
+	readonly value: Value;
+	readonly type: TFieldType;
+}
+
+export interface TypedFieldNamed<TFieldType = FieldType, Value = unknown> extends TypedField<TFieldType, Value> {
+	readonly fullQualifiedName: string;
+}

@@ -16,16 +16,16 @@ it('validateFields.if-then-else.then', () => {
 		}
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: ["A", "B", "C"],
 			bad: ["A", "B", "D"]
 		},
-		{
+		types: {
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad: FIELDS.array(FIELDS.text([rule]))
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -50,16 +50,16 @@ it('validateFields.if-then-else.else', () => {
 		}
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: ["A", "B"],
 			bad: ["A", "C"]
 		},
-		{
+		types: {
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad: FIELDS.array(FIELDS.text([rule]))
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -84,16 +84,16 @@ it('validateFields.if-then-else.else.inverted', () => {
 		}
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: ["A", "B"],
 			bad: ["B", "A"]
 		},
-		{
+		types: {
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad: FIELDS.array(FIELDS.text([rule]))
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);

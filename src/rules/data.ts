@@ -5,7 +5,7 @@ import {
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
 	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
-	FieldArrayPredicateNoneRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule
+	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule
 } from "./types";
 import { FieldType } from "fields/types";
 
@@ -67,8 +67,7 @@ export const RULES: {
 
 		readonly operators: {
 			readonly all: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateAllRule,
-			readonly some: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateSomeRule,
-			readonly none: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateNoneRule
+			readonly some: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateSomeRule
 		}
 	},
 
@@ -269,12 +268,6 @@ export const RULES: {
 			some: (predicate, options) => ({
 				...options,
 				ruleType: "array-predicate-some",
-				predicate
-			}),
-
-			none: (predicate, options) => ({
-				...options,
-				ruleType: "array-predicate-none",
 				predicate
 			})
 		}

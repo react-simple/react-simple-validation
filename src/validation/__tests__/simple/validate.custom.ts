@@ -8,16 +8,16 @@ it('validateFields.custom', () => {
 		validate: t => t === "123"
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "123",
 			bad: "1"
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);

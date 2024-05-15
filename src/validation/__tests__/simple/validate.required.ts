@@ -3,17 +3,17 @@ import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.required', () => {
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "x",
 			bad: ""
 		},
-		{
+		types: {
 			good: FIELDS.text(), // required by default
 			bad: FIELDS.text(),
 			ugly: FIELDS.text()
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 
@@ -43,17 +43,17 @@ it('validateFields.required.customMessage', () => {
 		message: "Mandatory field"
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "x",
 			bad: ""
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]), // required by default
 			bad: FIELDS.text([rule]),
 			ugly: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);

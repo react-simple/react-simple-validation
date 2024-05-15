@@ -8,16 +8,16 @@ it('validateFields.text-length-min', () => {
 		minLength: 3
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "123",
 			bad: "1"
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -30,16 +30,16 @@ it('validateFields.text-length-max', () => {
 		maxLength: 3
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "123",
 			bad: "12345"
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -52,16 +52,16 @@ it('validateFields.text-length', () => {
 		expectedLength: 3
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "123",
 			bad: "12345"
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -75,20 +75,20 @@ it('validateFields.text-length-range', () => {
 		maxLength: 4
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good1: "123",
 			good2: "1234",
 			bad1: "12",
 			bad2: "12345"
 		},
-		{
+		types: {
 			good1: FIELDS.text([rule]),
 			good2: FIELDS.text([rule]),
 			bad1: FIELDS.text([rule]),
 			bad2: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good1.isValid).toBe(true);
@@ -103,16 +103,16 @@ it('validateFields.text-regexp', () => {
 		regExp: /^\w{3}$/
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "123",
 			bad: "1"
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -125,20 +125,20 @@ it('validateFields.text-regexp.array', () => {
 		regExp: [/^\w{3}$/, /^\w{4}$/]
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good1: "123",
 			good2: "1234",
 			bad1: "12",
 			bad2: "12345",
 		},
-		{
+		types: {
 			good1: FIELDS.text([rule]),
 			good2: FIELDS.text([rule]),
 			bad1: FIELDS.text([rule]),
 			bad2: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good1.isValid).toBe(true);
@@ -154,16 +154,16 @@ it('validateFields.text-value', () => {
 		caseInsensitive: true
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good: "abc",
 			bad: "1"
 		},
-		{
+		types: {
 			good: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good.isValid).toBe(true);
@@ -177,18 +177,18 @@ it('validateFields.text-value.array', () => {
 		caseInsensitive: true
 	};
 
-	let validationResult = validateObject(
-		{
+	let validationResult = validateObject({
+		values: {
 			good1: "abc",
 			good2: "123",
 			bad: "1"
 		},
-		{
+		types: {
 			good1: FIELDS.text([rule]),
 			good2: FIELDS.text([rule]),
 			bad: FIELDS.text([rule])
 		}
-	);
+	});
 
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.validationResult.good1.isValid).toBe(true);

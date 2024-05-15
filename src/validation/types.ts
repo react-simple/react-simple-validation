@@ -1,7 +1,8 @@
-import { FieldType, FieldTypes } from "fields";
+import { FieldType, TypedFieldNamed, TypedFieldSetNamed } from "fields";
 import { FieldValidationRule } from "rules";
 
-export interface FieldRuleValidationResult {
+export interface FieldRuleValidationResult<TFieldType extends FieldType = FieldType, Value = unknown> {
+	readonly field: TypedFieldNamed<TFieldType, Value>;
 	readonly rule: FieldValidationRule;
 	readonly isChecked: boolean; // certain rules work for certain field types only; if incompatible it's isValid but !isChecked
 	readonly isValid: boolean;
@@ -11,36 +12,36 @@ export interface FieldRuleValidationResult {
 }
 
 export interface FieldValidationResult<TFieldType extends FieldType = FieldType, Value = unknown> {
-	readonly fieldType: TFieldType;
-	readonly fieldValue: Value;
+	readonly field: TypedFieldNamed<TFieldType, Value>;
 	readonly isValid: boolean;
+	readonly errors: { [fullQualifiedName: string]: FieldRuleValidationResult[] }; // failed rules only
 
-	readonly ruleValidationResult: FieldRuleValidationResult[]; // valid and non-valid too
+	// details with all evaluated rules
+	readonly ruleValidationResult: FieldRuleValidationResult[];
 	readonly objectValidationResult?: ObjectValidationResult; // if baseType is 'object'
-	readonly arrayValidationResult?: FieldValidationResult[]; // if baseType is 'array'
+	readonly arrayValidationResult?: FieldValidationResult[]; // if baseType is 'array'	
 }
 
 export interface ObjectValidationResult<TypeObj = unknown, ValueObj = unknown> {
-	readonly fieldTypes: FieldTypes<TypeObj>;
-	readonly fieldValues: ValueObj;
+	readonly fieldSet: TypedFieldSetNamed<TypeObj, ValueObj>;
 	readonly isValid: boolean;
-	readonly validationResult: { [name in keyof TypeObj]: FieldValidationResult }; // all evaluated rules
-	readonly errors: { [name in keyof TypeObj]: FieldValidationResult }; // failed rules only
+	readonly errors: { [fullQualifiedName: string]: FieldRuleValidationResult[] }; // failed rules only
+
+	// details with all evaluated rules
+	readonly validationResult: { [name in keyof TypeObj]: FieldValidationResult };
 }
 
 // rootObj to resolve field references starting with "/", see the "reference" rule
-// namedObjs to resolve field references starting with "@name", see the "field-reference" rules
+// namedObjs to resolve field references starting with "@refName", see the "field-reference" rules
 export interface FieldValidationContext {
 	readonly arrayIndex: number | undefined; // index in the array (closest in hierarchy)
 
-	// if specified and memberNamesPath starts with "/" then the evaluation will start at the root object, not the parameter object
-	readonly rootObj: unknown;
-	readonly rootType: FieldTypes;
+	// if specified and full qualified member name starts with "/" then the evaluation will start at the root object, not the parameter object
+	readonly rootObj: TypedFieldSetNamed;
+	readonly currentObj: TypedFieldSetNamed; // closest object in the hierarchy where references are resolved by default (unless referring to root or named obj)
 
-	// if specified and memberNamesPath starts with "@name" then the evaluation will start at the named object found here, not the parameter object
-	readonly namedObjs: { [name: string]: unknown };
-	readonly namedTypes: { [name: string]: FieldTypes };
+	// if specified and full qualified member name starts with "@refName" then the evaluation will start at the named object found here, not the parameter object
+	readonly namedObjs: { [name: string]: TypedFieldSetNamed };
 
-	readonly currentObj: unknown; // closest object in the hierarchy where references are resolved by default (unless referring to root or named obj)
-	readonly currentType: FieldTypes;
+	readonly customData?: unknown; // for custom validation, whatever is needed will be passed over
 }

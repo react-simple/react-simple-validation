@@ -1,5 +1,6 @@
 import { ContentType } from "@react-simple/react-simple-util";
 import { BaseFieldType, FieldType } from "fields";
+import { FieldValidationContext } from "validation/types";
 
 // no negative rules!
 export const FIELD_VALIDATION_RULE_TYPES = {
@@ -44,7 +45,6 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["array-include-none"]: "array-include-none",
 	["array-predicate-some"]: "array-predicate-some",
 	["array-predicate-all"]: "array-predicate-all",
-	["array-predicate-none"]: "array-predicate-none",
 	["array-index"]: "array-index",
 	["array-index-min"]: "array-index-min",
 	["array-index-max"]: "array-index-min",
@@ -228,14 +228,14 @@ export interface FieldArrayPredicateAllRule extends FieldValidationRuleBase {
 	readonly predicate: FieldValidationRule;
 }
 
-export interface FieldArrayPredicateNoneRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-predicate-none";
-	readonly predicate: FieldValidationRule;
-}
-
 export interface FieldCustomValidationRule extends FieldValidationRuleBase {
 	readonly ruleType: "custom";
-	readonly validate: (fieldValue: unknown, fieldType: FieldType) => boolean;
+	readonly validate: (
+		fieldValue: unknown,
+		fieldType: FieldType,
+		fullQualifiedName: string,
+		context: FieldValidationContext
+	) => boolean;
 }
 
 export interface SomeRulesValidRule extends FieldValidationRuleBase {
@@ -282,7 +282,7 @@ export interface FieldReferenceRule extends FieldValidationRuleBase {
 	readonly ruleType: "field-reference";
 	// path in the format of "fieldName.fieldName[index].fieldName"
 	// can start with "/" to refer to the root validated object ("/fieldName.fieldName[index].fieldName")
-	// can start with "@name" to refer to a named parent value ("@partner.fieldName.fieldName[index].fieldName")
+	// can start with "@refName" to refer to a named parent value ("@partner.fieldName.fieldName[index].fieldName")
 	readonly path: string;
 	readonly rules: FieldValidationRule | FieldValidationRule[];
 }
@@ -361,7 +361,6 @@ export type SimpleArrayFieldValidationRules =
 	| FieldArrayLengthRangeRule
 	| FieldArrayPredicateAllRule
 	| FieldArrayPredicateSomeRule
-	| FieldArrayPredicateNoneRule
 	| FieldArrayIncludeSomeRule
 	| FieldArrayIncludeAllRule
 	| FieldArrayIncludeNoneRule
