@@ -5,7 +5,8 @@ import { validateRule, validateRules } from "./validateRules";
 
 export function validateField<TFieldType extends FieldType = FieldType, Value = unknown>(
 	fieldValue: Value,
-	fieldType: TFieldType
+	fieldType: TFieldType,
+	arrayIndex: number | undefined
 ): FieldValidationResult<TFieldType, Value> {
 	const ruleValidationResult = [
 		// validate type
@@ -15,10 +16,11 @@ export function validateField<TFieldType extends FieldType = FieldType, Value = 
 				valueType: fieldType.baseType
 			},
 			fieldValue,
-			fieldType),
+			fieldType,
+			arrayIndex),
 
 		// validate rules
-		...validateRules(fieldType.rules, fieldValue, fieldType)
+		...validateRules(fieldType.rules, fieldValue, fieldType, arrayIndex)
 	];
 
 	// validate object
@@ -28,7 +30,7 @@ export function validateField<TFieldType extends FieldType = FieldType, Value = 
 
 	// validate array
 	const arrayValidationResult = fieldType.baseType === "array"
-		? getResolvedArray(fieldValue).map(itemValue => validateField(itemValue, fieldType.itemFieldType))
+		? getResolvedArray(fieldValue).map((itemValue, itemIndex) => validateField(itemValue, fieldType.itemFieldType, itemIndex))
 		: undefined;
 
 	return {
@@ -56,7 +58,9 @@ export function validateObject<TypeObj, ValueObj>(
 
 	for (const [name, fieldType] of Object.entries(fieldTypes)) {
 		const fieldValue = (fieldValues as any)[name];
-		const fieldValidationResult = validateField(fieldValue, fieldType as FieldType);
+
+		// index is arrayIndex here, not object member index, hence we pass undefined
+		const fieldValidationResult = validateField(fieldValue, fieldType as FieldType, undefined); 
 
 		(validationResult as any)[name] = fieldValidationResult;
 

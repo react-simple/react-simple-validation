@@ -83,50 +83,50 @@ it('validateFields.all-rules-valid', () => {
 //	expect(validationResult.validationResult.bad.isValid).toBe(false);
 //});
 
-it('validateFields.is-valid', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "is-valid",
-		rule: { ruleType: "number-value", expectedValue: 1 }
-	};
+//it('validateFields.is-valid', () => {
+//	const rule: FieldValidationRule = {
+//		ruleType: "is-valid",
+//		rule: { ruleType: "number-value", expectedValue: 1 }
+//	};
 
-	const validationResult = validateObject(
-		{
-			good: 1,
-			bad: 2
-		},
-		{
-			good: FIELDS.number([rule]),
-			bad: FIELDS.number([rule])
-		}
-	);
+//	const validationResult = validateObject(
+//		{
+//			good: 1,
+//			bad: 2
+//		},
+//		{
+//			good: FIELDS.number([rule]),
+//			bad: FIELDS.number([rule])
+//		}
+//	);
 
-	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
-});
+//	expect(validationResult.isValid).toBe(false);
+//	expect(validationResult.validationResult.good.isValid).toBe(true);
+//	expect(validationResult.validationResult.bad.isValid).toBe(false);
+//});
 
-it('validateFields.is-valid.false', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "is-valid",
-		rule: { ruleType: "number-value", expectedValue: 1 },
-		isValid: false
-	};
+//it('validateFields.is-valid.false', () => {
+//	const rule: FieldValidationRule = {
+//		ruleType: "is-valid",
+//		rule: { ruleType: "number-value", expectedValue: 1 },
+//		isValid: false
+//	};
 
-	const validationResult = validateObject(
-		{
-			good: 2,
-			bad: 1
-		},
-		{
-			good: FIELDS.number([rule]),
-			bad: FIELDS.number([rule])
-		}
-	);
+//	const validationResult = validateObject(
+//		{
+//			good: 2,
+//			bad: 1
+//		},
+//		{
+//			good: FIELDS.number([rule]),
+//			bad: FIELDS.number([rule])
+//		}
+//	);
 
-	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
-});
+//	expect(validationResult.isValid).toBe(false);
+//	expect(validationResult.validationResult.good.isValid).toBe(true);
+//	expect(validationResult.validationResult.bad.isValid).toBe(false);
+//});
 
 //it('validateFields.is-not-valid', () => {
 //	const rule: FieldValidationRule = {

@@ -289,3 +289,33 @@ it('validateFields.array-predicate-none', () => {
 	expect(validationResult.validationResult.good.isValid).toBe(true);
 	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
+
+it('validateFields.array-index', () => {
+	// item at index 2 should be 'C'
+	const rule: FieldValidationRule = {
+		ruleType: "condition",
+		if: {
+			ruleType: "array-index",
+			index: 2
+		},
+		then: {
+			ruleType: "text-value",
+			expectedValue: "C"
+		}
+	};
+
+	let validationResult = validateObject(
+		{
+			good: ["A", "B", "C"],
+			bad: ["A", "B", "D"]
+		},
+		{
+			good: FIELDS.array(FIELDS.text([rule])),
+			bad: FIELDS.array(FIELDS.text([rule]))
+		}
+	);
+
+	expect(validationResult.isValid).toBe(false);
+	expect(validationResult.validationResult.good.isValid).toBe(true);
+	expect(validationResult.validationResult.bad.isValid).toBe(false);
+});
