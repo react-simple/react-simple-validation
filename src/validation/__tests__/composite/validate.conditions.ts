@@ -1,11 +1,11 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule, RULES } from "rules";
+import { FieldValidationRule } from "rules";
 import { validateObject } from "validation";
 
-it('validateFields.condition.then', () => {
+it('validateFields.if-then-else.then', () => {
 	// item at index 2 should be 'C'
 	const rule: FieldValidationRule = {
-		ruleType: "condition",
+		ruleType: "if-then-else",
 		if: {
 			ruleType: "array-index",
 			index: 2
@@ -32,10 +32,10 @@ it('validateFields.condition.then', () => {
 	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
-it('validateFields.condition.else', () => {
+it('validateFields.if-then-else.else', () => {
 	// item at index 0 should be 'A' otherwise 'B'
 	const rule: FieldValidationRule = {
-		ruleType: "condition",
+		ruleType: "if-then-else",
 		if: {
 			ruleType: "array-index",
 			index: 0
@@ -66,10 +66,10 @@ it('validateFields.condition.else', () => {
 	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
-it('validateFields.condition.else.inverted', () => {
+it('validateFields.if-then-else.else.inverted', () => {
 	// item at index 0 should be 'A' otherwise 'B'
 	const rule: FieldValidationRule = {
-		ruleType: "condition",
+		ruleType: "if-then-else",
 		if: {
 			ruleType: "text-value",
 			expectedValue: "A"

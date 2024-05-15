@@ -1,17 +1,17 @@
 import {
 	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType,
-	findNonEmptyValue
+	findNonEmptyValue, getObjectChildMemberValue
 } from "@react-simple/react-simple-util";
 import { FieldType } from "fields";
 import { FieldValidationRule } from "rules";
-import { FieldRuleValidationResult } from "./types";
+import { FieldRuleValidationResult, FieldValidationContext } from "./types";
 
 // returns errors
 export function validateRule(
 	rule: FieldValidationRule,
 	fieldValue: unknown,
 	fieldType: FieldType,
-	arrayIndex: number | undefined
+	context: FieldValidationContext
 ): FieldRuleValidationResult {
 	let isChecked = false;
 	let isValid = false;
@@ -148,7 +148,7 @@ export function validateRule(
 		case "array-length-min":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -160,7 +160,7 @@ export function validateRule(
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -172,7 +172,7 @@ export function validateRule(
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -184,7 +184,7 @@ export function validateRule(
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -197,7 +197,7 @@ export function validateRule(
 		case "array-include-some":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -210,7 +210,7 @@ export function validateRule(
 		case "array-include-all":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -223,7 +223,7 @@ export function validateRule(
 		case "array-include-none":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				const items = rule.filter
-					? fieldValue.filter((itemValue, itemIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, itemIndex).isValid)
+					? fieldValue.filter((itemValue, arrayIndex) => validateRule(rule.filter!, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid)
 					: fieldValue;
 
 				isChecked = true;
@@ -236,21 +236,21 @@ export function validateRule(
 		case "array-predicate-some":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue.some((itemValue, itemIndex) => validateRule(rule.predicate, itemValue, fieldType.itemFieldType, itemIndex).isValid);
+				isValid = fieldValue.some((itemValue, arrayIndex) => validateRule(rule.predicate, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid);
 			}
 			break;
 
 		case "array-predicate-all":
-				if (fieldType.baseType === "array" && isArray(fieldValue)) {
-					isChecked = true;
-					isValid = fieldValue.every((itemValue, itemIndex) => validateRule(rule.predicate, itemValue, fieldType.itemFieldType, itemIndex).isValid);
-				}
-				break;
+			if (fieldType.baseType === "array" && isArray(fieldValue)) {
+				isChecked = true;
+				isValid = fieldValue.every((itemValue, arrayIndex) => validateRule(rule.predicate, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid);
+			}
+			break;
 
 		case "array-predicate-none":
 			if (fieldType.baseType === "array" && isArray(fieldValue)) {
 				isChecked = true;
-				isValid = fieldValue.every((itemValue, itemIndex) => !validateRule(rule.predicate, itemValue, fieldType.itemFieldType, itemIndex).isValid);
+				isValid = fieldValue.every((itemValue, arrayIndex) => !validateRule(rule.predicate, itemValue, fieldType.itemFieldType, { ...context, arrayIndex }).isValid);
 			}
 			break;
 
@@ -344,55 +344,81 @@ export function validateRule(
 
 		case "some-rules-valid":
 			isChecked = true;
-			isValid = rule.rules.some((t, tind) => validateRule(t, fieldValue, fieldType, tind).isValid);
+			isValid = rule.rules.some(t => validateRule(t, fieldValue, fieldType, context).isValid);
 			break;
 
 		case "all-rules-valid":
 			isChecked = true;
-			isValid = rule.rules.every((t, tind) => validateRule(t, fieldValue, fieldType, tind).isValid);
+			isValid = rule.rules.every(t => validateRule(t, fieldValue, fieldType, context).isValid);
 			break;
-
-		//case "no-rules-valid":
-		//	isChecked = true;
-		//	isValid = rule.rules.every((t, tind) => !validateRule(t, fieldValue, fieldType, tind).isValid);
-		//	break;
-
-		//case "is-valid":
-		//	isChecked = true;
-		//	isValid = validateRule(rule.rule, fieldValue, fieldType, index).isValid;
-		//	break;
-
-	//	case "is-not-valid":
-	//		isChecked = true;
-	//		isValid = validateRule(rule.rule, fieldValue, fieldType).isValid !== (rule.isNotValid !== false);
-		//		break;
 
 		case "array-index":
 			isChecked = true;
-			isValid = arrayIndex == rule.index;
+			isValid = context.arrayIndex == rule.index;
 			break;
 
 		case "array-index-min":
 			isChecked = true;
-			isValid = !isEmpty(arrayIndex) && arrayIndex >= rule.minIndex;
+			isValid = !isEmpty(context.arrayIndex) && context.arrayIndex >= rule.minIndex;
 			break;
 
 		case "array-index-max":
 			isChecked = true;
-			isValid = !isEmpty(arrayIndex) && arrayIndex <= rule.maxIndex;
+			isValid = !isEmpty(context.arrayIndex) && context.arrayIndex <= rule.maxIndex;
 			break;
 
 		case "array-index-range":
 			isChecked = true;
-			isValid = !isEmpty(arrayIndex) && arrayIndex >= rule.minIndex && arrayIndex <= rule.maxIndex;
+			isValid = !isEmpty(context.arrayIndex) && context.arrayIndex >= rule.minIndex && context.arrayIndex <= rule.maxIndex;
 			break;
 
-		case "condition":
+		case "if-then-else":
 			isChecked = true;
 
-			isValid = validateRule(rule.if, fieldValue, fieldType, arrayIndex).isValid
-				? validateRule(rule.then, fieldValue, fieldType, arrayIndex).isValid
-				: (!rule.else || validateRule(rule.else, fieldValue, fieldType, arrayIndex).isValid);
+			if (validateRule(rule.if, fieldValue, fieldType, context).isValid) {
+				isValid = isArray(rule.then)
+					? rule.then.every(t => validateRule(t, fieldValue, fieldType, context).isValid)
+					: validateRule(rule.then, fieldValue, fieldType, context).isValid;
+			}
+			else if (rule.else) {
+				isValid = isArray(rule.else)
+					? rule.else.every(t => validateRule(t, fieldValue, fieldType, context).isValid)
+					: validateRule(rule.else, fieldValue, fieldType, context).isValid;
+			}
+			else {
+				isValid = true;
+			}
+			break;
+
+		case "field-reference":
+			// resolve path starting from the closest object in hierarchy by default; using "/" or "@" in path can refer to root or named objects
+			const referredValue = getObjectChildMemberValue(
+				context.currentObj,
+				rule.path,
+				{
+					rootObj: context.rootObj,
+					namedObjs: context.namedObjs
+				}
+			);
+
+			const referredType = getObjectChildMemberValue(
+				context.currentType,
+				rule.path,
+				{
+					rootObj: context.rootType,
+					namedObjs: context.namedTypes
+				}
+			);
+
+			isChecked = !!referredType; // the type of the referred field must be defined
+
+			isValid = isChecked && (
+				isArray(rule.rules)
+					? rule.rules.every(t => validateRule(t, referredValue, referredType, context).isValid)
+					: validateRule(rule.rules, referredValue, referredType, context).isValid
+			);
+
+			break;
 	}
 
 	return {
@@ -402,13 +428,4 @@ export function validateRule(
 		regExpMatch,
 		message: !isValid ? rule.message : undefined
 	};
-}
-
-export function validateRules(
-	rules: FieldValidationRule[],
-	fieldValue: unknown,
-	fieldType: FieldType,
-	arrayIndex: number | undefined
-): FieldRuleValidationResult[] {
-	return rules.map(rule => validateRule(rule, fieldValue, fieldType, arrayIndex));
 }

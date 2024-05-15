@@ -52,6 +52,7 @@ export interface ObjectFieldType extends FieldTypeBase<unknown, ObjectFieldValid
 	readonly type: "object";
 	readonly baseType: "object";
 	readonly objectFieldTypes: FieldTypes; // to validate child members
+	readonly name?: string; // named value in the validated object tree which can be referred to by using the '@name' format in "field-reference" rules
 }
 
 // array of embedded values to be validated

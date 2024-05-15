@@ -1,11 +1,12 @@
 import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber, isArray } from "@react-simple/react-simple-util";
 import {
-	AllRulesValidRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule,
+	AllRulesValidRule, ArrayIndexMaxRule, ArrayIndexMinRule, ArrayIndexRangeRule, ArrayIndexRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule,
 	FieldArrayMaxLengthRule, FieldArrayMinLengthRule, FieldArrayPredicateAllRule, FieldArrayPredicateNoneRule, FieldArrayPredicateSomeRule,
 	FieldBooleanValueRule, FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule,
-	FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule,
+	FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldIfThenElseConditionRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule,
+	FieldReferenceRule,
 	FieldRequiredRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule, FieldTextMinLengthRule, FieldTextRegExpRule,
-	FieldTextValueRule, FieldTypeRule, NoRulesValidRule, RuleIsNotValidRule, RuleIsValidRule, SomeRulesValidRule
+	FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
 } from "./types";
 
 const BLANK = {
@@ -13,6 +14,10 @@ const BLANK = {
 	"array-include-all": (_: FieldArrayIncludeAllRule) => "",
 	"array-include-none": (_: FieldArrayIncludeNoneRule) => "",
 	"array-include-some": (_: FieldArrayIncludeSomeRule) => "",
+	"array-index": (_: ArrayIndexRule) => "",
+	"array-index-min": (_: ArrayIndexMinRule) => "",
+	"array-index-max": (_: ArrayIndexMaxRule) => "",
+	"array-index-range": (_: ArrayIndexRangeRule) => "",
 	"array-length": (_: FieldArrayLengthRule) => "",
 	"array-length-max": (_: FieldArrayMaxLengthRule) => "",
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
@@ -26,11 +31,10 @@ const BLANK = {
 	"date-min": (_: FieldDateMinValueRule) => "",
 	"date-range": (_: FieldDateRangeRule) => "",
 	"date-value": (_: FieldDateValueRule) => "",
+	"field-reference": (_: FieldReferenceRule) => "",
 	"file-contenttype": (_: FieldFileContentTypeRule) => "",
 	"file-size-max": (_: FieldFileMaxSizeRule) => "",
-	"is-not-valid": (_: RuleIsNotValidRule) => "",
-	"is-valid": (_: RuleIsValidRule) => "",
-	"no-rules-valid": (_: NoRulesValidRule) => "",
+	"if-then-else": (_: FieldIfThenElseConditionRule) => "",
 	"number-max": (_: FieldNumberMaxValueRule) => "",
 	"number-min": (_: FieldNumberMinValueRule) => "",
 	"number-range": (_: FieldNumberRangeRule) => "",
@@ -48,6 +52,9 @@ const BLANK = {
 
 export type ValidationRuleMessages = typeof BLANK;
 
+// we don't want BLANK to be a Record, since that kills the member level typing, but Record help to validate that all FieldValidationRuleType values are listed
+const CHECK_ALL_DEFINED: Record<FieldValidationRuleType, Function> = BLANK;
+
 const dateToStr = (d: Date) => formatDateOrDateTime(d, CULTURE_INFO.DATE_FORMATS["EN-US"]);
 const floatToStr = (n: number, options?: NumberFormatOptions) => formatNumber(n, CULTURE_INFO.NUMBER_FORMATS["EN-US"], options);
 
@@ -58,6 +65,7 @@ const EN_US: ValidationRuleMessages = {
 	"array-length-max": ({ maxLength }) => `Must have ${maxLength} items at most`,
 	"array-length-min": ({ minLength }) => `Must have ${minLength} items at least`,
 	"array-length-range": ({ minLength, maxLength }) => `Must have ${minLength} to ${maxLength} items`,
+
 	"boolean-value": ({ expectedValue }) => `Must be ${expectedValue ? "checked" : "unchecked"}`,
 
 	"date-min": ({ minDate, mustBeGreater }) => `Must be ${mustBeGreater ? "after" : "not earler than"} ${dateToStr(minDate)}`,

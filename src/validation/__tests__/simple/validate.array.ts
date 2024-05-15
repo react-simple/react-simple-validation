@@ -293,7 +293,7 @@ it('validateFields.array-predicate-none', () => {
 it('validateFields.array-index', () => {
 	// item at index 2 should be 'C'
 	const rule: FieldValidationRule = {
-		ruleType: "condition",
+		ruleType: "if-then-else",
 		if: {
 			ruleType: "array-index",
 			index: 2

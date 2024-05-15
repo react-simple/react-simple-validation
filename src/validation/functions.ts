@@ -1,36 +1,56 @@
 import { getResolvedArray } from "@react-simple/react-simple-util";
 import { FieldType, FieldTypes } from "fields";
-import { FieldValidationResult, ObjectValidationResult } from "./types";
-import { validateRule, validateRules } from "./validateRules";
+import { FieldValidationContext, FieldValidationResult, ObjectValidationResult } from "./types";
+import { validateRule } from "./validateRules";
 
 export function validateField<TFieldType extends FieldType = FieldType, Value = unknown>(
 	fieldValue: Value,
 	fieldType: TFieldType,
-	arrayIndex: number | undefined
+	context: FieldValidationContext
 ): FieldValidationResult<TFieldType, Value> {
 	const ruleValidationResult = [
 		// validate type
-		validateRule(
-			{
-				ruleType: "type",
-				valueType: fieldType.baseType
-			},
-			fieldValue,
-			fieldType,
-			arrayIndex),
+		validateRule({ ruleType: "type", valueType: fieldType.baseType }, fieldValue, fieldType, context),
 
 		// validate rules
-		...validateRules(fieldType.rules, fieldValue, fieldType, arrayIndex)
+		...fieldType.rules.map(t => validateRule(t, fieldValue, fieldType, context))
 	];
 
 	// validate object
 	const objectValidationResult = fieldType.baseType === "object"
-		? validateObject(fieldValue, fieldType.objectFieldTypes)
+		? validateObject(
+			fieldValue,
+			fieldType.objectFieldTypes,
+			{
+				...context,
+
+				// set this object as the closest object for field reference evaluation (see "field-reference" rules)
+				currentObj: fieldValue,
+				currentType: fieldType.objectFieldTypes,
+
+				// set this object in the namedObjs collection if it has a name (see "field-reference" rules)
+				...fieldType.name
+					? {
+						namedObjs: {
+							...context.namedObjs,
+							[fieldType.name]: fieldValue
+						},
+
+						namedTypes: {
+							...context.namedTypes,
+							[fieldType.name]: fieldType.objectFieldTypes
+						}
+					}
+					: {}
+			}
+		)
 		: undefined;
 
 	// validate array
 	const arrayValidationResult = fieldType.baseType === "array"
-		? getResolvedArray(fieldValue).map((itemValue, itemIndex) => validateField(itemValue, fieldType.itemFieldType, itemIndex))
+		? getResolvedArray(fieldValue).map((itemValue, arrayIndex) =>
+			validateField(itemValue, fieldType.itemFieldType, { ...context, arrayIndex })
+		)
 		: undefined;
 
 	return {
@@ -50,8 +70,19 @@ export function validateField<TFieldType extends FieldType = FieldType, Value = 
 
 export function validateObject<TypeObj, ValueObj>(
 	fieldValues: ValueObj,
-	fieldTypes: FieldTypes<TypeObj>
+	fieldTypes: FieldTypes<TypeObj>,
+	context?: FieldValidationContext
 ): ObjectValidationResult<TypeObj, ValueObj> {
+	context ||= {
+		arrayIndex: undefined,
+		currentObj: fieldValues,
+		currentType: fieldTypes,
+		rootObj: fieldValues,
+		rootType: fieldTypes,
+		namedObjs: {},
+		namedTypes: {}
+	};
+
 	const validationResult: { [name in keyof TypeObj]: FieldValidationResult } = {} as any;
 	const errors: { [name in keyof TypeObj]: FieldValidationResult } = {} as any;
 	let isValid = true;
@@ -60,7 +91,7 @@ export function validateObject<TypeObj, ValueObj>(
 		const fieldValue = (fieldValues as any)[name];
 
 		// index is arrayIndex here, not object member index, hence we pass undefined
-		const fieldValidationResult = validateField(fieldValue, fieldType as FieldType, undefined); 
+		const fieldValidationResult = validateField(fieldValue, fieldType as FieldType, context); 
 
 		(validationResult as any)[name] = fieldValidationResult;
 

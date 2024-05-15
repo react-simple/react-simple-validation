@@ -3,9 +3,9 @@ import {
 	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, 
 	FieldFileContentTypeRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
-	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule,
-	FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule,
-	FieldArrayPredicateSomeRule, FieldArrayPredicateNoneRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule
+	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
+	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
+	FieldArrayPredicateNoneRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule
 } from "./types";
 import { FieldType } from "fields/types";
 
@@ -76,8 +76,16 @@ export const RULES: {
 
 	readonly operators: {
 		readonly some: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => SomeRulesValidRule,
-		readonly all: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => AllRulesValidRule,
-		// readonly none: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => NoRulesValidRule
+		readonly all: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => AllRulesValidRule
+	},
+
+	readonly conditions: {
+		readonly ifThenElse: (
+			if_: FieldValidationRule,
+			then_: FieldValidationRule | FieldValidationRule[],
+			else_?: FieldValidationRule | FieldValidationRule[],
+			options?: ValidationRuleOptions
+		) => FieldIfThenElseConditionRule,
 	}
 } = {
 	required: (required, options) => ({
@@ -290,11 +298,15 @@ export const RULES: {
 			ruleType: "all-rules-valid",
 			rules
 		})
+	},
 
-	//	none: (rules, options) => ({
-	//		...options,
-	//		ruleType: "no-rules-valid",
-	//		rules
-	//	})
+	conditions: {
+		ifThenElse: (if_, then_, else_, options) => ({
+			...options,
+			ruleType: "if-then-else",
+			if: if_,
+			then: then_,
+			else: else_
+		})
 	}
 };

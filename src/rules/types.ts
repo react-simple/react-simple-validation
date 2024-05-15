@@ -53,12 +53,12 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	// rule collection, operators
 	["some-rules-valid"]: "some-rules-valid", // at least one rule must be valid
 	["all-rules-valid"]: "all-rules-valid", // all rules must be valid
-	// ["no-rules-valid"]: "no-rules-valid", // none of the rules should be valid -- I think negative rules should be avoided
-	// ["is-valid"]: "is-valid", // can check for isValid true/false
-	// ["is-not-valid"]: "is-not-valid" // this is negation -- I think negative rules should be avoided
 
-	// condition
-	["condition"]: "condition"
+	// conditions
+	["if-then-else"]: "if-then-else",
+
+	// references
+	["field-reference"]: "field-reference"
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -248,22 +248,6 @@ export interface AllRulesValidRule extends FieldValidationRuleBase {
 	readonly rules: FieldValidationRule[]; // all rules must be valid
 }
 
-//export interface NoRulesValidRule extends FieldValidationRuleBase {
-//	readonly ruleType: "no-rules-valid";
-//	readonly rules: FieldValidationRule[]; // no rules should be valid
-//}
-
-//export interface RuleIsValidRule extends FieldValidationRuleBase {
-//	readonly ruleType: "is-valid";
-//	readonly rule: FieldValidationRule; 
-//}
-
-//export interface RuleIsNotValidRule extends FieldValidationRuleBase {
-//	readonly ruleType: "is-not-valid";
-//	readonly rule: FieldValidationRule;
-//	readonly isNotValid?: boolean; // default is true
-//}
-
 export interface ArrayIndexRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-index";
 	readonly index: number;
@@ -285,13 +269,22 @@ export interface ArrayIndexRangeRule extends FieldValidationRuleBase {
 	readonly maxIndex: number;
 }
 
-// if 'condition' is valid then 'then' must be also valid (it's an implication)
-// if 'condition' is not valid then 'else' must be valid
-export interface FieldConditionRule extends FieldValidationRuleBase {
-	readonly ruleType: "condition";
+// if 'if' is valid then 'then' must be also valid (it's an implication)
+// if 'if' is not valid then 'else' must be valid
+export interface FieldIfThenElseConditionRule extends FieldValidationRuleBase {
+	readonly ruleType: "if-then-else";
 	readonly if: FieldValidationRule;
-	readonly then: FieldValidationRule;
-	readonly else?: FieldValidationRule;
+	readonly then: FieldValidationRule | FieldValidationRule[];
+	readonly else?: FieldValidationRule | FieldValidationRule[];
+}
+
+export interface FieldReferenceRule extends FieldValidationRuleBase {
+	readonly ruleType: "field-reference";
+	// path in the format of "fieldName.fieldName[index].fieldName"
+	// can start with "/" to refer to the root validated object ("/fieldName.fieldName[index].fieldName")
+	// can start with "@name" to refer to a named parent value ("@partner.fieldName.fieldName[index].fieldName")
+	readonly path: string;
+	readonly rules: FieldValidationRule | FieldValidationRule[];
 }
 
 export type CommonFieldValidationRules =
@@ -300,13 +293,18 @@ export type CommonFieldValidationRules =
 
 export type OperatorValidationRules =
 	| AllRulesValidRule
-	| SomeRulesValidRule
-	//| NoRulesValidRule
-	//| RuleIsValidRule
-//| RuleIsNotValidRule;
+	| SomeRulesValidRule;
 
 export type ConditionValidationRules =
-	| FieldConditionRule;
+	| FieldIfThenElseConditionRule;
+
+export type ReferenceValidationRules =
+	| FieldReferenceRule;
+
+export type CompositeValidationRules =
+	| OperatorValidationRules
+	| ConditionValidationRules
+	| ReferenceValidationRules;
 
 export type SimpleTextFieldValidationRules =
 	| CommonFieldValidationRules
@@ -317,7 +315,7 @@ export type SimpleTextFieldValidationRules =
 	| FieldTextValueRule
 	| FieldTextRegExpRule;
 
-export type TextFieldValidationRules = SimpleTextFieldValidationRules | OperatorValidationRules | ConditionValidationRules;	
+export type TextFieldValidationRules = SimpleTextFieldValidationRules | CompositeValidationRules;	
 
 export type SimpleNumberFieldValidationRules =
 	| CommonFieldValidationRules
@@ -326,13 +324,13 @@ export type SimpleNumberFieldValidationRules =
 	| FieldNumberValueRule
 	| FieldNumberRangeRule;
 
-export type NumberFieldValidationRules = SimpleNumberFieldValidationRules | OperatorValidationRules | ConditionValidationRules;
+export type NumberFieldValidationRules = SimpleNumberFieldValidationRules | CompositeValidationRules;
 
 export type SimpleBooleanFieldValidationRules =
 	| CommonFieldValidationRules
 	| FieldBooleanValueRule;
 
-export type BooleanFieldValidationRules = SimpleBooleanFieldValidationRules | OperatorValidationRules | ConditionValidationRules;
+export type BooleanFieldValidationRules = SimpleBooleanFieldValidationRules | CompositeValidationRules;
 
 export type SimpleDateFieldValidationRules =
 	| CommonFieldValidationRules
@@ -341,19 +339,19 @@ export type SimpleDateFieldValidationRules =
 	| FieldDateValueRule
 	| FieldDateRangeRule;
 
-export type DateFieldValidationRules = SimpleDateFieldValidationRules | OperatorValidationRules | ConditionValidationRules;
+export type DateFieldValidationRules = SimpleDateFieldValidationRules | CompositeValidationRules;
 
 export type SimpleFileFieldValidationRules =
 	| CommonFieldValidationRules
 	| FieldFileMaxSizeRule
 	| FieldFileContentTypeRule;
 
-export type FileFieldValidationRules = SimpleFileFieldValidationRules | OperatorValidationRules | ConditionValidationRules;
+export type FileFieldValidationRules = SimpleFileFieldValidationRules | CompositeValidationRules;
 
 export type SimpleObjectFieldValidationRules =
 	| CommonFieldValidationRules;
 
-export type ObjectFieldValidationRules = SimpleObjectFieldValidationRules | OperatorValidationRules | ConditionValidationRules;
+export type ObjectFieldValidationRules = SimpleObjectFieldValidationRules | CompositeValidationRules;
 
 export type SimpleArrayFieldValidationRules =
 	| CommonFieldValidationRules
@@ -372,7 +370,7 @@ export type SimpleArrayFieldValidationRules =
 	| ArrayIndexMaxRule
 	| ArrayIndexRangeRule;
 
-export type ArrayFieldValidationRules = SimpleArrayFieldValidationRules | OperatorValidationRules | ConditionValidationRules;
+export type ArrayFieldValidationRules = SimpleArrayFieldValidationRules | CompositeValidationRules;
 
 export type FieldValidationRule =
 	| FieldTypeRule
