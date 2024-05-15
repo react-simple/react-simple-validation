@@ -3,7 +3,7 @@ import {
 	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, 
 	FieldFileContentTypeRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
-	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, NoRulesValidRule, FieldTextLengthRule,
+	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule,
 	FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule,
 	FieldArrayPredicateSomeRule, FieldArrayPredicateNoneRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule
 } from "./types";
@@ -77,7 +77,7 @@ export const RULES: {
 	readonly operators: {
 		readonly some: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => SomeRulesValidRule,
 		readonly all: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => AllRulesValidRule,
-		readonly none: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => NoRulesValidRule
+		// readonly none: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => NoRulesValidRule
 	}
 } = {
 	required: (required, options) => ({
@@ -289,12 +289,12 @@ export const RULES: {
 			...options,
 			ruleType: "all-rules-valid",
 			rules
-		}),
-
-		none: (rules, options) => ({
-			...options,
-			ruleType: "no-rules-valid",
-			rules
 		})
+
+	//	none: (rules, options) => ({
+	//		...options,
+	//		ruleType: "no-rules-valid",
+	//		rules
+	//	})
 	}
 };

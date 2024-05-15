@@ -48,9 +48,9 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	// rule collection, operators
 	["some-rules-valid"]: "some-rules-valid", // at least one rule must be valid
 	["all-rules-valid"]: "all-rules-valid", // all rules must be valid
-	["no-rules-valid"]: "no-rules-valid", // none of the rules should be valid
+	// ["no-rules-valid"]: "no-rules-valid", // none of the rules should be valid -- I think negative rules should be avoided
 	["is-valid"]: "is-valid", // can check for isValid true/false
-	["is-not-valid"]: "is-not-valid" // this is negation
+	// ["is-not-valid"]: "is-not-valid" // this is negation -- I think negative rules should be avoided
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -240,10 +240,10 @@ export interface AllRulesValidRule extends FieldValidationRuleBase {
 	readonly rules: FieldValidationRule[]; // all rules must be valid
 }
 
-export interface NoRulesValidRule extends FieldValidationRuleBase {
-	readonly ruleType: "no-rules-valid";
-	readonly rules: FieldValidationRule[]; // no rules should be valid
-}
+//export interface NoRulesValidRule extends FieldValidationRuleBase {
+//	readonly ruleType: "no-rules-valid";
+//	readonly rules: FieldValidationRule[]; // no rules should be valid
+//}
 
 export interface RuleIsValidRule extends FieldValidationRuleBase {
 	readonly ruleType: "is-valid";
@@ -251,11 +251,11 @@ export interface RuleIsValidRule extends FieldValidationRuleBase {
 	readonly isValid?: boolean; // default is true
 }
 
-export interface RuleIsNotValidRule extends FieldValidationRuleBase {
-	readonly ruleType: "is-not-valid";
-	readonly rule: FieldValidationRule; 
-	readonly isNotValid?: boolean; // default is true
-}
+//export interface RuleIsNotValidRule extends FieldValidationRuleBase {
+//	readonly ruleType: "is-not-valid";
+//	readonly rule: FieldValidationRule; 
+//	readonly isNotValid?: boolean; // default is true
+//}
 
 export type CommonFieldValidationRules =
 	| FieldRequiredRule
@@ -264,9 +264,9 @@ export type CommonFieldValidationRules =
 export type OperatorValidationRules =
 	| AllRulesValidRule
 	| SomeRulesValidRule
-	| NoRulesValidRule
-	| RuleIsValidRule
-	| RuleIsNotValidRule;
+	//| NoRulesValidRule
+	//| RuleIsNotValidRule
+	| RuleIsValidRule;	
 
 export type SimpleTextFieldValidationRules =
 	| CommonFieldValidationRules
