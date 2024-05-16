@@ -1,96 +1,178 @@
-import { ContentType } from "@react-simple/react-simple-util";
+import { ValueOrArray } from "@react-simple/react-simple-util";
 import {
 	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, 
 	FieldFileContentTypeRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
 	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
-	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule
+	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule, FieldSwitchConditionRule,
+	ArrayIndexMinRule, ArrayIndexMaxRule, ArrayIndexRule, ArrayIndexRangeRule, FieldReferenceRule
 } from "./types";
-import { FieldType } from "fields/types";
 
 export interface ValidationRuleOptions {
 	readonly message?: string;
 }
 
 export const RULES: {
-	readonly required: (required?: boolean, options?: ValidationRuleOptions) => FieldRequiredRule,
+	readonly required: (options?: ValidationRuleOptions) => FieldRequiredRule;
 
 	readonly text: {
-		readonly value: (expectedValue: string | string[], options?: ValidationRuleOptions) => FieldTextValueRule,
-		readonly regExp: (regExp: RegExp, options?: ValidationRuleOptions) => FieldTextRegExpRule
+		readonly value: (
+			expectedValue: FieldTextValueRule["expectedValue"],
+			options?: ValidationRuleOptions & { caseInsensitive?: boolean }
+		) => FieldTextValueRule;
+
+		readonly regExp: (regExp: FieldTextRegExpRule["regExp"], options?: ValidationRuleOptions) => FieldTextRegExpRule;
 
 		readonly length: {
-			readonly min: (minLength: number, options?: ValidationRuleOptions) => FieldTextMinLengthRule,
-			readonly max: (maxLength: number, options?: ValidationRuleOptions) => FieldTextMaxLengthRule,
-			readonly exact: (length: number | number[], options?: ValidationRuleOptions) => FieldTextLengthRule,
-			readonly range: (minLength: number, maxLength: number, options?: ValidationRuleOptions & { mustBeLess?: boolean; mustBeGreater?: boolean; }) => FieldTextLengthRangeRule,
-		}
-	},
+			readonly min: (minLength: FieldTextMinLengthRule["minLength"], options?: ValidationRuleOptions) => FieldTextMinLengthRule;
+			readonly max: (maxLength: FieldTextMaxLengthRule["maxLength"], options?: ValidationRuleOptions) => FieldTextMaxLengthRule;
+			readonly value: (length: FieldTextLengthRule["expectedLength"], options?: ValidationRuleOptions) => FieldTextLengthRule;
+			readonly range: (
+				minLength: FieldTextLengthRangeRule["minLength"],
+				maxLength: FieldTextLengthRangeRule["maxLength"],
+				options?: ValidationRuleOptions
+			) => FieldTextLengthRangeRule;
+		};
+	};
 
 	readonly number: {
-		readonly min: (minValue: number, options?: { message?: string; mustBeGreater?: boolean }) => FieldNumberMinValueRule,
-		readonly max: (maxValue: number, options?: { message?: string; mustBeLess?: boolean }) => FieldNumberMaxValueRule,
-		readonly value: (expectedValue: number | number[], options?: ValidationRuleOptions) => FieldNumberValueRule,
-		readonly range: (minValue: number, maxValue: number, options?: ValidationRuleOptions & { mustBeLess?: boolean; mustBeGreater?: boolean; }) => FieldNumberRangeRule
-	},
+		readonly min: (minValue: FieldNumberMinValueRule["minValue"], options?: { message?: string; mustBeGreater?: boolean }) => FieldNumberMinValueRule;
+		readonly max: (maxValue: FieldNumberMaxValueRule["maxValue"], options?: { message?: string; mustBeLess?: boolean }) => FieldNumberMaxValueRule;
+		readonly value: (expectedValue: FieldNumberValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldNumberValueRule;
+		readonly range: (
+			minValue: FieldNumberRangeRule["minValue"],
+			maxValue: FieldNumberRangeRule["maxValue"],
+			options?: ValidationRuleOptions & {
+				mustBeLess?: boolean;
+				mustBeGreater?: boolean;
+			}
+		) => FieldNumberRangeRule;
+	};
 
 	readonly date: {
-		readonly min: (minDate: Date, options?: { message?: string; mustBeGreater?: boolean }) => FieldDateMinValueRule,
-		readonly max: (maxDate: Date, options?: { message?: string; mustBeLess?: boolean }) => FieldDateMaxValueRule,
-		readonly value: (expectedValue: Date | Date[], options?: ValidationRuleOptions) => FieldDateValueRule,
-		readonly range: (minDate: Date, maxDate: Date, options?: ValidationRuleOptions & { mustBeLess?: boolean; mustBeGreater?: boolean; }) => FieldDateRangeRule
-	},
+		readonly min: (minDate: FieldDateMinValueRule["minDate"], options?: { message?: string; mustBeGreater?: boolean }) => FieldDateMinValueRule;
+		readonly max: (maxDate: FieldDateMaxValueRule["maxDate"], options?: { message?: string; mustBeLess?: boolean }) => FieldDateMaxValueRule;
+		readonly value: (expectedValue: FieldDateValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldDateValueRule;
+		readonly range: (
+			minDate: FieldDateRangeRule["minDate"],
+			maxDate: FieldDateRangeRule["maxDate"],
+			options?: ValidationRuleOptions & {
+				mustBeLess?: boolean;
+				mustBeGreater?: boolean;
+			}) => FieldDateRangeRule;
+	};
 
 	readonly boolean: {
-		readonly value: (expectedValue: boolean, options?: ValidationRuleOptions) => FieldBooleanValueRule
-	},
+		readonly value: (expectedValue: FieldBooleanValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldBooleanValueRule;
+	};
 
 	readonly file: {
-		readonly maxSize: (maxSizeBytes: number, options?: ValidationRuleOptions) => FieldFileMaxSizeRule,
-		readonly contentType: (contentTypes: ContentType[], options?: ValidationRuleOptions) => FieldFileContentTypeRule,
-	},
+		readonly size: {
+			readonly max: (maxSizeBytes: FieldFileMaxSizeRule["maxFileSize"], options?: ValidationRuleOptions) => FieldFileMaxSizeRule;
+		};
+
+		readonly contentType: (contentTypes: FieldFileContentTypeRule["allowedContentTypes"], options?: ValidationRuleOptions) => FieldFileContentTypeRule;
+	};
 
 	readonly array: {
 		readonly include: {
-			readonly some: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeSomeRule,
-			readonly all: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeAllRule,
-			readonly none: (item: unknown, options?: ValidationRuleOptions) => FieldArrayIncludeNoneRule,
-		},
+			readonly some: (
+				item: FieldArrayIncludeSomeRule["item"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayIncludeSomeRule["filter"] }
+			) => FieldArrayIncludeSomeRule;
+
+			readonly all: (
+				item: FieldArrayIncludeAllRule["item"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayIncludeAllRule["filter"] }
+			) => FieldArrayIncludeAllRule;
+
+			readonly none: (
+				item: FieldArrayIncludeNoneRule["item"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayIncludeNoneRule["filter"] }
+			) => FieldArrayIncludeNoneRule;
+		};
 
 		readonly length: {
-			readonly min: (minLength: number, options?: ValidationRuleOptions) => FieldArrayMinLengthRule,
-			readonly max: (maxLength: number, options?: ValidationRuleOptions) => FieldArrayMaxLengthRule,
-			readonly exact: (length: number | number[], options?: ValidationRuleOptions) => FieldArrayLengthRule,
-			readonly range: (minLength: number, maxLength: number, options?: ValidationRuleOptions & { mustBeLess?: boolean; mustBeGreater?: boolean; }) => FieldArrayLengthRangeRule
-		},
+			readonly min: (
+				minLength: FieldArrayMinLengthRule["minLength"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayMinLengthRule["filter"] }
+			) => FieldArrayMinLengthRule;
 
-		readonly operators: {
-			readonly all: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateAllRule,
-			readonly some: (predicate: FieldValidationRule, options?: ValidationRuleOptions) => FieldArrayPredicateSomeRule
-		}
-	},
+			readonly max: (
+				maxLength: FieldArrayMaxLengthRule["maxLength"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayMaxLengthRule["filter"] }
+			) => FieldArrayMaxLengthRule;
 
-	readonly custom: (validate: (fieldValue: unknown, fieldType: FieldType) => boolean, options?: ValidationRuleOptions) => FieldCustomValidationRule
+			readonly value: (
+				length: FieldArrayLengthRule["expectedLength"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayLengthRule["filter"] }
+			) => FieldArrayLengthRule;
+
+			readonly range: (
+				minLength: FieldArrayLengthRangeRule["minLength"],
+				maxLength: FieldArrayLengthRangeRule["maxLength"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayLengthRangeRule["filter"] }
+			) => FieldArrayLengthRangeRule;
+		};
+
+		readonly index: {
+			readonly min: (minIndex: ArrayIndexMinRule["minIndex"], options?: ValidationRuleOptions) => ArrayIndexMinRule;
+			readonly max: (maxIndex: ArrayIndexMaxRule["maxIndex"], options?: ValidationRuleOptions) => ArrayIndexMaxRule,
+			readonly value: (index: ArrayIndexRule["index"], options?: ValidationRuleOptions) => ArrayIndexRule;
+			readonly range: (
+				minIndex: ArrayIndexRangeRule["minIndex"],
+				maxIndex: ArrayIndexRangeRule["maxIndex"],
+				options?: ValidationRuleOptions
+			) => ArrayIndexRangeRule;
+		};
+
+		readonly predicates: {
+			readonly all: (
+				predicate: FieldArrayPredicateAllRule["predicate"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayPredicateAllRule["filter"] }
+			) => FieldArrayPredicateAllRule;
+
+			readonly some: (
+				predicate: FieldArrayPredicateSomeRule["predicate"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayPredicateSomeRule["filter"] }
+			) => FieldArrayPredicateSomeRule;
+		};
+	};
+
+	readonly custom: (validate: FieldCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldCustomValidationRule;
 
 	readonly operators: {
-		readonly some: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => SomeRulesValidRule,
-		readonly all: (rules: FieldValidationRule[], options?: ValidationRuleOptions) => AllRulesValidRule
-	},
+		readonly some: (rules: SomeRulesValidRule["rules"], options?: ValidationRuleOptions) => SomeRulesValidRule;
+		readonly all: (rules: AllRulesValidRule["rules"], options?: ValidationRuleOptions) => AllRulesValidRule;
+	};
 
 	readonly conditions: {
 		readonly ifThenElse: (
 			if_: FieldValidationRule,
-			then_: FieldValidationRule | FieldValidationRule[],
-			else_?: FieldValidationRule | FieldValidationRule[],
+			then_: ValueOrArray<FieldValidationRule>,
+			else_?: ValueOrArray<FieldValidationRule>,
 			options?: ValidationRuleOptions
-		) => FieldIfThenElseConditionRule,
-	}
+		) => FieldIfThenElseConditionRule;
+
+		readonly switch: (
+			cases: FieldSwitchConditionRule["cases"],
+			default_?: FieldSwitchConditionRule["default"],
+			options?: ValidationRuleOptions
+		) => FieldSwitchConditionRule;
+	};
+
+	readonly references: {
+		readonly fieldRef: (
+			path: FieldReferenceRule["path"],
+			rules: FieldReferenceRule["rules"],
+			options?: ValidationRuleOptions
+		) => FieldReferenceRule;
+	};
 } = {
-	required: (required, options) => ({
+	required: (options) => ({
 		...options,
-		ruleType: "required",
-		required: required !== false
+		ruleType: "required"
 	}),
 
 	text: {
@@ -119,7 +201,7 @@ export const RULES: {
 				maxLength
 			}),
 
-			exact: (expectedLength, options) => ({
+			value: (expectedLength, options) => ({
 				...options,
 				ruleType: "text-length",
 				expectedLength
@@ -197,11 +279,13 @@ export const RULES: {
 	},
 
 	file: {
-		maxSize: (maxFileSize, options) => ({
-			...options,
-			ruleType: "file-size-max",
-			maxFileSize
-		}),
+		size: {
+			max: (maxFileSize, options) => ({
+				...options,
+				ruleType: "file-size-max",
+				maxFileSize
+			})
+		},
 
 		contentType: (allowedContentTypes, options) => ({
 			...options,
@@ -244,7 +328,7 @@ export const RULES: {
 				maxLength
 			}),
 
-			exact: (expectedLength, options) => ({
+			value: (expectedLength, options) => ({
 				...options,
 				ruleType: "array-length",
 				expectedLength
@@ -258,7 +342,34 @@ export const RULES: {
 			})
 		},
 
-		operators: {
+		index: {
+			min: (minIndex, options) => ({
+				...options,
+				ruleType: "array-index-min",
+				minIndex
+			}),
+
+			max: (maxIndex, options) => ({
+				...options,
+				ruleType: "array-index-max",
+				maxIndex
+			}),
+
+			value: (index, options) => ({
+				...options,
+				ruleType: "array-index",
+				index
+			}),
+
+			range: (minIndex, maxIndex, options) => ({
+				...options,
+				ruleType: "array-index-range",
+				minIndex,
+				maxIndex
+			})
+		},
+
+		predicates: {
 			all: (predicate, options) => ({
 				...options,
 				ruleType: "array-predicate-all",
@@ -300,6 +411,22 @@ export const RULES: {
 			if: if_,
 			then: then_,
 			else: else_
+		}),
+
+		switch: (cases, default_, options) => ({
+			...options,
+			ruleType: "switch",
+			cases,
+			default: default_
+		})
+	},
+
+	references: {
+		fieldRef: (path, rules, options) => ({
+			...options,
+			ruleType: "field-reference",
+			path,
+			rules
 		})
 	}
 };

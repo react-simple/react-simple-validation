@@ -1,12 +1,9 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.date-min', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-min",
-		minDate: new Date(2000, 1, 1)
-	};
+	const rule = RULES.date.min(new Date(2000, 1, 1));
 
 	let validationResult = validateObject({
 		values: {
@@ -25,11 +22,7 @@ it('validateFields.date-min', () => {
 });
 
 it('validateFields.date-min.mustBeGreater', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-min",
-		minDate: new Date(2000, 1, 1),
-		mustBeGreater: true
-	};
+	const rule = RULES.date.min(new Date(2000, 1, 1), { mustBeGreater: true });
 
 	let validationResult = validateObject({
 		values: {
@@ -48,10 +41,7 @@ it('validateFields.date-min.mustBeGreater', () => {
 });
 
 it('validateFields.date-max', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-max",
-		maxDate: new Date(2000, 1, 1)
-	};
+	const rule = RULES.date.max(new Date(2000, 1, 1));
 
 	let validationResult = validateObject({
 		values: {
@@ -70,11 +60,7 @@ it('validateFields.date-max', () => {
 });
 
 it('validateFields.date-max.mustBeLess', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-max",
-		maxDate: new Date(2000, 1, 1),
-		mustBeLess: true
-	};
+	const rule = RULES.date.max(new Date(2000, 1, 1), { mustBeLess: true });
 
 	let validationResult = validateObject({
 		values: {
@@ -93,11 +79,7 @@ it('validateFields.date-max.mustBeLess', () => {
 });
 
 it('validateFields.date-range', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-range",
-		minDate: new Date(2000, 1, 1),
-		maxDate: new Date(2000, 12, 31)
-	};
+	const rule = RULES.date.range(new Date(2000, 1, 1), new Date(2000, 12, 31));
 
 	let validationResult = validateObject({
 		values: {
@@ -119,10 +101,7 @@ it('validateFields.date-range', () => {
 });
 
 it('validateFields.date-value', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-value",
-		expectedValue: new Date(2000, 1, 2, 3, 4, 5, 6)
-	};
+	const rule = RULES.date.value(new Date(2000, 1, 2, 3, 4, 5, 6));
 
 	let validationResult = validateObject({
 		values: {
@@ -141,10 +120,7 @@ it('validateFields.date-value', () => {
 });
 
 it('validateFields.date-value.array', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "date-value",
-		expectedValue: [new Date(2000, 1, 2, 3, 4, 5, 6), new Date(2001, 1, 2, 3, 4, 5, 6)]
-	};
+	const rule = RULES.date.value([new Date(2000, 1, 2, 3, 4, 5, 6), new Date(2001, 1, 2, 3, 4, 5, 6)]);
 
 	let validationResult = validateObject({
 		values: {

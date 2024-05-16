@@ -1,12 +1,9 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.text-length-min', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-length-min",
-		minLength: 3
-	};
+	const rule = RULES.text.length.min(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -25,10 +22,7 @@ it('validateFields.text-length-min', () => {
 });
 
 it('validateFields.text-length-max', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-length-max",
-		maxLength: 3
-	};
+	const rule = RULES.text.length.max(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -47,10 +41,7 @@ it('validateFields.text-length-max', () => {
 });
 
 it('validateFields.text-length', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-length",
-		expectedLength: 3
-	};
+	const rule = RULES.text.length.value(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -69,11 +60,7 @@ it('validateFields.text-length', () => {
 });
 
 it('validateFields.text-length-range', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-length-range",
-		minLength: 3,
-		maxLength: 4
-	};
+	const rule = RULES.text.length.range(3, 4);
 
 	let validationResult = validateObject({
 		values: {
@@ -98,10 +85,7 @@ it('validateFields.text-length-range', () => {
 });
 
 it('validateFields.text-regexp', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-regexp",
-		regExp: /^\w{3}$/
-	};
+	const rule = RULES.text.regExp(/^\w{3}$/);
 
 	let validationResult = validateObject({
 		values: {
@@ -120,10 +104,7 @@ it('validateFields.text-regexp', () => {
 });
 
 it('validateFields.text-regexp.array', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-regexp",
-		regExp: [/^\w{3}$/, /^\w{4}$/]
-	};
+	const rule = RULES.text.regExp([/^\w{3}$/, /^\w{4}$/]);
 
 	let validationResult = validateObject({
 		values: {
@@ -148,11 +129,7 @@ it('validateFields.text-regexp.array', () => {
 });
 
 it('validateFields.text-value', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-value",
-		expectedValue: "ABC",
-		caseInsensitive: true
-	};
+	const rule = RULES.text.value("ABC", { caseInsensitive: true });
 
 	let validationResult = validateObject({
 		values: {
@@ -171,11 +148,7 @@ it('validateFields.text-value', () => {
 });
 
 it('validateFields.text-value.array', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "text-value",
-		expectedValue: ["ABC", "123"],
-		caseInsensitive: true
-	};
+	const rule = RULES.text.value(["ABC", "123"], { caseInsensitive: true });
 
 	let validationResult = validateObject({
 		values: {

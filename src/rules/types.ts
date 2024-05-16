@@ -1,4 +1,4 @@
-import { ContentType } from "@react-simple/react-simple-util";
+import { ContentType, ValueOrArray } from "@react-simple/react-simple-util";
 import { BaseFieldType, FieldType } from "fields";
 import { FieldValidationContext } from "validation/types";
 
@@ -56,6 +56,7 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 
 	// conditions
 	["if-then-else"]: "if-then-else",
+	["switch"]: "switch",
 
 	// references
 	["field-reference"]: "field-reference"
@@ -75,7 +76,6 @@ export interface FieldTypeRule extends FieldValidationRuleBase {
 
 export interface FieldRequiredRule extends FieldValidationRuleBase {
 	readonly ruleType: "required";
-	readonly required: boolean;
 }
 
 export interface FieldTextMinLengthRule extends FieldValidationRuleBase {
@@ -90,7 +90,7 @@ export interface FieldTextMaxLengthRule extends FieldValidationRuleBase {
 
 export interface FieldTextLengthRule extends FieldValidationRuleBase {
 	readonly ruleType: "text-length";
-	readonly expectedLength: number | number[];
+	readonly expectedLength: ValueOrArray<number>;
 }
 
 export interface FieldTextLengthRangeRule extends FieldValidationRuleBase {
@@ -101,7 +101,7 @@ export interface FieldTextLengthRangeRule extends FieldValidationRuleBase {
 
 export interface FieldTextValueRule extends FieldValidationRuleBase {
 	readonly ruleType: "text-value";
-	readonly expectedValue: string | string[];
+	readonly expectedValue: ValueOrArray<string>;
 	readonly caseInsensitive?: boolean;
 }
 
@@ -119,7 +119,7 @@ export interface FieldNumberMaxValueRule extends FieldValidationRuleBase {
 
 export interface FieldNumberValueRule extends FieldValidationRuleBase {
 	readonly ruleType: "number-value";
-	readonly expectedValue: number | number[];
+	readonly expectedValue: ValueOrArray<number>;
 }
 
 export interface FieldNumberRangeRule extends FieldValidationRuleBase {
@@ -144,7 +144,7 @@ export interface FieldDateMaxValueRule extends FieldValidationRuleBase {
 
 export interface FieldDateValueRule extends FieldValidationRuleBase {
 	readonly ruleType: "date-value";
-	readonly expectedValue: Date | Date[];
+	readonly expectedValue: ValueOrArray<Date>;
 }
 
 export interface FieldDateRangeRule extends FieldValidationRuleBase {
@@ -162,7 +162,7 @@ export interface FieldBooleanValueRule extends FieldValidationRuleBase {
 
 export interface FieldTextRegExpRule extends FieldValidationRuleBase {
 	readonly ruleType: "text-regexp";
-	readonly regExp: RegExp | RegExp[];
+	readonly regExp: ValueOrArray<RegExp>;
 }
 
 export interface FieldFileMaxSizeRule extends FieldValidationRuleBase {
@@ -172,7 +172,7 @@ export interface FieldFileMaxSizeRule extends FieldValidationRuleBase {
 
 export interface FieldFileContentTypeRule extends FieldValidationRuleBase {
 	readonly ruleType: "file-contenttype";
-	readonly allowedContentTypes: ContentType[];
+	readonly allowedContentTypes: ValueOrArray<ContentType>;
 }
 
 export interface FieldArrayMinLengthRule extends FieldValidationRuleBase {
@@ -189,7 +189,7 @@ export interface FieldArrayMaxLengthRule extends FieldValidationRuleBase {
 
 export interface FieldArrayLengthRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-length";
-	readonly expectedLength: number | number[];
+	readonly expectedLength: ValueOrArray<number>;
 	readonly filter?: FieldValidationRule; // count only matching items
 }
 
@@ -202,30 +202,32 @@ export interface FieldArrayLengthRangeRule extends FieldValidationRuleBase {
 
 export interface FieldArrayIncludeSomeRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-include-some";
-	readonly item: unknown | unknown[];
+	readonly item: ValueOrArray<unknown>;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldArrayIncludeAllRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-include-all";
-	readonly item: unknown | unknown[];
+	readonly item: ValueOrArray<unknown>;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldArrayIncludeNoneRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-include-none";
-	readonly item: unknown | unknown[];
+	readonly item: ValueOrArray<unknown>;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldArrayPredicateSomeRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-predicate-some";
 	readonly predicate: FieldValidationRule;
+	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldArrayPredicateAllRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-predicate-all";
 	readonly predicate: FieldValidationRule;
+	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldCustomValidationRule extends FieldValidationRuleBase {
@@ -250,7 +252,7 @@ export interface AllRulesValidRule extends FieldValidationRuleBase {
 
 export interface ArrayIndexRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-index";
-	readonly index: number;
+	readonly index: ValueOrArray<number>;
 }
 
 export interface ArrayIndexMinRule extends FieldValidationRuleBase {
@@ -274,8 +276,14 @@ export interface ArrayIndexRangeRule extends FieldValidationRuleBase {
 export interface FieldIfThenElseConditionRule extends FieldValidationRuleBase {
 	readonly ruleType: "if-then-else";
 	readonly if: FieldValidationRule;
-	readonly then: FieldValidationRule | FieldValidationRule[];
-	readonly else?: FieldValidationRule | FieldValidationRule[];
+	readonly then: ValueOrArray<FieldValidationRule>;
+	readonly else?: ValueOrArray<FieldValidationRule>;
+}
+
+export interface FieldSwitchConditionRule extends FieldValidationRuleBase {
+	readonly ruleType: "switch";
+	readonly cases: [FieldValidationRule, ValueOrArray<FieldValidationRule>][];
+	readonly default?: ValueOrArray<FieldValidationRule>;
 }
 
 export interface FieldReferenceRule extends FieldValidationRuleBase {
@@ -284,7 +292,7 @@ export interface FieldReferenceRule extends FieldValidationRuleBase {
 	// can start with "/" to refer to the root validated object ("/fieldName.fieldName[index].fieldName")
 	// can start with "@refName" to refer to a named parent value ("@partner.fieldName.fieldName[index].fieldName")
 	readonly path: string;
-	readonly rules: FieldValidationRule | FieldValidationRule[];
+	readonly rules: ValueOrArray<FieldValidationRule>;
 }
 
 export type CommonFieldValidationRules =
@@ -296,7 +304,8 @@ export type OperatorValidationRules =
 	| SomeRulesValidRule;
 
 export type ConditionValidationRules =
-	| FieldIfThenElseConditionRule;
+	| FieldIfThenElseConditionRule
+	| FieldSwitchConditionRule;
 
 export type ReferenceValidationRules =
 	| FieldReferenceRule;

@@ -1,13 +1,10 @@
 import { CONTENT_TYPES } from "@react-simple/react-simple-util";
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.file-contenttype', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "file-contenttype",
-		allowedContentTypes: CONTENT_TYPES.documents
-	};
+	const rule = RULES.file.contentType(CONTENT_TYPES.documents);
 
 	let validationResult = validateObject({
 		values: {
@@ -26,10 +23,7 @@ it('validateFields.file-contenttype', () => {
 });
 
 it('validateFields.file-size-max', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "file-size-max",
-		maxFileSize: 1000
-	};
+	const rule = RULES.file.size.max(1000);
 
 	let validationResult = validateObject({
 		values: {

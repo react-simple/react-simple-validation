@@ -1,12 +1,9 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.custom', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "custom",
-		validate: t => t === "123"
-	};
+	const rule = RULES.custom(t => t === "123");
 
 	let validationResult = validateObject({
 		values: {

@@ -41,7 +41,7 @@ export interface FieldValidationContext {
 	readonly currentObj: TypedFieldSetNamed; // closest object in the hierarchy where references are resolved by default (unless referring to root or named obj)
 
 	// if specified and full qualified member name starts with "@refName" then the evaluation will start at the named object found here, not the parameter object
-	readonly namedObjs: { [name: string]: TypedFieldSetNamed };
+	readonly namedObjs: { [refName: string]: TypedFieldSetNamed };
 
 	readonly customData?: unknown; // for custom validation, whatever is needed will be passed over
 }

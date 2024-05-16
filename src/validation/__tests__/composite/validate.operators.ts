@@ -1,16 +1,13 @@
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 import { FIELDS } from "fields";
 
 it('validateFields.some-rules-valid', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "some-rules-valid",
-		// this actually could be done using the number-value rule with array of numbers in expectedValue
-		rules: [
-			{ ruleType: "number-value", expectedValue: 1 },
-			{ ruleType: "number-value", expectedValue: 2 }
-		]
-	};
+	// this actually could be done using the number-value rule with array of numbers in expectedValue
+	const rule = RULES.operators.some([
+		RULES.number.value(1),
+		RULES.number.value(2)
+	]);
 
 	const validationResult = validateObject({
 		values: {
@@ -29,14 +26,11 @@ it('validateFields.some-rules-valid', () => {
 });
 
 it('validateFields.all-rules-valid', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "all-rules-valid",
-		// this actually could be done using the number-range rule
-		rules: [
-			{ ruleType: "number-min", minValue: 1 },
-			{ ruleType: "number-max", maxValue: 10 }
-		]
-	};
+	// this actually could be done using the number-range rule
+	const rule = RULES.operators.all([
+		RULES.number.min(1),
+		RULES.number.max(10)
+	]);
 
 	const validationResult = validateObject({
 		values: {

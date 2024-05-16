@@ -1,12 +1,9 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule, RULES } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.array-length-max', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-length-max",
-		maxLength: 3
-	};
+	const rule = RULES.array.length.max(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -25,11 +22,7 @@ it('validateFields.array-length-max', () => {
 });
 
 it('validateFields.array-length-max.filter', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-length-max",
-		maxLength: 2,
-		filter: RULES.number.min(2)
-	};
+	const rule = RULES.array.length.max(2, { filter: RULES.number.min(2) });
 
 	let validationResult = validateObject({
 		values: {
@@ -48,10 +41,7 @@ it('validateFields.array-length-max.filter', () => {
 });
 
 it('validateFields.array-length-min', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-length-min",
-		minLength: 3
-	};
+	const rule = RULES.array.length.min(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -70,11 +60,7 @@ it('validateFields.array-length-min', () => {
 });
 
 it('validateFields.array-length-range', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-length-range",
-		minLength: 3,
-		maxLength: 4
-	};
+	const rule = RULES.array.length.range(3, 4);
 
 	let validationResult = validateObject({
 		values: {
@@ -99,10 +85,7 @@ it('validateFields.array-length-range', () => {
 });
 
 it('validateFields.array-length', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-length",
-		expectedLength: 3
-	};
+	const rule = RULES.array.length.value(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -141,10 +124,7 @@ it('validateFields.array.valueType', () => {
 });
 
 it('validateFields.array-include-some', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-include-some",
-		item: [1, 6]
-	};
+	const rule = RULES.array.include.some([1, 6]);
 
 	let validationResult = validateObject({
 		values: {
@@ -166,10 +146,7 @@ it('validateFields.array-include-some', () => {
 });
 
 it('validateFields.array-include-all', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-include-all",
-		item: [1, 3]
-	};
+	const rule = RULES.array.include.all([1, 3]);
 
 	let validationResult = validateObject({
 		values: {
@@ -188,10 +165,7 @@ it('validateFields.array-include-all', () => {
 });
 
 it('validateFields.array-include-none', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "array-include-none",
-		item: [1, 3]
-	};
+	const rule = RULES.array.include.none([1, 3]);
 
 	let validationResult = validateObject({
 		values: {
@@ -211,13 +185,7 @@ it('validateFields.array-include-none', () => {
 
 it('validateFields.array-predicate-some', () => {
 	// some items in the array must be 1 or 6 (but we don't need both)
-	const rule: FieldValidationRule = {
-		ruleType: "array-predicate-some",
-		predicate: {
-			ruleType: "number-value",
-			expectedValue: [1, 6]
-		}
-	};
+	const rule = RULES.array.predicates.some(RULES.number.value([1, 6]));
 
 	let validationResult = validateObject({
 		values: {
@@ -240,13 +208,7 @@ it('validateFields.array-predicate-some', () => {
 
 it('validateFields.array-predicate-all', () => {
 	// all items in the array must be 1 or 3 (but we don't need both)
-	const rule: FieldValidationRule = {
-		ruleType: "array-predicate-all",
-		predicate: {
-			ruleType: "number-value",
-			expectedValue: [1, 3]
-		}
-	};
+	const rule = RULES.array.predicates.all(RULES.number.value([1, 3]));
 
 	let validationResult = validateObject({
 		values: {
@@ -266,17 +228,9 @@ it('validateFields.array-predicate-all', () => {
 
 it('validateFields.array-index', () => {
 	// item at index 2 should be 'C'
-	const rule: FieldValidationRule = {
-		ruleType: "if-then-else",
-		if: {
-			ruleType: "array-index",
-			index: 2
-		},
-		then: {
-			ruleType: "text-value",
-			expectedValue: "C"
-		}
-	};
+	const rule = RULES.conditions.ifThenElse(
+		RULES.array.index.value(2),
+		RULES.text.value("C"));
 
 	let validationResult = validateObject({
 		values: {

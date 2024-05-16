@@ -1,12 +1,9 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.boolean-value', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "boolean-value",
-		expectedValue: false
-	};
+	const rule = RULES.boolean.value(false);
 
 	let validationResult = validateObject({
 		values: {

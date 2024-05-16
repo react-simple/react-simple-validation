@@ -1,5 +1,5 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.required', () => {
@@ -37,11 +37,7 @@ it('validateFields.required', () => {
 });
 
 it('validateFields.required.customMessage', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "required",
-		required: true,
-		message: "Mandatory field"
-	};
+	const rule = RULES.required({ message: "Mandatory field" });
 
 	let validationResult = validateObject({
 		values: {

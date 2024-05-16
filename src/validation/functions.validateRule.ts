@@ -2,9 +2,32 @@ import {
 	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType,
 	findNonEmptyValue, getObjectChildMemberValue, joinNonEmptyValues
 } from "@react-simple/react-simple-util";
-import { TypedFieldNamed } from "fields";
+import { FieldType, TypedFieldNamed } from "fields";
 import { FieldValidationRule } from "rules";
 import { FieldRuleValidationResult, FieldValidationContext } from "./types";
+
+const getFilteredArrayItems = (
+	rule: { filter?: FieldValidationRule },
+	value: unknown[],
+	type: { itemFieldType: FieldType },
+	fullQualifiedName: string,
+	context: FieldValidationContext
+) => {
+	return rule.filter
+		? value.filter((itemValue, arrayIndex) => validateRule(
+			rule.filter!,
+			{
+				value: itemValue,
+				type: type.itemFieldType,
+				fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
+			},
+			{
+				...context,
+				arrayIndex
+			}
+		).isValid)
+		: value;
+};
 
 // returns errors
 export function validateRule(
@@ -91,8 +114,13 @@ export function validateRule(
 			if (type.baseType === "file" && isFile(value)) {
 				isChecked = true;
 
-				if (value.type && rule.allowedContentTypes.length) {
-					isValid = rule.allowedContentTypes.some(contentType => contentType.allowedContentTypes.includes(value.type));
+				if (value.type && rule.allowedContentTypes) {
+					if (!isArray(rule.allowedContentTypes)) {
+						isValid = rule.allowedContentTypes.allowedContentTypes.includes(value.type);
+					}
+					else if (rule.allowedContentTypes.length) {
+						isValid = rule.allowedContentTypes.some(contentType => contentType.allowedContentTypes.includes(value.type));
+					}
 				}
 			}
 			break;
@@ -148,20 +176,7 @@ export function validateRule(
 
 		case "array-length-min":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = items.length >= rule.minLength;
@@ -170,21 +185,7 @@ export function validateRule(
 
 		case "array-length-max":
 			if (type.baseType === "array" && isArray(value)) {
-
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = items.length <= rule.maxLength;
@@ -193,21 +194,7 @@ export function validateRule(
 
 		case "array-length-range":
 			if (type.baseType === "array" && isArray(value)) {
-
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = items.length <= rule.maxLength && items.length >= rule.minLength;
@@ -216,21 +203,7 @@ export function validateRule(
 
 		case "array-length":
 			if (type.baseType === "array" && isArray(value)) {
-
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = isArray(rule.expectedLength)
@@ -241,20 +214,7 @@ export function validateRule(
 
 		case "array-include-some":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = isArray(rule.item)
@@ -265,20 +225,7 @@ export function validateRule(
 
 		case "array-include-all":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = isArray(rule.item)
@@ -289,20 +236,7 @@ export function validateRule(
 
 		case "array-include-none":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = rule.filter
-					? value.filter((itemValue, arrayIndex) => validateRule(
-						rule.filter!,
-						{
-							value: itemValue,
-							type: type.itemFieldType,
-							fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-						},
-						{
-							...context,
-							arrayIndex
-						}
-					).isValid)
-					: value;
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
 
 				isChecked = true;
 				isValid = isArray(rule.item)
@@ -313,8 +247,10 @@ export function validateRule(
 
 		case "array-predicate-some":
 			if (type.baseType === "array" && isArray(value)) {
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+
 				isChecked = true;
-				isValid = value.some((itemValue, arrayIndex) => validateRule(
+				isValid = items.some((itemValue, arrayIndex) => validateRule(
 					rule.predicate,
 					{
 						value: itemValue,
@@ -331,8 +267,10 @@ export function validateRule(
 
 		case "array-predicate-all":
 			if (type.baseType === "array" && isArray(value)) {
+				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+
 				isChecked = true;
-				isValid = value.every((itemValue, arrayIndex) => validateRule(
+				isValid = items.every((itemValue, arrayIndex) => validateRule(
 					rule.predicate,
 					{
 						value: itemValue,
@@ -480,6 +418,33 @@ export function validateRule(
 			}
 			else {
 				isValid = true;
+			}
+			break;
+
+		case "switch":
+			isChecked = true;
+			let done = false;
+
+			for (const [if_, then_] of rule.cases) {
+				if (validateRule(if_, field, context).isValid) {
+					isValid = isArray(then_)
+						? then_.every(childRule => validateRule(childRule, field, context).isValid)
+						: validateRule(then_, field, context).isValid;
+
+					done = true;
+					break;
+				}
+			}
+
+			if (!done) {
+				if (rule.default) {
+					isValid = isArray(rule.default)
+						? rule.default.every(childRule => validateRule(childRule, field, context).isValid)
+						: validateRule(rule.default, field, context).isValid;
+				}
+				else {
+					isValid = true;
+				}
 			}
 			break;
 

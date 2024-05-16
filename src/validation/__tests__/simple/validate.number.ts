@@ -1,12 +1,9 @@
 import { FIELDS } from "fields";
-import { FieldValidationRule } from "rules";
+import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.number-max', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-max",
-		maxValue: 3
-	};
+	const rule = RULES.number.max(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -25,11 +22,7 @@ it('validateFields.number-max', () => {
 });
 
 it('validateFields.number-max.mustBeLess', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-max",
-		maxValue: 3,
-		mustBeLess: true
-	};
+	const rule = RULES.number.max(3, { mustBeLess: true });
 
 	let validationResult = validateObject({
 		values: {
@@ -48,10 +41,7 @@ it('validateFields.number-max.mustBeLess', () => {
 });
 
 it('validateFields.number-min', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-min",
-		minValue: 3
-	};
+	const rule = RULES.number.min(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -70,11 +60,7 @@ it('validateFields.number-min', () => {
 });
 
 it('validateFields.number-min', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-min",
-		minValue: 3,
-		mustBeGreater: true
-	};
+	const rule = RULES.number.min(3, { mustBeGreater: true });
 
 	let validationResult = validateObject({
 		values: {
@@ -93,10 +79,7 @@ it('validateFields.number-min', () => {
 });
 
 it('validateFields.number-value', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-value",
-		expectedValue: 3
-	};
+	const rule = RULES.number.value(3);
 
 	let validationResult = validateObject({
 		values: {
@@ -115,13 +98,7 @@ it('validateFields.number-value', () => {
 });
 
 it('validateFields.number-range', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-range",
-		minValue: 3,
-		mustBeGreater: true,
-		maxValue: 4,
-		mustBeLess: true
-	};
+	const rule = RULES.number.range(3, 4, { mustBeGreater: true, mustBeLess: true });
 
 	let validationResult = validateObject({
 		values: {
@@ -143,10 +120,7 @@ it('validateFields.number-range', () => {
 });
 
 it('validateFields.number-value.array', () => {
-	const rule: FieldValidationRule = {
-		ruleType: "number-value",
-		expectedValue: [3, 4]
-	};
+	const rule = RULES.number.value([3, 4]);
 
 	let validationResult = validateObject({
 		values: {
