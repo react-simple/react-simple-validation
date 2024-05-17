@@ -6,7 +6,7 @@ import {
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
 	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
 	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule, FieldSwitchConditionRule,
-	ArrayIndexMinRule, ArrayIndexMaxRule, ArrayIndexRule, ArrayIndexRangeRule, FieldReferenceRule
+	ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule, FieldReferenceRule
 } from "./types";
 
 export interface ValidationRuleOptions {
@@ -116,18 +116,18 @@ export const RULES: {
 			) => FieldArrayLengthRangeRule;
 		};
 
-		readonly index: {
-			readonly min: (minIndex: ArrayIndexMinRule["minIndex"], options?: ValidationRuleOptions) => ArrayIndexMinRule;
-			readonly max: (maxIndex: ArrayIndexMaxRule["maxIndex"], options?: ValidationRuleOptions) => ArrayIndexMaxRule,
-			readonly value: (index: ArrayIndexRule["index"], options?: ValidationRuleOptions) => ArrayIndexRule;
-			readonly range: (
-				minIndex: ArrayIndexRangeRule["minIndex"],
-				maxIndex: ArrayIndexRangeRule["maxIndex"],
-				options?: ValidationRuleOptions
-			) => ArrayIndexRangeRule;
-		};
+		readonly item: {
+			readonly index: {
+				readonly min: (minIndex: ArrayItemIndexMinRule["minIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMinRule;
+				readonly max: (maxIndex: ArrayItemIndexMaxRule["maxIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMaxRule,
+				readonly value: (index: ArrayItemIndexRule["index"], options?: ValidationRuleOptions) => ArrayItemIndexRule;
+				readonly range: (
+					minIndex: ArrayItemIndexRangeRule["minIndex"],
+					maxIndex: ArrayItemIndexRangeRule["maxIndex"],
+					options?: ValidationRuleOptions
+				) => ArrayItemIndexRangeRule;
+			};
 
-		readonly predicates: {
 			readonly all: (
 				predicate: FieldArrayPredicateAllRule["predicate"],
 				options?: ValidationRuleOptions & { filter?: FieldArrayPredicateAllRule["filter"] }
@@ -342,34 +342,34 @@ export const RULES: {
 			})
 		},
 
-		index: {
-			min: (minIndex, options) => ({
-				...options,
-				ruleType: "array-index-min",
-				minIndex
-			}),
+		item: {
+			index: {
+				min: (minIndex, options) => ({
+					...options,
+					ruleType: "array-item-index-min",
+					minIndex
+				}),
 
-			max: (maxIndex, options) => ({
-				...options,
-				ruleType: "array-index-max",
-				maxIndex
-			}),
+				max: (maxIndex, options) => ({
+					...options,
+					ruleType: "array-item-index-max",
+					maxIndex
+				}),
 
-			value: (index, options) => ({
-				...options,
-				ruleType: "array-index",
-				index
-			}),
+				value: (index, options) => ({
+					...options,
+					ruleType: "array-item-index",
+					index
+				}),
 
-			range: (minIndex, maxIndex, options) => ({
-				...options,
-				ruleType: "array-index-range",
-				minIndex,
-				maxIndex
-			})
-		},
+				range: (minIndex, maxIndex, options) => ({
+					...options,
+					ruleType: "array-item-index-range",
+					minIndex,
+					maxIndex
+				})
+			},
 
-		predicates: {
 			all: (predicate, options) => ({
 				...options,
 				ruleType: "array-predicate-all",

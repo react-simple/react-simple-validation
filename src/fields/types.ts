@@ -75,6 +75,17 @@ export type FieldTypes<TypeObj = unknown> = {
 	[name in keyof TypeObj]: FieldType;
 };
 
+export interface FieldTypesNamed<TypeObj = unknown> {
+	readonly types: FieldTypes<TypeObj>;
+	readonly fullQualifiedName: string;
+}
+
+export interface FieldTypeNamed<TFieldType extends FieldType = FieldType> {
+	readonly type: TFieldType;
+	readonly name: string;
+	readonly fullQualifiedName: string;
+}
+
 export interface TypedFieldSet<TypeObj = unknown, ValueObj = unknown> {
 	readonly values: ValueObj;
 	readonly types: FieldTypes<TypeObj>;
@@ -90,5 +101,6 @@ export interface TypedField<TFieldType = FieldType, Value = unknown> {
 }
 
 export interface TypedFieldNamed<TFieldType = FieldType, Value = unknown> extends TypedField<TFieldType, Value> {
+	readonly name: string;
 	readonly fullQualifiedName: string;
 }

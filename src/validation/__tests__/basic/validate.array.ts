@@ -185,7 +185,7 @@ it('validateFields.array-include-none', () => {
 
 it('validateFields.array-predicate-some', () => {
 	// some items in the array must be 1 or 6 (but we don't need both)
-	const rule = RULES.array.predicates.some(RULES.number.value([1, 6]));
+	const rule = RULES.array.item.some(RULES.number.value([1, 6]));
 
 	let validationResult = validateObject({
 		values: {
@@ -208,7 +208,7 @@ it('validateFields.array-predicate-some', () => {
 
 it('validateFields.array-predicate-all', () => {
 	// all items in the array must be 1 or 3 (but we don't need both)
-	const rule = RULES.array.predicates.all(RULES.number.value([1, 3]));
+	const rule = RULES.array.item.all(RULES.number.value([1, 3]));
 
 	let validationResult = validateObject({
 		values: {
@@ -226,10 +226,10 @@ it('validateFields.array-predicate-all', () => {
 	expect(validationResult.validationResult.bad.isValid).toBe(false);
 });
 
-it('validateFields.array-index', () => {
+it('validateFields.array-item-index', () => {
 	// item at index 2 should be 'C'
 	const rule = RULES.conditions.ifThenElse(
-		RULES.array.index.value(2),
+		RULES.array.item.index.value(2),
 		RULES.text.value("C"));
 
 	let validationResult = validateObject({

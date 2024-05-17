@@ -5,7 +5,7 @@ import { validateObject } from "validation";
 it('validateFields.if-then-else.then', () => {
 	// item at index 2 should be 'C'
 	const rule = RULES.conditions.ifThenElse(
-		RULES.array.index.value(2),
+		RULES.array.item.index.value(2),
 		RULES.text.value("C")
 	);
 
@@ -28,7 +28,7 @@ it('validateFields.if-then-else.then', () => {
 it('validateFields.if-then-else.else', () => {
 	// item at index 0 should be 'A' otherwise 'B'
 	const rule = RULES.conditions.ifThenElse(
-		RULES.array.index.value(0),
+		RULES.array.item.index.value(0),
 		RULES.text.value("A"),
 		RULES.text.value("B")
 	);
@@ -53,8 +53,8 @@ it('validateFields.if-then-else.else.inverted', () => {
 	// item at index 0 should be 'A' otherwise 'B'
 	const rule = RULES.conditions.ifThenElse(
 		RULES.text.value("A"),
-		RULES.array.index.value(0),
-		RULES.array.index.value(1)
+		RULES.array.item.index.value(0),
+		RULES.array.item.index.value(1)
 	);
 
 	let validationResult = validateObject({
@@ -77,8 +77,8 @@ it('validateFields.switch', () => {
 	// item at index 0 should be 'A', item at index 1 should be 'B', otherwise 'C'
 	const rule = RULES.conditions.switch(
 		[
-			[RULES.array.index.value(0), RULES.text.value("A")],
-			[RULES.array.index.value(1), RULES.text.value("B")],
+			[RULES.array.item.index.value(0), RULES.text.value("A")],
+			[RULES.array.item.index.value(1), RULES.text.value("B")],
 		],
 		RULES.text.value("C")
 	);

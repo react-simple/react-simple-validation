@@ -1,13 +1,14 @@
-import { Optional, getResolvedArray, joinNonEmptyValues, mergeDictionaries } from "@react-simple/react-simple-util";
+import { Optional, getResolvedArray, joinNonEmptyValues, mapDictionaryValues, mergeDictionaries } from "@react-simple/react-simple-util";
 import { FieldType, TypedFieldNamed, TypedFieldSetNamed } from "fields";
-import { FieldRuleValidationResult, FieldValidationContext, FieldValidationResult, ObjectValidationResult } from "./types";
-import { validateRule } from "./functions.validateRule";
+import { FieldRuleValidationResult, FieldValidationResult, ObjectValidationResult } from "./types";
+import { FieldValidationContext } from "validation/types";
+import { validateRule } from "./validateRule";
 
-export function validateField<TFieldType extends FieldType = FieldType, Value = unknown>(
-	field: TypedFieldNamed<TFieldType, Value>,
+export function validateField(
+	field: TypedFieldNamed,
 	context: FieldValidationContext
-): FieldValidationResult<TFieldType, Value> {
-	const { type, value, fullQualifiedName } = field;
+): FieldValidationResult {
+	const { type, value, name, fullQualifiedName } = field;
 
 	const ruleValidationResult = [
 		// validate type
@@ -17,59 +18,50 @@ export function validateField<TFieldType extends FieldType = FieldType, Value = 
 		...type.rules.map(rule => validateRule(rule, field, context))
 	];
 
-	let objectValidationResult: ObjectValidationResult<unknown, Value> | undefined;
-	let arrayValidationResult: FieldValidationResult<FieldType, Value>[] | undefined;
+	let objectValidationResult: ObjectValidationResult | undefined;
+	let arrayValidationResult: FieldValidationResult[] | undefined;
 
-	// validate object
-	if (type.baseType === "object") {
-		const currentObj: TypedFieldSetNamed<unknown, Value> = {
-			values: value,
-			types: type.objectFieldTypes,
-			fullQualifiedName
-		};
+	if (value) {
+		// validate object
+		if (type.baseType === "object") {
+			const currentObj: TypedFieldSetNamed = {
+				values: value,
+				types: type.objectFieldTypes,
+				fullQualifiedName
+			};
 
-		objectValidationResult = validateObject(
-			currentObj,
-			{
-				...context,
-
-				// set this object as the closest object for field reference evaluation (see "field-reference" rules)
-				currentObj,
-
+			if (type.refName) {
 				// set this object in the namedObjs collection if it has a name (see "field-reference" rules)
-				...type.refName
-					? {
-						namedObjs: {
-							...context.namedObjs,
-							[type.refName]: currentObj
-						}
-					}
-					: {}
+				context.namedObjs[type.refName] = currentObj;
 			}
-		);
-	}
 
-	// validate array
-	if (type.baseType === "array") {
-		arrayValidationResult = getResolvedArray(value).map((itemValue, arrayIndex) =>
-			validateField(
+			objectValidationResult = validateObject(currentObj, {
+				...context,
+				// set this object as the closest object for field reference evaluation (see "field-reference" rules)
+				currentObj
+			});
+		}
+
+		// validate array
+		if (type.baseType === "array") {
+			arrayValidationResult = getResolvedArray(value).map((itemValue, itemIndex) => validateField(
 				{
 					value: itemValue,
 					type: type.itemFieldType,
-					fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
+					name: `${name}[${itemIndex}]`,
+					fullQualifiedName: `${fullQualifiedName}[${itemIndex}]`
 				},
 				{
 					...context,
-					arrayIndex
+					itemIndex
 				}
-			)
-		);
+			));
+		}
 	}
 
 	const ruleValidationResultInvalid = ruleValidationResult.filter(t => !t.isValid);
 
 	return {
-		field,
 		isValid: (
 			ruleValidationResult.every(rule => rule.isValid) &&
 			(!objectValidationResult || objectValidationResult.isValid) &&
@@ -79,44 +71,42 @@ export function validateField<TFieldType extends FieldType = FieldType, Value = 
 			...ruleValidationResultInvalid.length ? { [fullQualifiedName]: ruleValidationResultInvalid } : {},
 			...arrayValidationResult ? mergeDictionaries(arrayValidationResult.filter(t => !t.isValid).map(t => t.errors)) : {},
 			...objectValidationResult?.isValid === false ? objectValidationResult.errors : {}
-		},
-
-		ruleValidationResult,
-		arrayValidationResult,
-		objectValidationResult
+		}
 	};
 }
 
-export function validateObject<TypeObj, ValueObj>(
-	{ types, values, fullQualifiedName = "" }: Optional<TypedFieldSetNamed<TypeObj, ValueObj>, "fullQualifiedName">,
-	context?: FieldValidationContext
-): ObjectValidationResult<TypeObj, ValueObj> {
-	const currentObj: TypedFieldSetNamed<TypeObj, ValueObj> = { types, values, fullQualifiedName };
+// if context is not specified that is understood as a 'validate root object' call, therefore the fieldTypes tree will be first iterated
+// to collect all named objects (for forward references, when an object later in the hierarchy is referred by @refName)
+export function validateObject<TypeObj>(
+	{ types, values, fullQualifiedName = "" }: Optional<TypedFieldSetNamed<TypeObj>, "fullQualifiedName">,
+	context?: Partial<FieldValidationContext>
+): ObjectValidationResult<TypeObj> {	
+	const currentObj: TypedFieldSetNamed = { types, values, fullQualifiedName };
 
-	context ||= {
-		arrayIndex: undefined,
+	let contextResolved: FieldValidationContext = {
+		// defaults
 		currentObj,
 		rootObj: currentObj,
-		namedObjs: {}
+		namedObjs: {},
+		notFoundRefNames: {},
+
+		// overwrite defaults
+		...context
 	};
 
 	const validationResult: { [name in keyof TypeObj]: FieldValidationResult } = {} as any;
 	let errors: { [fullQualifiedName: string]: FieldRuleValidationResult[] } = {};
 	let isValid = true;
 
-	for (const [name, type] of Object.entries(types)) {
-		const value = (values as any)[name];
-		const fullQualifiedName = joinNonEmptyValues([currentObj.fullQualifiedName, name], ".");
-
-		// index is arrayIndex here, not object member index, hence we pass undefined
+	for (const [name, type] of Object.entries<FieldType>(types)) {
 		const fieldValidationResult = validateField(
 			{
-				value,
-				type: type as FieldType,
-				fullQualifiedName
+				type,
+				value: (values as any)[name],
+				name,
+				fullQualifiedName: joinNonEmptyValues([currentObj.fullQualifiedName, name], ".")
 			},
-			context
-		);
+			contextResolved);
 
 		(validationResult as any)[name] = fieldValidationResult;
 
@@ -126,5 +116,11 @@ export function validateObject<TypeObj, ValueObj>(
 		}
 	}
 
-	return { fieldSet: currentObj, isValid, validationResult, errors };
+	return {
+		isValid,
+		validationResult,
+		errors,
+		namedObjs: contextResolved.namedObjs,
+		notFoundRefNames: mapDictionaryValues(contextResolved.notFoundRefNames, t => Object.keys(t))
+	};
 }

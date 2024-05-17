@@ -3,7 +3,7 @@ import { RULES } from "rules";
 import { validateObject } from "validation";
 
 it('validateFields.custom', () => {
-	const rule = RULES.custom(t => t === "123");
+	const rule = RULES.custom(t => ({ isValid: t.value === "123" }));
 
 	let validationResult = validateObject({
 		values: {

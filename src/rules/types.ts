@@ -1,5 +1,5 @@
 import { ContentType, ValueOrArray } from "@react-simple/react-simple-util";
-import { BaseFieldType, FieldType } from "fields";
+import { BaseFieldType, TypedFieldNamed  } from "fields";
 import { FieldValidationContext } from "validation/types";
 
 // no negative rules!
@@ -45,10 +45,10 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["array-include-none"]: "array-include-none",
 	["array-predicate-some"]: "array-predicate-some",
 	["array-predicate-all"]: "array-predicate-all",
-	["array-index"]: "array-index",
-	["array-index-min"]: "array-index-min",
-	["array-index-max"]: "array-index-min",
-	["array-index-range"]: "array-index-min",
+	["array-item-index"]: "array-item-index",
+	["array-item-index-min"]: "array-item-index-min",
+	["array-item-index-max"]: "array-item-index-min",
+	["array-item-index-range"]: "array-item-index-min",
 
 	// rule collection, operators
 	["some-rules-valid"]: "some-rules-valid", // at least one rule must be valid
@@ -233,11 +233,14 @@ export interface FieldArrayPredicateAllRule extends FieldValidationRuleBase {
 export interface FieldCustomValidationRule extends FieldValidationRuleBase {
 	readonly ruleType: "custom";
 	readonly validate: (
-		fieldValue: unknown,
-		fieldType: FieldType,
-		fullQualifiedName: string,
+		field: TypedFieldNamed,
 		context: FieldValidationContext
-	) => boolean;
+	) => {
+		readonly isValid: boolean;
+		readonly isChecked?: boolean; // default is 'true'
+		readonly message?: string;
+		readonly customResult?: unknown;
+	};
 }
 
 export interface SomeRulesValidRule extends FieldValidationRuleBase {
@@ -250,23 +253,23 @@ export interface AllRulesValidRule extends FieldValidationRuleBase {
 	readonly rules: FieldValidationRule[]; // all rules must be valid
 }
 
-export interface ArrayIndexRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-index";
+export interface ArrayItemIndexRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-item-index";
 	readonly index: ValueOrArray<number>;
 }
 
-export interface ArrayIndexMinRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-index-min";
+export interface ArrayItemIndexMinRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-item-index-min";
 	readonly minIndex: number;
 }
 
-export interface ArrayIndexMaxRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-index-max";
+export interface ArrayItemIndexMaxRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-item-index-max";
 	readonly maxIndex: number;
 }
 
-export interface ArrayIndexRangeRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-index-range";
+export interface ArrayItemIndexRangeRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-item-index-range";
 	readonly minIndex: number;
 	readonly maxIndex: number;
 }
@@ -373,10 +376,10 @@ export type SimpleArrayFieldValidationRules =
 	| FieldArrayIncludeSomeRule
 	| FieldArrayIncludeAllRule
 	| FieldArrayIncludeNoneRule
-	| ArrayIndexRule
-	| ArrayIndexMinRule
-	| ArrayIndexMaxRule
-	| ArrayIndexRangeRule;
+	| ArrayItemIndexRule
+	| ArrayItemIndexMinRule
+	| ArrayItemIndexMaxRule
+	| ArrayItemIndexRangeRule;
 
 export type ArrayFieldValidationRules = SimpleArrayFieldValidationRules | CompositeValidationRules;
 

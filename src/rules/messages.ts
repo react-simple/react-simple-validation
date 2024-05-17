@@ -1,11 +1,12 @@
-import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber, isArray } from "@react-simple/react-simple-util";
+import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber, getResolvedArray, isArray } from "@react-simple/react-simple-util";
 import {
-	AllRulesValidRule, ArrayIndexMaxRule, ArrayIndexMinRule, ArrayIndexRangeRule, ArrayIndexRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule,
-	FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule, FieldArrayMinLengthRule, FieldArrayPredicateAllRule,
-	FieldArrayPredicateSomeRule, FieldBooleanValueRule, FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule,
-	FieldDateValueRule, FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldIfThenElseConditionRule, FieldNumberMaxValueRule, FieldNumberMinValueRule,
-	FieldNumberRangeRule, FieldNumberValueRule, FieldReferenceRule, FieldRequiredRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule,
-	FieldTextMinLengthRule, FieldTextRegExpRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
+	AllRulesValidRule, ArrayItemIndexMaxRule, ArrayItemIndexMinRule, ArrayItemIndexRangeRule, ArrayItemIndexRule, FieldArrayIncludeAllRule,
+	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule, FieldArrayMinLengthRule,
+	FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule, FieldBooleanValueRule, FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule,
+	FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldIfThenElseConditionRule, FieldNumberMaxValueRule,
+	FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule, FieldReferenceRule, FieldRequiredRule, FieldSwitchConditionRule,
+	FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule, FieldTextMinLengthRule, FieldTextRegExpRule, FieldTextValueRule, FieldTypeRule,
+	FieldValidationRuleType, SomeRulesValidRule
 } from "./types";
 
 const BLANK = {
@@ -13,10 +14,10 @@ const BLANK = {
 	"array-include-all": (_: FieldArrayIncludeAllRule) => "",
 	"array-include-none": (_: FieldArrayIncludeNoneRule) => "",
 	"array-include-some": (_: FieldArrayIncludeSomeRule) => "",
-	"array-index": (_: ArrayIndexRule) => "",
-	"array-index-min": (_: ArrayIndexMinRule) => "",
-	"array-index-max": (_: ArrayIndexMaxRule) => "",
-	"array-index-range": (_: ArrayIndexRangeRule) => "",
+	"array-item-index": (_: ArrayItemIndexRule) => "",
+	"array-item-index-min": (_: ArrayItemIndexMinRule) => "",
+	"array-item-index-max": (_: ArrayItemIndexMaxRule) => "",
+	"array-item-index-range": (_: ArrayItemIndexRangeRule) => "",
 	"array-length": (_: FieldArrayLengthRule) => "",
 	"array-length-max": (_: FieldArrayMaxLengthRule) => "",
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
@@ -39,6 +40,7 @@ const BLANK = {
 	"number-value": (_: FieldNumberValueRule) => "",
 	"required": (_: FieldRequiredRule) => "",
 	"some-rules-valid": (_: SomeRulesValidRule) => "",
+	"switch": (_: FieldSwitchConditionRule) => "",
 	"text-length": (_: FieldTextLengthRule) => "",
 	"text-length-max": (_: FieldTextMaxLengthRule) => "",
 	"text-length-min": (_: FieldTextMinLengthRule) => "",
@@ -51,7 +53,7 @@ const BLANK = {
 export type ValidationRuleMessages = typeof BLANK;
 
 // we don't want BLANK to be a Record, since that kills the member level typing, but Record help to validate that all FieldValidationRuleType values are listed
-const CHECK_ALL_DEFINED: Record<FieldValidationRuleType, Function> = BLANK;
+const _CHECK_ALL_DEFINED: Record<FieldValidationRuleType, Function> = BLANK;
 
 const dateToStr = (d: Date) => formatDateOrDateTime(d, CULTURE_INFO.DATE_FORMATS["EN-US"]);
 const floatToStr = (n: number, options?: NumberFormatOptions) => formatNumber(n, CULTURE_INFO.NUMBER_FORMATS["EN-US"], options);
@@ -77,7 +79,7 @@ const EN_US: ValidationRuleMessages = {
 		? `Must be one of the following dates: ${expectedValue.map(t => dateToStr(t), ", ").join(", ")}`
 		: `Must be ${dateToStr(expectedValue)}`,
 
-	"file-contenttype": ({ allowedContentTypes }) => `Allowed content: ${allowedContentTypes.map(t => t.name).join(", ")}`,
+	"file-contenttype": ({ allowedContentTypes }) => `Allowed content: ${getResolvedArray(allowedContentTypes).map(t => t.name).join(", ")}`,
 	"file-size-max": ({ maxFileSize }) => maxFileSize >= 0x100000
 		? `Maximum size is ${floatToStr(maxFileSize / 0x100000, { maxDecimalDigits: 1 })} Mb`
 		: `Maximum size is ${floatToStr(maxFileSize / 0x400, { maxDecimalDigits: 1 })} Kb`,
@@ -93,7 +95,7 @@ const EN_US: ValidationRuleMessages = {
 		? `Must be one of the following values: ${expectedValue.map(t => floatToStr(t), ", ").join(", ")}`
 		: `Must be ${floatToStr(expectedValue)}`,
 
-	"required": ({ required }) => required ? "Required" : "Not required",
+	"required": () => "Required",
 	"text-length": ({ expectedLength }) => expectedLength === 1 ? "Must be a single character" : `Must be ${expectedLength} characters long`,
 	"text-length-min": ({ minLength }) => minLength === 1 ? "Minimum 1 character" : `Minimum ${minLength} characters`,
 	"text-length-max": ({ maxLength }) => maxLength === 1 ? "Maximum 1 character" : `Maximum ${maxLength} characters`,
@@ -109,7 +111,7 @@ const EN_US: ValidationRuleMessages = {
 		: `Must be '${expectedValue}'`
 };
 
-export const VALIDATION_RULE_MESSAGES: { readonly [cultureId: string]: ValidationRuleMessages } = {
+export const FIELD_VALIDATION_RULE_MESSAGES: { readonly [cultureId: string]: ValidationRuleMessages } = {
 	BLANK,
 	DEFAULT: EN_US, 
 	"EN-US": EN_US

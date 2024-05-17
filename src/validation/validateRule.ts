@@ -1,6 +1,6 @@
 import {
 	compareDates, isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNumber, isString, isNullOrUndefined, sameDates, isValueType,
-	findNonEmptyValue, getObjectChildMemberValue, joinNonEmptyValues
+	findNonEmptyValue, getObjectChildMemberValue, joinNonEmptyValues, getResolvedArray
 } from "@react-simple/react-simple-util";
 import { FieldType, TypedFieldNamed } from "fields";
 import { FieldValidationRule } from "rules";
@@ -8,28 +8,49 @@ import { FieldRuleValidationResult, FieldValidationContext } from "./types";
 
 const getFilteredArrayItems = (
 	rule: { filter?: FieldValidationRule },
-	value: unknown[],
-	type: { itemFieldType: FieldType },
-	fullQualifiedName: string,
+	field: TypedFieldNamed<{ itemFieldType: FieldType }, unknown[]>,
 	context: FieldValidationContext
 ) => {
 	return rule.filter
-		? value.filter((itemValue, arrayIndex) => validateRule(
+		? field.value.filter((itemValue, itemIndex) => validateRule(
 			rule.filter!,
 			{
 				value: itemValue,
-				type: type.itemFieldType,
-				fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
+				type: field.type.itemFieldType,
+				name: `${field.name}[${itemIndex}]`,
+				fullQualifiedName: `${field.fullQualifiedName}[${itemIndex}]`
 			},
 			{
 				...context,
-				arrayIndex
+				itemIndex
 			}
 		).isValid)
-		: value;
+		: field.value;
 };
 
-// returns errors
+const validateRuleForArrayItem = (
+	itemValue: unknown,
+	itemIndex: number,
+	rule: { predicate: FieldValidationRule },
+	field: TypedFieldNamed<{ itemFieldType: FieldType }, unknown[]>,
+	context: FieldValidationContext
+) => {
+	return validateRule(
+		rule.predicate,
+		{
+			value: itemValue,
+			type: field.type.itemFieldType,
+			name: `${field.name}[${itemIndex}]`,
+			fullQualifiedName: `${field.fullQualifiedName}[${itemIndex}]`
+		},
+		{
+			...context,
+			itemIndex
+		}
+	)
+};
+
+// can return multiple rules, if there are child rules ('switch' or 'if-then-else' for example)
 export function validateRule(
 	rule: FieldValidationRule,
 	field: TypedFieldNamed,
@@ -37,9 +58,13 @@ export function validateRule(
 ): FieldRuleValidationResult {
 	let isChecked = false;
 	let isValid = false;
+	let message = rule.message;
 	let regExpMatch: RegExpMatchArray | undefined;
+	let customResult: unknown;
 
-	const { value, type, fullQualifiedName } = field;
+	const scope = "validateRule";
+	const { value, type, name, fullQualifiedName } = field;
+	let childRules: FieldRuleValidationResult[] = [];
 
 	switch (rule.ruleType) {
 		case "type":
@@ -126,8 +151,11 @@ export function validateRule(
 			break;
 
 		case "custom":
-			isChecked = true;
-			isValid = rule.validate(value, type, fullQualifiedName, context);
+			const res = rule.validate(field, context);
+			isValid = res.isValid;
+			isChecked = res.isChecked !== false;
+			message = res.message || message;
+			customResult = res.customResult || customResult;
 			break;
 
 		case "date-min":
@@ -176,7 +204,7 @@ export function validateRule(
 
 		case "array-length-min":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = items.length >= rule.minLength;
@@ -185,7 +213,7 @@ export function validateRule(
 
 		case "array-length-max":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = items.length <= rule.maxLength;
@@ -194,7 +222,7 @@ export function validateRule(
 
 		case "array-length-range":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = items.length <= rule.maxLength && items.length >= rule.minLength;
@@ -203,7 +231,7 @@ export function validateRule(
 
 		case "array-length":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = isArray(rule.expectedLength)
@@ -214,7 +242,7 @@ export function validateRule(
 
 		case "array-include-some":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = isArray(rule.item)
@@ -225,7 +253,7 @@ export function validateRule(
 
 		case "array-include-all":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = isArray(rule.item)
@@ -236,7 +264,7 @@ export function validateRule(
 
 		case "array-include-none":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
 
 				isChecked = true;
 				isValid = isArray(rule.item)
@@ -247,41 +275,21 @@ export function validateRule(
 
 		case "array-predicate-some":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
+				childRules = items.map((val, ndx) => validateRuleForArrayItem(val, ndx, rule, field as any, context));
 
 				isChecked = true;
-				isValid = items.some((itemValue, arrayIndex) => validateRule(
-					rule.predicate,
-					{
-						value: itemValue,
-						type: type.itemFieldType,
-						fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-					},
-					{
-						...context,
-						arrayIndex
-					}
-				).isValid);
+				isValid = childRules.some(t => t.isValid);
 			}
 			break;
 
 		case "array-predicate-all":
 			if (type.baseType === "array" && isArray(value)) {
-				const items = getFilteredArrayItems(rule, value, type, fullQualifiedName, context);
+				const items = getFilteredArrayItems(rule, field as any, context);
+				childRules = items.map((val, ndx) => validateRuleForArrayItem(val, ndx, rule, field as any, context));
 
 				isChecked = true;
-				isValid = items.every((itemValue, arrayIndex) => validateRule(
-					rule.predicate,
-					{
-						value: itemValue,
-						type: type.itemFieldType,
-						fullQualifiedName: `${fullQualifiedName}[${arrayIndex}]`
-					},
-					{
-						...context,
-						arrayIndex
-					}
-				).isValid);
+				isValid = childRules.every(t => t.isValid);
 			}
 			break;
 
@@ -374,51 +382,46 @@ export function validateRule(
 			break;
 
 		case "some-rules-valid":
+			childRules = rule.rules.map(t => validateRule(t, field, context));
+
 			isChecked = true;
-			isValid = rule.rules.some(childRule => validateRule(childRule, field, context).isValid);
+			isValid = childRules.some(t => t.isValid);
 			break;
 
 		case "all-rules-valid":
+			childRules = rule.rules.map(t => validateRule(t, field, context));
+
 			isChecked = true;
-			isValid = rule.rules.every(childRule => validateRule(childRule, field, context).isValid);
+			isValid = childRules.every(t => t.isValid);
 			break;
 
-		case "array-index":
+		case "array-item-index":
 			isChecked = true;
-			isValid = context.arrayIndex == rule.index;
+			isValid = context.itemIndex == rule.index;
 			break;
 
-		case "array-index-min":
+		case "array-item-index-min":
 			isChecked = true;
-			isValid = !isEmpty(context.arrayIndex) && context.arrayIndex >= rule.minIndex;
+			isValid = !isEmpty(context.itemIndex) && context.itemIndex >= rule.minIndex;
 			break;
 
-		case "array-index-max":
+		case "array-item-index-max":
 			isChecked = true;
-			isValid = !isEmpty(context.arrayIndex) && context.arrayIndex <= rule.maxIndex;
+			isValid = !isEmpty(context.itemIndex) && context.itemIndex <= rule.maxIndex;
 			break;
 
-		case "array-index-range":
+		case "array-item-index-range":
 			isChecked = true;
-			isValid = !isEmpty(context.arrayIndex) && context.arrayIndex >= rule.minIndex && context.arrayIndex <= rule.maxIndex;
+			isValid = !isEmpty(context.itemIndex) && context.itemIndex >= rule.minIndex && context.itemIndex <= rule.maxIndex;
 			break;
 
 		case "if-then-else":
-			isChecked = true;
+			const ifResult = validateRule(rule.if, field, context);
+			const caseRules = getResolvedArray(ifResult.isValid ? rule.then : rule.else);
+			childRules = caseRules.map(t => validateRule(t, field, context));
 
-			if (validateRule(rule.if, field, context).isValid) {
-				isValid = isArray(rule.then)
-					? rule.then.every(childRule => validateRule(childRule, field, context).isValid)
-					: validateRule(rule.then, field, context).isValid;
-			}
-			else if (rule.else) {
-				isValid = isArray(rule.else)
-					? rule.else.every(childRule => validateRule(childRule, field, context).isValid)
-					: validateRule(rule.else, field, context).isValid;
-			}
-			else {
-				isValid = true;
-			}
+			isChecked = true;
+			isValid = childRules.every(t => t.isValid);
 			break;
 
 		case "switch":
@@ -427,10 +430,10 @@ export function validateRule(
 
 			for (const [if_, then_] of rule.cases) {
 				if (validateRule(if_, field, context).isValid) {
-					isValid = isArray(then_)
-						? then_.every(childRule => validateRule(childRule, field, context).isValid)
-						: validateRule(then_, field, context).isValid;
+					const caseResult = getResolvedArray(then_).map(t => validateRule(t, field, context));
+					childRules.push(...caseResult);
 
+					isValid = caseResult.every(t => t.isValid);
 					done = true;
 					break;
 				}
@@ -438,9 +441,10 @@ export function validateRule(
 
 			if (!done) {
 				if (rule.default) {
-					isValid = isArray(rule.default)
-						? rule.default.every(childRule => validateRule(childRule, field, context).isValid)
-						: validateRule(rule.default, field, context).isValid;
+					const caseResult = getResolvedArray(rule.default).map(t => validateRule(t, field, context));
+					childRules.push(...caseResult);
+
+					isValid = caseResult.every(t => t.isValid);
 				}
 				else {
 					isValid = true;
@@ -457,30 +461,45 @@ export function validateRule(
 				// root path?
 				if (path.startsWith("/")) {
 					path = path.substring(1);
+					const i = path.lastIndexOf(".");
 
 					referred = {
 						value: getObjectChildMemberValue(context.rootObj.values, path),
 						type: getObjectChildMemberValue(context.rootObj.types, path),
+						name: i >= 0 ? path.substring(i + 1) : path,
 						fullQualifiedName: path
 					};
 				}
 				else if (path[0].startsWith("@")) {
-					const i = path.indexOf(".", 1);
-					const namedObj = context.namedObjs[i >= 0 ? path.substring(1, i) : path.substring(1)];
+					let i = path.indexOf(".", 1);
+					const refName = i >= 0 ? path.substring(1, i) : path.substring(1);
+					const namedObj = context.namedObjs[refName];
 					path = i >= 0 ? path.substring(i + 1) : "";
 
 					if (namedObj) {
+						i = path.lastIndexOf(".");
+
 						referred = {
 							value: getObjectChildMemberValue(namedObj.values, path),
 							type: getObjectChildMemberValue(namedObj.types, path),
+							name: i >= 0 ? path.substring(i + 1) : path,
 							fullQualifiedName: joinNonEmptyValues([namedObj.fullQualifiedName, path], ".")
+						};
+					}
+					else {
+						context.notFoundRefNames[refName] = {
+							...context.notFoundRefNames[refName],
+							[fullQualifiedName]: { field, rule }
 						};
 					}
 				}
 				else {
+					const i = path.lastIndexOf(".");
+
 					referred = {
 						value: getObjectChildMemberValue(context.currentObj.values, path),
 						type: getObjectChildMemberValue(context.currentObj.types, path),
+						name: i >= 0 ? path.substring(i + 1) : path,
 						fullQualifiedName: joinNonEmptyValues([context.currentObj.fullQualifiedName, path], ".")
 					};
 				}
@@ -490,7 +509,7 @@ export function validateRule(
 
 					isValid = isChecked && (
 						isArray(rule.rules)
-							? rule.rules.every(childRule => validateRule(childRule, referred!, context).isValid)
+							? rule.rules.every(childRule => validateRule(childRule, referred!, context,).isValid)
 							: validateRule(rule.rules, referred, context).isValid
 					);
 				}
@@ -500,11 +519,21 @@ export function validateRule(
 	}
 
 	return {
-		field,
+		name,
+		fullQualifiedName,
+		objectFullQualifiedName: context.currentObj.fullQualifiedName,
+		itemIndex: context.itemIndex,
+
+		rule,
+		fieldType: field.type.type,
+		value,		
+
 		isValid,
 		isChecked,
-		rule,
+		message: !isValid ? message : undefined,
+
 		regExpMatch,
-		message: !isValid ? rule.message : undefined
+		customResult,
+		childRules
 	};
 }
