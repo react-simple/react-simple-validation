@@ -4,6 +4,7 @@ import {
 } from "rules";
 
 export const BASE_FIELD_TYPES = {
+	any: "any", // no type check
 	text: "text",
 	number: "number",
 	boolean: "boolean",
@@ -20,6 +21,12 @@ export interface FieldTypeBase<ValueType, Rule extends FieldValidationRule> {
 	readonly baseType: BaseFieldType;
 	readonly baseValue: ValueType; // this is the 'empty' value, the default value is always undefined
 	readonly rules: Rule[];
+	readonly refName?: string; // named value, can be referred to by using '@refName' in "field-reference" rules
+}
+
+export interface AnyFieldType extends FieldTypeBase<string, TextFieldValidationRules> {
+	readonly type: "any";
+	readonly baseType: "any";
 }
 
 export interface TextFieldType extends FieldTypeBase<string, TextFieldValidationRules> {
@@ -48,21 +55,21 @@ export interface FileFieldType extends FieldTypeBase<File, FileFieldValidationRu
 }
 
 // embedded objects to be validated
-export interface ObjectFieldType extends FieldTypeBase<unknown, ObjectFieldValidationRules> {
+export interface ObjectFieldType<Schema extends FieldTypes = FieldTypes> extends FieldTypeBase<unknown, ObjectFieldValidationRules> {
 	readonly type: "object";
 	readonly baseType: "object";
-	readonly objectFieldTypes: FieldTypes; // to validate child members
-	readonly refName?: string; // named value in the validated object tree which can be referred to by using the '@refName' format in "field-reference" rules
+	readonly schema: FieldTypes<Schema>; // to validate child members
 }
 
 // array of embedded values to be validated
 export interface ArrayFieldType extends FieldTypeBase<unknown[], ArrayFieldValidationRules> {
 	readonly type: "array";
 	readonly baseType: "array";
-	readonly itemFieldType: FieldType; // to validate child members of array items
+	readonly itemType: FieldType; // to validate child members of array items	
 }
 
 export type FieldType =
+	| AnyFieldType
 	| TextFieldType
 	| NumberFieldType
 	| BooleanFieldType
@@ -71,36 +78,15 @@ export type FieldType =
 	| ObjectFieldType
 	| ArrayFieldType;
 
-export type FieldTypes<TypeObj = unknown> = {
-	[name in keyof TypeObj]: FieldType;
+// Schema is not FieldType or value type, it's an object with the keys we need.
+// Usually, those keys are coming from ObjectFieldType.schema.
+export type FieldTypes<Schema extends FieldTypes = any> = {
+	[name in keyof Schema]: FieldType;
 };
 
-export interface FieldTypesNamed<TypeObj = unknown> {
-	readonly types: FieldTypes<TypeObj>;
-	readonly fullQualifiedName: string;
-}
-
-export interface FieldTypeNamed<TFieldType extends FieldType = FieldType> {
-	readonly type: TFieldType;
-	readonly name: string;
-	readonly fullQualifiedName: string;
-}
-
-export interface TypedFieldSet<TypeObj = unknown, ValueObj = unknown> {
-	readonly values: ValueObj;
-	readonly types: FieldTypes<TypeObj>;
-}
-
-export interface TypedFieldSetNamed<TypeObj = unknown, ValueObj = unknown> extends TypedFieldSet<TypeObj, ValueObj> {
-	readonly fullQualifiedName: string;
-}
-
-export interface TypedField<TFieldType = FieldType, Value = unknown> {
+export interface Field<TFieldType extends FieldType = FieldType, Value = unknown> {
 	readonly value: Value;
 	readonly type: TFieldType;
-}
-
-export interface TypedFieldNamed<TFieldType = FieldType, Value = unknown> extends TypedField<TFieldType, Value> {
 	readonly name: string;
 	readonly fullQualifiedName: string;
 }

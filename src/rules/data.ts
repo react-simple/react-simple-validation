@@ -5,7 +5,7 @@ import {
 	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
 	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
-	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionRule, FieldSwitchConditionRule,
+	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionalRule, FieldSwitchConditionalRule,
 	ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule, FieldReferenceRule
 } from "./types";
 
@@ -153,13 +153,13 @@ export const RULES: {
 			then_: ValueOrArray<FieldValidationRule>,
 			else_?: ValueOrArray<FieldValidationRule>,
 			options?: ValidationRuleOptions
-		) => FieldIfThenElseConditionRule;
+		) => FieldIfThenElseConditionalRule;
 
 		readonly switch: (
-			cases: FieldSwitchConditionRule["cases"],
-			default_?: FieldSwitchConditionRule["default"],
+			cases: FieldSwitchConditionalRule["cases"],
+			default_?: FieldSwitchConditionalRule["default"],
 			options?: ValidationRuleOptions
-		) => FieldSwitchConditionRule;
+		) => FieldSwitchConditionalRule;
 	};
 
 	readonly references: {

@@ -1,6 +1,6 @@
 import { ContentType, ValueOrArray } from "@react-simple/react-simple-util";
-import { BaseFieldType, TypedFieldNamed  } from "fields";
-import { FieldValidationContext } from "validation/types";
+import { BaseFieldType, Field, FieldType  } from "fields";
+import { FieldRuleValidationResult, FieldValidationContext } from "validation/types";
 
 // no negative rules!
 export const FIELD_VALIDATION_RULE_TYPES = {
@@ -233,14 +233,10 @@ export interface FieldArrayPredicateAllRule extends FieldValidationRuleBase {
 export interface FieldCustomValidationRule extends FieldValidationRuleBase {
 	readonly ruleType: "custom";
 	readonly validate: (
-		field: TypedFieldNamed,
-		context: FieldValidationContext
-	) => {
-		readonly isValid: boolean;
-		readonly isChecked?: boolean; // default is 'true'
-		readonly message?: string;
-		readonly customResult?: unknown;
-	};
+		field: Field,
+		context: FieldValidationContext,
+		validateField: (fieldType: FieldType) => Omit<FieldRuleValidationResult, "rule"> // call built-in validation
+	) => Omit<FieldRuleValidationResult, "rule">;
 }
 
 export interface SomeRulesValidRule extends FieldValidationRuleBase {
@@ -276,14 +272,14 @@ export interface ArrayItemIndexRangeRule extends FieldValidationRuleBase {
 
 // if 'if' is valid then 'then' must be also valid (it's an implication)
 // if 'if' is not valid then 'else' must be valid
-export interface FieldIfThenElseConditionRule extends FieldValidationRuleBase {
+export interface FieldIfThenElseConditionalRule extends FieldValidationRuleBase {
 	readonly ruleType: "if-then-else";
 	readonly if: FieldValidationRule;
 	readonly then: ValueOrArray<FieldValidationRule>;
 	readonly else?: ValueOrArray<FieldValidationRule>;
 }
 
-export interface FieldSwitchConditionRule extends FieldValidationRuleBase {
+export interface FieldSwitchConditionalRule extends FieldValidationRuleBase {
 	readonly ruleType: "switch";
 	readonly cases: [FieldValidationRule, ValueOrArray<FieldValidationRule>][];
 	readonly default?: ValueOrArray<FieldValidationRule>;
@@ -307,8 +303,8 @@ export type OperatorValidationRules =
 	| SomeRulesValidRule;
 
 export type ConditionValidationRules =
-	| FieldIfThenElseConditionRule
-	| FieldSwitchConditionRule;
+	| FieldIfThenElseConditionalRule
+	| FieldSwitchConditionalRule;
 
 export type ReferenceValidationRules =
 	| FieldReferenceRule;
@@ -317,6 +313,11 @@ export type CompositeValidationRules =
 	| OperatorValidationRules
 	| ConditionValidationRules
 	| ReferenceValidationRules;
+
+export type SimpleAnyFieldValidationRules =
+	| CommonFieldValidationRules;
+
+export type AnyFieldValidationRules = SimpleAnyFieldValidationRules | CompositeValidationRules;
 
 export type SimpleTextFieldValidationRules =
 	| CommonFieldValidationRules

@@ -1,4 +1,9 @@
-export const REACT_SIMPLE_VALIDATION = {
+import { ReactSimpleValidation } from "types";
+
+// For depndency injection references. All stub references are set by the respective util files.
+const stub: any = () => { };
+
+export const REACT_SIMPLE_VALIDATION: ReactSimpleValidation = {
 	FIELD_DEFAULTS: {
 		validation: {
 			defaultRules: {
@@ -29,5 +34,11 @@ export const REACT_SIMPLE_VALIDATION = {
 			maxLength: 50,
 			regExp: /^\w.+@\w.+\.\w+$/
 		}
+	},
+
+	DI: {
+		validateRule: stub,
+		validateField: stub,
+		validateObject: stub
 	}
 };

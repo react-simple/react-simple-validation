@@ -9,20 +9,20 @@ it('validateFields.if-then-else.then', () => {
 		RULES.text.value("C")
 	);
 
-	let validationResult = validateObject({
-		values: {
+	const validationResult = validateObject(
+		{
 			good: ["A", "B", "C"],
 			bad: ["A", "B", "D"]
 		},
-		types: {
+		{
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad: FIELDS.array(FIELDS.text([rule]))
 		}
-	});
+	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.errors.bad.isValid).toBe(false);
 });
 
 it('validateFields.if-then-else.else', () => {
@@ -33,20 +33,20 @@ it('validateFields.if-then-else.else', () => {
 		RULES.text.value("B")
 	);
 
-	let validationResult = validateObject({
-		values: {
+	const validationResult = validateObject(
+		{
 			good: ["A", "B"],
 			bad: ["A", "C"]
 		},
-		types: {
+		{
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad: FIELDS.array(FIELDS.text([rule]))
 		}
-	});
+	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.errors.bad.isValid).toBe(false);
 });
 
 it('validateFields.if-then-else.else.inverted', () => {
@@ -57,20 +57,20 @@ it('validateFields.if-then-else.else.inverted', () => {
 		RULES.array.item.index.value(1)
 	);
 
-	let validationResult = validateObject({
-		values: {
+	const validationResult = validateObject(
+		{
 			good: ["A", "B"],
 			bad: ["B", "A"]
 		},
-		types: {
+		{
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad: FIELDS.array(FIELDS.text([rule]))
 		}
-	});
+	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.errors.bad.isValid).toBe(false);
 });
 
 it('validateFields.switch', () => {
@@ -83,24 +83,24 @@ it('validateFields.switch', () => {
 		RULES.text.value("C")
 	);
 
-	let validationResult = validateObject({
-		values: {
+	const validationResult = validateObject(
+		{
 			good: ["A", "B", "C"],
 			bad1: ["B", "B", "C"],
 			bad2: ["A", "A", "C"],
 			bad3: ["A", "B", "A"],
 		},
-		types: {
+		{
 			good: FIELDS.array(FIELDS.text([rule])),
 			bad1: FIELDS.array(FIELDS.text([rule])),
 			bad2: FIELDS.array(FIELDS.text([rule])),
 			bad3: FIELDS.array(FIELDS.text([rule]))
 		}
-	});
+	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad1.isValid).toBe(false);
-	expect(validationResult.validationResult.bad2.isValid).toBe(false);
-	expect(validationResult.validationResult.bad3.isValid).toBe(false);
+	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.errors.bad1.isValid).toBe(false);
+	expect(validationResult.errors.bad2.isValid).toBe(false);
+	expect(validationResult.errors.bad3.isValid).toBe(false);
 });

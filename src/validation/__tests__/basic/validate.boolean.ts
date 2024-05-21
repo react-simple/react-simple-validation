@@ -5,18 +5,18 @@ import { validateObject } from "validation";
 it('validateFields.boolean-value', () => {
 	const rule = RULES.boolean.value(false);
 
-	let validationResult = validateObject({
-		values: {
+	const validationResult = validateObject(
+		{
 			good: false,
 			bad: true
 		},
-		types: {
+		{
 			good: FIELDS.boolean([rule]),
 			bad: FIELDS.boolean([rule])
 		}
-	});
+	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.validationResult.good.isValid).toBe(true);
-	expect(validationResult.validationResult.bad.isValid).toBe(false);
+	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.errors.bad.isValid).toBe(false);
 });
