@@ -1,4 +1,4 @@
-import { ContentType, ValueOrArray } from "@react-simple/react-simple-util";
+import { ContentType, DatePart, ValueBinaryOperator, ValueOrArray } from "@react-simple/react-simple-util";
 import { BaseFieldType, Field, FieldType  } from "fields";
 import { FieldRuleValidationResult, FieldValidationContext } from "validation/types";
 
@@ -55,11 +55,12 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["all-rules-valid"]: "all-rules-valid", // all rules must be valid
 
 	// conditions
-	["if-then-else"]: "if-then-else",
-	["switch"]: "switch",
+	["if-then-else"]: "if-then-else", // conditional validation
+	["switch"]: "switch",  // conditional validation
+	["compare"]: "compare", // compare field value with another field, use various operators
 
 	// references
-	["field-reference"]: "field-reference"
+	["field-reference"]: "field-reference"	
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -102,7 +103,7 @@ export interface FieldTextLengthRangeRule extends FieldValidationRuleBase {
 export interface FieldTextValueRule extends FieldValidationRuleBase {
 	readonly ruleType: "text-value";
 	readonly expectedValue: ValueOrArray<string>;
-	readonly caseInsensitive?: boolean;
+	readonly ignoreCase?: boolean;
 }
 
 export interface FieldNumberMinValueRule extends FieldValidationRuleBase {
@@ -294,6 +295,19 @@ export interface FieldReferenceRule extends FieldValidationRuleBase {
 	readonly rules: ValueOrArray<FieldValidationRule>;
 }
 
+export interface FieldComparisonConditionalRule extends FieldValidationRuleBase {
+	readonly ruleType: "compare";
+	readonly operator: ValueBinaryOperator;	
+	
+	// see 'field-reference' rule; right hand operand, the left hand operand is the field value
+	readonly path: string; 
+
+	// number to add to the right hand operand; number value or number of days, if date
+	readonly addition?: number | { datePart: DatePart; value: number };
+
+	readonly ignoreCase?: boolean;
+}
+
 export type CommonFieldValidationRules =
 	| FieldRequiredRule
 	| FieldCustomValidationRule;
@@ -304,7 +318,8 @@ export type OperatorValidationRules =
 
 export type ConditionValidationRules =
 	| FieldIfThenElseConditionalRule
-	| FieldSwitchConditionalRule;
+	| FieldSwitchConditionalRule
+	| FieldComparisonConditionalRule;
 
 export type ReferenceValidationRules =
 	| FieldReferenceRule;

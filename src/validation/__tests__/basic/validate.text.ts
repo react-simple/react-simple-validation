@@ -129,7 +129,7 @@ it('validateFields.text-regexp.array', () => {
 });
 
 it('validateFields.text-value', () => {
-	const rule = RULES.text.value("ABC", { caseInsensitive: true });
+	const rule = RULES.text.value("ABC", { ignoreCase: true });
 
 	const validationResult = validateObject(
 		{
@@ -148,7 +148,7 @@ it('validateFields.text-value', () => {
 });
 
 it('validateFields.text-value.array', () => {
-	const rule = RULES.text.value(["ABC", "123"], { caseInsensitive: true });
+	const rule = RULES.text.value(["ABC", "123"], { ignoreCase: true });
 
 	const validationResult = validateObject(
 		{

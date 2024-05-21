@@ -1,7 +1,7 @@
 import {
-	appendDictionary,
-	compareDates, findMapped, findNonEmptyValue, getObjectChildMember, getResolvedArray, isArray, isBoolean, isDate, isEmpty, isEmptyObject,
-	isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, sameDates, stringAppend, stringIndexOfAny
+	appendDictionary, compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getObjectChildMember, getResolvedArray,
+	isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, sameDates,
+	stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
 import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChildType } from "fields";
 import { FieldRuleValidationResult, FieldRuleValidationResultReason, FieldValidationResult, ObjectValidationResult } from "./types";
@@ -447,7 +447,7 @@ function validateRule_default(
 
 		case "text-value":
 			if (type.baseType === "text" && isString(value)) {
-				if (rule.caseInsensitive) {
+				if (rule.ignoreCase) {
 					const valueToLower = value?.toLocaleLowerCase();
 
 					isValid = isArray(rule.expectedValue)
@@ -574,61 +574,7 @@ function validateRule_default(
 		case "field-reference": {
 			// resolve path starting from the closest object in hierarchy by default; using "/" or "@" in path can refer to root or named objects
 			if (rule.path) {
-				let path = rule.path;
-				let refTo: Field | undefined;
-
-				// /root -> context.rootObj
-				if (path.startsWith("/")) {
-					path = path.substring(1);
-					const i = path.lastIndexOf(".");
-
-					refTo = {
-						value: getObjectChildMember(context.rootObj.value as object, path).getValue(),
-						type: getFieldTypeChildType(context.rootObj.type, path).getValue(),
-						name: i >= 0 ? path.substring(i + 1) : path,
-						fullQualifiedName: path
-					};
-				}
-				// @refName -> context.refNames
-				else if (path[0].startsWith("@")) {
-					let i = stringIndexOfAny(path, [".", "["]);
-					const refName = i >= 0 ? path.substring(1, i) : path.substring(1);
-					const namedObj = context.namedObjs[refName];
-					path = i >= 0 ? path.substring(path[i] === "." ? i + 1 : i) : "";
-
-					if (namedObj) {
-						i = path.lastIndexOf(".");
-
-						refTo = {
-							value: getObjectChildMember(namedObj.value as object, path).getValue(),
-							type: getFieldTypeChildType(namedObj.type, path).getValue(),
-							name: i >= 0 ? path.substring(i + 1) : path,
-							fullQualifiedName: stringAppend(namedObj.fullQualifiedName, path, ".")
-						};
-
-						context.refNames.resolved[refName] = {
-							...context.refNames.resolved[refName],
-							[fullQualifiedName]: { refFrom: field, refTo }
-						};
-					}
-					else {
-						context.refNames.notFound[refName] = {
-							...context.refNames.notFound[refName],
-							[fullQualifiedName]: { refFrom: field }
-						};
-					}
-				}
-				// local (same obj)
-				else {
-					const i = path.lastIndexOf(".");
-
-					refTo = {
-						value: getObjectChildMember(context.currentObj.value as object, path).getValue(),
-						type: getFieldTypeChildType(context.currentObj.type, path).getValue(),
-						name: i >= 0 ? path.substring(i + 1) : path,
-						fullQualifiedName: stringAppend(context.currentObj.fullQualifiedName, path, ".")
-					};
-				}
+				const refTo = resolveReference(rule.path, field, context);
 
 				if (refTo) {
 					reasons.push({ key: "found", value: refTo.fullQualifiedName });
@@ -643,6 +589,35 @@ function validateRule_default(
 
 			break;
 		}
+			
+		case "compare": {
+			if (rule.path) {
+				const refTo = resolveReference(rule.path, field, context);
+
+				if (refTo) {
+					reasons.push({ key: "found", value: refTo.fullQualifiedName });
+					let refValue = refTo.value;
+
+					if (rule.addition) {
+						if (isNumber(rule.addition)) {
+							if (isNumber(refValue)) {
+								refValue += rule.addition;
+							}
+							else if (isDate(refValue)) {
+								refValue = dateAdd(refValue, "day", rule.addition);
+							}
+						}
+						else if (isDate(refValue)) {
+							refValue = dateAdd(refValue, rule.addition.datePart, rule.addition.value);
+						}
+					}
+
+					isValid = evaluateValueBinaryOperator(value, refValue, rule.operator, { ignoreCase: rule.ignoreCase });
+				} else {
+					reasons.push({ key: "not_found" });
+				}
+			}
+		}
 	}
 
 	return {
@@ -656,6 +631,20 @@ function validateRule_default(
 		children
 	};
 }
+
+REACT_SIMPLE_VALIDATION.DI.validateRule = validateRule_default;
+
+export function validateRule(
+	rule: FieldValidationRule,
+	field: Field,
+	context: FieldValidationContext
+): FieldRuleValidationResult {
+	return REACT_SIMPLE_VALIDATION.DI.validateRule(rule, field, context, validateRule_default);
+}
+
+
+// HELPERS
+
 
 const getFilteredArrayItems = (
 	rule: { filter?: FieldValidationRule },
@@ -701,12 +690,62 @@ const validateRuleForArrayItem = (
 	)
 };
 
-REACT_SIMPLE_VALIDATION.DI.validateRule = validateRule_default;
+const resolveReference = (path: string, field: Field, context: FieldValidationContext) => {
+	let refTo: Field | undefined;
+	const { fullQualifiedName } = field;
 
-export function validateRule(
-	rule: FieldValidationRule,
-	field: Field,
-	context: FieldValidationContext
-): FieldRuleValidationResult {
-	return REACT_SIMPLE_VALIDATION.DI.validateRule(rule, field, context, validateRule_default);
-}
+	// /root -> context.rootObj
+	if (path.startsWith("/")) {
+		path = path.substring(1);
+		const i = path.lastIndexOf(".");
+
+		refTo = {
+			value: getObjectChildMember(context.rootObj.value as object, path).getValue(),
+			type: getFieldTypeChildType(context.rootObj.type, path).getValue(),
+			name: i >= 0 ? path.substring(i + 1) : path,
+			fullQualifiedName: path
+		};
+	}
+	// @refName -> context.refNames
+	else if (path[0].startsWith("@")) {
+		let i = stringIndexOfAny(path, [".", "["]);
+		const refName = i >= 0 ? path.substring(1, i) : path.substring(1);
+		const namedObj = context.namedObjs[refName];
+		path = i >= 0 ? path.substring(path[i] === "." ? i + 1 : i) : "";
+
+		if (namedObj) {
+			i = path.lastIndexOf(".");
+
+			refTo = {
+				value: getObjectChildMember(namedObj.value as object, path).getValue(),
+				type: getFieldTypeChildType(namedObj.type, path).getValue(),
+				name: i >= 0 ? path.substring(i + 1) : path,
+				fullQualifiedName: stringAppend(namedObj.fullQualifiedName, path, ".")
+			};
+
+			context.refNames.resolved[refName] = {
+				...context.refNames.resolved[refName],
+				[fullQualifiedName]: { refFrom: field, refTo }
+			};
+		}
+		else {
+			context.refNames.notFound[refName] = {
+				...context.refNames.notFound[refName],
+				[fullQualifiedName]: { refFrom: field }
+			};
+		}
+	}
+	// local (same obj)
+	else {
+		const i = path.lastIndexOf(".");
+
+		refTo = {
+			value: getObjectChildMember(context.currentObj.value as object, path).getValue(),
+			type: getFieldTypeChildType(context.currentObj.type, path).getValue(),
+			name: i >= 0 ? path.substring(i + 1) : path,
+			fullQualifiedName: stringAppend(context.currentObj.fullQualifiedName, path, ".")
+		};
+	}
+
+	return refTo;
+};

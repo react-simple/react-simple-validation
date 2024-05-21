@@ -1,12 +1,12 @@
 import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber, getResolvedArray, isArray } from "@react-simple/react-simple-util";
 import {
 	AllRulesValidRule, ArrayItemIndexMaxRule, ArrayItemIndexMinRule, ArrayItemIndexRangeRule, ArrayItemIndexRule, FieldArrayIncludeAllRule,
-	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule, FieldArrayMinLengthRule,
-	FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule, FieldBooleanValueRule, FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule,
-	FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule, FieldFileMaxSizeRule, FieldIfThenElseConditionalRule, FieldNumberMaxValueRule,
-	FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule, FieldReferenceRule, FieldRequiredRule, FieldSwitchConditionalRule,
-	FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule, FieldTextMinLengthRule, FieldTextRegExpRule, FieldTextValueRule, FieldTypeRule,
-	FieldValidationRuleType, SomeRulesValidRule
+	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule,
+	FieldArrayMinLengthRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule, FieldBooleanValueRule, FieldComparisonConditionalRule,
+	FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule,
+	FieldFileMaxSizeRule, FieldIfThenElseConditionalRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule,
+	FieldReferenceRule, FieldRequiredRule, FieldSwitchConditionalRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule,
+	FieldTextMinLengthRule, FieldTextRegExpRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
 } from "./types";
 
 const BLANK = {
@@ -25,6 +25,7 @@ const BLANK = {
 	"array-predicate-all": (_: FieldArrayPredicateAllRule) => "",
 	"array-predicate-some": (_: FieldArrayPredicateSomeRule) => "",
 	"boolean-value": (_: FieldBooleanValueRule) => "",
+	"compare": (_: FieldComparisonConditionalRule) => "",
 	"custom": (_: FieldCustomValidationRule) => "",
 	"date-max": (_: FieldDateMaxValueRule) => "",
 	"date-min": (_: FieldDateMinValueRule) => "",

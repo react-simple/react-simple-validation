@@ -6,7 +6,7 @@ import {
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
 	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
 	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionalRule, FieldSwitchConditionalRule,
-	ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule, FieldReferenceRule
+	ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule, FieldReferenceRule, FieldComparisonConditionalRule
 } from "./types";
 
 export interface ValidationRuleOptions {
@@ -19,7 +19,7 @@ export const RULES: {
 	readonly text: {
 		readonly value: (
 			expectedValue: FieldTextValueRule["expectedValue"],
-			options?: ValidationRuleOptions & { caseInsensitive?: boolean }
+			options?: ValidationRuleOptions & { ignoreCase?: boolean }
 		) => FieldTextValueRule;
 
 		readonly regExp: (regExp: FieldTextRegExpRule["regExp"], options?: ValidationRuleOptions) => FieldTextRegExpRule;
@@ -160,6 +160,16 @@ export const RULES: {
 			default_?: FieldSwitchConditionalRule["default"],
 			options?: ValidationRuleOptions
 		) => FieldSwitchConditionalRule;
+
+		readonly compare: (
+			operator: FieldComparisonConditionalRule["operator"],
+			path: FieldComparisonConditionalRule["path"], // right hand operand; field value is the left hand operand			
+			options?: ValidationRuleOptions & {
+				ignoreCase?: boolean;
+				// number to add to the right hand operand; number value or number of days if date
+				addition?: FieldComparisonConditionalRule["addition"]; 
+			}
+		) => FieldComparisonConditionalRule;
 	};
 
 	readonly references: {
@@ -418,6 +428,13 @@ export const RULES: {
 			ruleType: "switch",
 			cases,
 			default: default_
+		}),
+
+		compare: (operator, path, options) => ({
+			...options,
+			ruleType: "compare",
+			operator,
+			path
 		})
 	},
 
