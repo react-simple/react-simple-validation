@@ -14,7 +14,7 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["text-length-range"]: "text-length-range",
 	["text-length"]: "text-length", // exact length
 	["text-value"]: "text-value", // exact value or values
-	["text-regexp"]: "text-regexp", // only for 'text'
+	["text-match"]: "text-match", // only for 'text'
 
 	// number
 	["number-min"]: "number-min",
@@ -43,8 +43,8 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["array-include-some"]: "array-include-some",
 	["array-include-all"]: "array-include-all",
 	["array-include-none"]: "array-include-none",
-	["array-predicate-some"]: "array-predicate-some",
-	["array-predicate-all"]: "array-predicate-all",
+	["array-match-some"]: "array-match-some",
+	["array-match-all"]: "array-match-all",
 	["array-item-index"]: "array-item-index",
 	["array-item-index-min"]: "array-item-index-min",
 	["array-item-index-max"]: "array-item-index-min",
@@ -161,8 +161,8 @@ export interface FieldBooleanValueRule extends FieldValidationRuleBase {
 	readonly expectedValue: boolean;
 }
 
-export interface FieldTextRegExpRule extends FieldValidationRuleBase {
-	readonly ruleType: "text-regexp";
+export interface FieldTextMatchRule extends FieldValidationRuleBase {
+	readonly ruleType: "text-match";
 	readonly regExp: ValueOrArray<RegExp>;
 }
 
@@ -219,14 +219,14 @@ export interface FieldArrayIncludeNoneRule extends FieldValidationRuleBase {
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
-export interface FieldArrayPredicateSomeRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-predicate-some";
+export interface FieldArrayMatchSomeRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-match-some";
 	readonly predicate: FieldValidationRule;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
-export interface FieldArrayPredicateAllRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-predicate-all";
+export interface FieldArrayMatchAllRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-match-all";
 	readonly predicate: FieldValidationRule;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
@@ -341,7 +341,7 @@ export type SimpleTextFieldValidationRules =
 	| FieldTextLengthRule
 	| FieldTextLengthRangeRule
 	| FieldTextValueRule
-	| FieldTextRegExpRule;
+	| FieldTextMatchRule;
 
 export type TextFieldValidationRules = SimpleTextFieldValidationRules | CompositeValidationRules;	
 
@@ -387,8 +387,8 @@ export type SimpleArrayFieldValidationRules =
 	| FieldArrayMaxLengthRule
 	| FieldArrayLengthRule
 	| FieldArrayLengthRangeRule
-	| FieldArrayPredicateAllRule
-	| FieldArrayPredicateSomeRule
+	| FieldArrayMatchAllRule
+	| FieldArrayMatchSomeRule
 	| FieldArrayIncludeSomeRule
 	| FieldArrayIncludeAllRule
 	| FieldArrayIncludeNoneRule

@@ -246,7 +246,7 @@ function validateRule_default(
 			);
 			break;
 
-		case "text-regexp":
+		case "text-match":
 			if (type.baseType === "text" && isString(value) && value) {
 				regExpMatch = (
 					isArray(rule.regExp)
@@ -399,7 +399,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "array-predicate-some":
+		case "array-match-some":
 			if (type.baseType === "array" && isArray(value)) {
 				const items = getFilteredArrayItems(rule, field as any, context);
 				const itemsResult = items.map((val, ndx) => validateRuleForArrayItem(val, ndx, rule, field as any, context));
@@ -409,7 +409,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "array-predicate-all":
+		case "array-match-all":
 			if (type.baseType === "array" && isArray(value)) {
 				const items = getFilteredArrayItems(rule, field as any, context);
 				const itemsResult = items.map((val, ndx) => validateRuleForArrayItem(val, ndx, rule, field as any, context));

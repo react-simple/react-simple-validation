@@ -84,8 +84,8 @@ it('validateFields.text-length-range', () => {
 	expect(validationResult.errors.bad2.isValid).toBe(false);
 });
 
-it('validateFields.text-regexp', () => {
-	const rule = RULES.text.regExp(/^\w{3}$/);
+it('validateFields.text-match', () => {
+	const rule = RULES.text.match(/^\w{3}$/);
 
 	const validationResult = validateObject(
 		{
@@ -103,8 +103,8 @@ it('validateFields.text-regexp', () => {
 	expect(validationResult.errors.bad.isValid).toBe(false);
 });
 
-it('validateFields.text-regexp.array', () => {
-	const rule = RULES.text.regExp([/^\w{3}$/, /^\w{4}$/]);
+it('validateFields.text-match.array', () => {
+	const rule = RULES.text.match([/^\w{3}$/, /^\w{4}$/]);
 
 	const validationResult = validateObject(
 		{

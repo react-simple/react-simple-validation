@@ -1,12 +1,13 @@
-import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber, getResolvedArray, isArray } from "@react-simple/react-simple-util";
+import { getResolvedArray, isArray } from "@react-simple/react-simple-util";
+import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber } from "@react-simple/react-simple-localization";
 import {
 	AllRulesValidRule, ArrayItemIndexMaxRule, ArrayItemIndexMinRule, ArrayItemIndexRangeRule, ArrayItemIndexRule, FieldArrayIncludeAllRule,
 	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule,
-	FieldArrayMinLengthRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule, FieldBooleanValueRule, FieldComparisonConditionalRule,
+	FieldArrayMinLengthRule, FieldArrayMatchAllRule, FieldArrayMatchSomeRule, FieldBooleanValueRule, FieldComparisonConditionalRule,
 	FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule,
 	FieldFileMaxSizeRule, FieldIfThenElseConditionalRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule,
 	FieldReferenceRule, FieldRequiredRule, FieldSwitchConditionalRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule,
-	FieldTextMinLengthRule, FieldTextRegExpRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
+	FieldTextMinLengthRule, FieldTextMatchRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
 } from "./types";
 
 const BLANK = {
@@ -22,8 +23,8 @@ const BLANK = {
 	"array-length-max": (_: FieldArrayMaxLengthRule) => "",
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
 	"array-length-range": (_: FieldArrayLengthRangeRule) => "",
-	"array-predicate-all": (_: FieldArrayPredicateAllRule) => "",
-	"array-predicate-some": (_: FieldArrayPredicateSomeRule) => "",
+	"array-match-all": (_: FieldArrayMatchAllRule) => "",
+	"array-match-some": (_: FieldArrayMatchSomeRule) => "",
 	"boolean-value": (_: FieldBooleanValueRule) => "",
 	"compare": (_: FieldComparisonConditionalRule) => "",
 	"custom": (_: FieldCustomValidationRule) => "",
@@ -46,7 +47,7 @@ const BLANK = {
 	"text-length-max": (_: FieldTextMaxLengthRule) => "",
 	"text-length-min": (_: FieldTextMinLengthRule) => "",
 	"text-length-range": (_: FieldTextLengthRangeRule) => "",
-	"text-regexp": (_: FieldTextRegExpRule) => "",
+	"text-match": (_: FieldTextMatchRule) => "",
 	"text-value": (_: FieldTextValueRule) => "",
 	"type": (_: FieldTypeRule) => ""
 };

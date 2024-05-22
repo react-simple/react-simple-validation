@@ -5,7 +5,7 @@ import { validateObject } from "validation";
 it('validateFields.if-then-else.then', () => {
 	// item at index 2 should be 'C'
 	const rule = RULES.conditions.ifThenElse(
-		RULES.array.item.index.value(2),
+		RULES.array.itemIndex.value(2),
 		RULES.text.value("C")
 	);
 
@@ -28,7 +28,7 @@ it('validateFields.if-then-else.then', () => {
 it('validateFields.if-then-else.else', () => {
 	// item at index 0 should be 'A' otherwise 'B'
 	const rule = RULES.conditions.ifThenElse(
-		RULES.array.item.index.value(0),
+		RULES.array.itemIndex.value(0),
 		RULES.text.value("A"),
 		RULES.text.value("B")
 	);
@@ -50,11 +50,11 @@ it('validateFields.if-then-else.else', () => {
 });
 
 it('validateFields.if-then-else.else.inverted', () => {
-	// item at index 0 should be 'A' otherwise 'B'
+	// if item is 'A' index should be 0 otherwise 1
 	const rule = RULES.conditions.ifThenElse(
 		RULES.text.value("A"),
-		RULES.array.item.index.value(0),
-		RULES.array.item.index.value(1)
+		RULES.array.itemIndex.value(0),
+		RULES.array.itemIndex.value(1)
 	);
 
 	const validationResult = validateObject(
@@ -77,8 +77,8 @@ it('validateFields.switch', () => {
 	// item at index 0 should be 'A', item at index 1 should be 'B', otherwise 'C'
 	const rule = RULES.conditions.switch(
 		[
-			[RULES.array.item.index.value(0), RULES.text.value("A")],
-			[RULES.array.item.index.value(1), RULES.text.value("B")],
+			[RULES.array.itemIndex.value(0), RULES.text.value("A")],
+			[RULES.array.itemIndex.value(1), RULES.text.value("B")],
 		],
 		RULES.text.value("C")
 	);
@@ -190,7 +190,7 @@ it('validateFields.compare.date.month', () => {
 });
 
 it('validateFields.compare.text', () => {
-	// a > b + 10?
+	// a > b case insensitive?
 	const fieldTypes = FIELDS.object(
 		{
 			a: FIELDS.text([RULES.conditions.compare("greater", "b", { ignoreCase: true })]),

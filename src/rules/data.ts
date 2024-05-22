@@ -2,9 +2,9 @@ import { ValueOrArray } from "@react-simple/react-simple-util";
 import {
 	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, 
 	FieldFileContentTypeRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
-	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextRegExpRule,
+	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextMatchRule,
 	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
-	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayPredicateAllRule, FieldArrayPredicateSomeRule,
+	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayMatchAllRule, FieldArrayMatchSomeRule,
 	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionalRule, FieldSwitchConditionalRule,
 	ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule, FieldReferenceRule, FieldComparisonConditionalRule
 } from "./types";
@@ -22,7 +22,7 @@ export const RULES: {
 			options?: ValidationRuleOptions & { ignoreCase?: boolean }
 		) => FieldTextValueRule;
 
-		readonly regExp: (regExp: FieldTextRegExpRule["regExp"], options?: ValidationRuleOptions) => FieldTextRegExpRule;
+		readonly match: (regExp: FieldTextMatchRule["regExp"], options?: ValidationRuleOptions) => FieldTextMatchRule;
 
 		readonly length: {
 			readonly min: (minLength: FieldTextMinLengthRule["minLength"], options?: ValidationRuleOptions) => FieldTextMinLengthRule;
@@ -116,27 +116,27 @@ export const RULES: {
 			) => FieldArrayLengthRangeRule;
 		};
 
-		readonly item: {
-			readonly index: {
-				readonly min: (minIndex: ArrayItemIndexMinRule["minIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMinRule;
-				readonly max: (maxIndex: ArrayItemIndexMaxRule["maxIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMaxRule,
-				readonly value: (index: ArrayItemIndexRule["index"], options?: ValidationRuleOptions) => ArrayItemIndexRule;
-				readonly range: (
-					minIndex: ArrayItemIndexRangeRule["minIndex"],
-					maxIndex: ArrayItemIndexRangeRule["maxIndex"],
-					options?: ValidationRuleOptions
-				) => ArrayItemIndexRangeRule;
-			};
+		readonly itemIndex: {
+			readonly min: (minIndex: ArrayItemIndexMinRule["minIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMinRule;
+			readonly max: (maxIndex: ArrayItemIndexMaxRule["maxIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMaxRule,
+			readonly value: (index: ArrayItemIndexRule["index"], options?: ValidationRuleOptions) => ArrayItemIndexRule;
+			readonly range: (
+				minIndex: ArrayItemIndexRangeRule["minIndex"],
+				maxIndex: ArrayItemIndexRangeRule["maxIndex"],
+				options?: ValidationRuleOptions
+			) => ArrayItemIndexRangeRule;
+		};
 
+		readonly match: {
 			readonly all: (
-				predicate: FieldArrayPredicateAllRule["predicate"],
-				options?: ValidationRuleOptions & { filter?: FieldArrayPredicateAllRule["filter"] }
-			) => FieldArrayPredicateAllRule;
+				predicate: FieldArrayMatchAllRule["predicate"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayMatchAllRule["filter"] }
+			) => FieldArrayMatchAllRule;
 
 			readonly some: (
-				predicate: FieldArrayPredicateSomeRule["predicate"],
-				options?: ValidationRuleOptions & { filter?: FieldArrayPredicateSomeRule["filter"] }
-			) => FieldArrayPredicateSomeRule;
+				predicate: FieldArrayMatchSomeRule["predicate"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayMatchSomeRule["filter"] }
+			) => FieldArrayMatchSomeRule;
 		};
 	};
 
@@ -167,7 +167,7 @@ export const RULES: {
 			options?: ValidationRuleOptions & {
 				ignoreCase?: boolean;
 				// number to add to the right hand operand; number value or number of days if date
-				addition?: FieldComparisonConditionalRule["addition"]; 
+				addition?: FieldComparisonConditionalRule["addition"];
 			}
 		) => FieldComparisonConditionalRule;
 	};
@@ -192,9 +192,9 @@ export const RULES: {
 			expectedValue
 		}),
 
-		regExp: (regExp, options) => ({
+		match: (regExp, options) => ({
 			...options,
-			ruleType: "text-regexp",
+			ruleType: "text-match",
 			regExp
 		}),
 
@@ -352,43 +352,43 @@ export const RULES: {
 			})
 		},
 
-		item: {
-			index: {
-				min: (minIndex, options) => ({
-					...options,
-					ruleType: "array-item-index-min",
-					minIndex
-				}),
+		itemIndex: {
+			min: (minIndex, options) => ({
+				...options,
+				ruleType: "array-item-index-min",
+				minIndex
+			}),
 
-				max: (maxIndex, options) => ({
-					...options,
-					ruleType: "array-item-index-max",
-					maxIndex
-				}),
+			max: (maxIndex, options) => ({
+				...options,
+				ruleType: "array-item-index-max",
+				maxIndex
+			}),
 
-				value: (index, options) => ({
-					...options,
-					ruleType: "array-item-index",
-					index
-				}),
+			value: (index, options) => ({
+				...options,
+				ruleType: "array-item-index",
+				index
+			}),
 
-				range: (minIndex, maxIndex, options) => ({
-					...options,
-					ruleType: "array-item-index-range",
-					minIndex,
-					maxIndex
-				})
-			},
+			range: (minIndex, maxIndex, options) => ({
+				...options,
+				ruleType: "array-item-index-range",
+				minIndex,
+				maxIndex
+			})
+		},
 
+		match: {
 			all: (predicate, options) => ({
 				...options,
-				ruleType: "array-predicate-all",
+				ruleType: "array-match-all",
 				predicate
 			}),
 
 			some: (predicate, options) => ({
 				...options,
-				ruleType: "array-predicate-some",
+				ruleType: "array-match-some",
 				predicate
 			})
 		}

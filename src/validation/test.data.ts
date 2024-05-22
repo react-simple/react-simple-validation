@@ -28,7 +28,7 @@ const OBJ = {
 const TYPE: Record<keyof typeof OBJ, FieldType> = {
 	text: FIELDS.text([
 		RULES.required(),
-		RULES.text.regExp(/^t.*t$/)
+		RULES.text.match(/^t.*t$/)
 	]),
 
 	number: FIELDS.number([
