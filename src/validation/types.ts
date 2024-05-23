@@ -42,6 +42,7 @@ export interface FieldRuleValidationResultReason {
 	readonly key: string;
 	readonly value?: unknown;
 	readonly message?: string;
+	readonly path?: unknown;
 }
 
 export interface FieldRuleValidationResult {
@@ -56,7 +57,7 @@ export interface FieldRuleValidationResult {
 
 	// meta
 	readonly regExpMatch?: RegExpMatchArray;
-	readonly reasons?: FieldRuleValidationResultReason[];
+	readonly details?: FieldRuleValidationResultReason[];
 }
 
 export interface FieldValidationResult {

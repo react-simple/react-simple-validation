@@ -282,7 +282,7 @@ export interface FieldIfThenElseConditionalRule extends FieldValidationRuleBase 
 
 export interface FieldSwitchConditionalRule extends FieldValidationRuleBase {
 	readonly ruleType: "switch";
-	readonly cases: [FieldValidationRule, ValueOrArray<FieldValidationRule>][];
+	readonly cases: [string, FieldValidationRule, ValueOrArray<FieldValidationRule>][];
 	readonly default?: ValueOrArray<FieldValidationRule>;
 }
 

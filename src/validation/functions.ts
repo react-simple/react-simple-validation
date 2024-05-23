@@ -1,8 +1,9 @@
 import {
-	appendDictionary, compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getObjectChildMember, getResolvedArray,
+	appendDictionary, compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray,
 	isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, sameDates,
 	stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
+import { getObjectChildValue } from "@react-simple/react-simple-mapping";
 import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChildType } from "fields";
 import { FieldRuleValidationResult, FieldRuleValidationResultReason, FieldValidationResult, ObjectValidationResult } from "./types";
 import { FieldValidationContext } from "validation/types";
@@ -183,7 +184,7 @@ function validateRule_default(
 	let isValid = false;
 	let message = rule.message;
 	let regExpMatch: RegExpMatchArray | undefined;
-	let reasons: FieldRuleValidationResultReason[] = []; // custom info
+	let details: FieldRuleValidationResultReason[] = []; // custom info
 
 	const scope = "validateRule";
 	const { value, type, fullQualifiedName } = field;
@@ -285,8 +286,8 @@ function validateRule_default(
 			isValid = res.isValid;
 			message = res.message || message;
 
-			if (res.reasons) {
-				reasons = [...reasons, ...res.reasons];
+			if (res.details) {
+				details = [...details, ...res.details];
 			}
 
 			if (res.errors) {
@@ -531,7 +532,7 @@ function validateRule_default(
 			const cases = getResolvedArray(condition.isValid ? rule.then : rule.else);
 			const casesResult = cases.map(t => validateRule(t, field, context));
 
-			reasons.push({ key: "condition", value: condition });
+			details.push({ key: "condition", value: condition });
 
 			isValid = casesResult.every(t => t.isValid);
 			errors.push(...casesResult.filter(t => !t.isValid));
@@ -541,7 +542,8 @@ function validateRule_default(
 		case "switch": {
 			const match = findMapped(
 				rule.cases,
-				([condition, action]) => ({
+				([key, condition, action]) => ({
+					key,
 					condition,
 					action,
 					result: validateRule(condition, field, context)
@@ -550,21 +552,21 @@ function validateRule_default(
 			);
 
 			if (match) {
-				reasons.push({ key: "found", value: match.result });
+				details.push({ key: "found", value: match.key });
 				const casesResult = getResolvedArray(match.action).map(t => validateRule(t, field, context));
 
 				isValid = casesResult.every(t => t.isValid);
 				errors.push(...casesResult.filter(t => !t.isValid));
 			}
 			else if (rule.default) {
-				reasons.push({ key: "default" });
+				details.push({ key: "found", value: "default" });
 				const casesResult = getResolvedArray(rule.default).map(t => validateRule(t, field, context));
 
 				isValid = casesResult.every(t => t.isValid);
 				errors.push(...casesResult.filter(t => !t.isValid));
 			}
 			else {
-				reasons.push({ key: "not_found" });
+				details.push({ key: "not_found" });
 				isValid = true;
 			}
 
@@ -577,13 +579,13 @@ function validateRule_default(
 				const refTo = resolveReference(rule.path, field, context);
 
 				if (refTo) {
-					reasons.push({ key: "found", value: refTo.fullQualifiedName });
+					details.push({ key: "found", path: refTo.fullQualifiedName, value: refTo.value });
 
 					isValid = isArray(rule.rules)
 						? rule.rules.every(childRule => validateRule(childRule, refTo!, context).isValid)
 						: validateRule(rule.rules, refTo, context).isValid;
 				} else {
-					reasons.push({ key: "not_found" });
+					details.push({ key: "not_found" });
 				}
 			}
 
@@ -595,7 +597,7 @@ function validateRule_default(
 				const refTo = resolveReference(rule.path, field, context);
 
 				if (refTo) {
-					reasons.push({ key: "found", value: refTo.fullQualifiedName });
+					details.push({ key: "found", path: refTo.fullQualifiedName, value: refTo.value });
 					let refValue = refTo.value;
 
 					if (rule.addition) {
@@ -614,7 +616,7 @@ function validateRule_default(
 
 					isValid = evaluateValueBinaryOperator(value, refValue, rule.operator, { ignoreCase: rule.ignoreCase });
 				} else {
-					reasons.push({ key: "not_found" });
+					details.push({ key: "not_found" });
 				}
 			}
 		}
@@ -626,7 +628,7 @@ function validateRule_default(
 		message: !isValid ? message : undefined,
 
 		regExpMatch,
-		reasons: reasons.length ? reasons : undefined,
+		details: details.length ? details : undefined,
 		errors,
 		children
 	};
@@ -699,9 +701,16 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 		path = path.substring(1);
 		const i = path.lastIndexOf(".");
 
+		const value = getObjectChildValue(context.rootObj.value as object, path).value;
+		const type = getFieldTypeChildType(context.rootObj.type, path).value;
+
+		if (!type) {
+			return undefined;
+		}
+
 		refTo = {
-			value: getObjectChildMember(context.rootObj.value as object, path).getValue(),
-			type: getFieldTypeChildType(context.rootObj.type, path).getValue(),
+			value,
+			type,
 			name: i >= 0 ? path.substring(i + 1) : path,
 			fullQualifiedName: path
 		};
@@ -714,11 +723,18 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 		path = i >= 0 ? path.substring(path[i] === "." ? i + 1 : i) : "";
 
 		if (namedObj) {
+			const value = getObjectChildValue(namedObj.value as object, path).value;
+			const type = getFieldTypeChildType(namedObj.type, path).value;
+
+			if (!type) {
+				return undefined;
+			}
+
 			i = path.lastIndexOf(".");
 
 			refTo = {
-				value: getObjectChildMember(namedObj.value as object, path).getValue(),
-				type: getFieldTypeChildType(namedObj.type, path).getValue(),
+				value,
+				type,
 				name: i >= 0 ? path.substring(i + 1) : path,
 				fullQualifiedName: stringAppend(namedObj.fullQualifiedName, path, ".")
 			};
@@ -737,11 +753,18 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 	}
 	// local (same obj)
 	else {
-		const i = path.lastIndexOf(".");
+		const value = getObjectChildValue(context.currentObj.value as object, path).value;
+		const type = getFieldTypeChildType(context.currentObj.type, path).value;
 
+		if (!type) {
+			return undefined;
+		}
+
+		const i = path.lastIndexOf(".");
+		
 		refTo = {
-			value: getObjectChildMember(context.currentObj.value as object, path).getValue(),
-			type: getFieldTypeChildType(context.currentObj.type, path).getValue(),
+			value,
+			type,
 			name: i >= 0 ? path.substring(i + 1) : path,
 			fullQualifiedName: stringAppend(context.currentObj.fullQualifiedName, path, ".")
 		};

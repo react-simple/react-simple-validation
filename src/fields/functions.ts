@@ -1,24 +1,24 @@
-import { getObjectChildMember } from "@react-simple/react-simple-util";
+import { getObjectChildValue } from "@react-simple/react-simple-mapping";
 import { FieldType } from "./types";
 
 export const getFieldTypeChildType = (fieldType: FieldType, fullQualifiedName: string) => {
-	return getObjectChildMember<FieldType>(
+	return getObjectChildValue<FieldType>(
 		fieldType,
 		fullQualifiedName,
 		{
 			getValue: (type, name) => {
 				const fieldType = type as FieldType;
 
-        switch (fieldType.baseType) { 
-          case "object":
-            return fieldType.schema[name];
+				switch (fieldType.baseType) {
+					case "object":
+						return fieldType.schema[name];
           
-          case "array":
-            return fieldType.itemType;
+					case "array":
+						return fieldType.itemType;
           
-          default:
-            return undefined;
-        }
+					default:
+						return undefined;
+				}
 			}
 		}
 	);

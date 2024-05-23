@@ -77,8 +77,8 @@ it('validateFields.switch', () => {
 	// item at index 0 should be 'A', item at index 1 should be 'B', otherwise 'C'
 	const rule = RULES.conditions.switch(
 		[
-			[RULES.array.itemIndex.value(0), RULES.text.value("A")],
-			[RULES.array.itemIndex.value(1), RULES.text.value("B")],
+			["case_0", RULES.array.itemIndex.value(0), RULES.text.value("A")],
+			["case_1", RULES.array.itemIndex.value(1), RULES.text.value("B")],
 		],
 		RULES.text.value("C")
 	);
@@ -126,7 +126,7 @@ it('validateFields.compare.number', () => {
 			bad2: fieldTypes
 		}
 	);
-
+	
 	expect(validationResult.isValid).toBe(false);
 	expect(validationResult.errors.good).toBeUndefined();
 	expect(validationResult.errors.bad1.isValid).toBe(false);

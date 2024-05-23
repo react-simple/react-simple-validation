@@ -144,8 +144,8 @@ it('validateFields.field-reference.namedObj.backwardRef.object', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						[RULES.references.fieldRef("@refObj.a", RULES.number.value(1)), RULES.text.value("A")],
-						[RULES.references.fieldRef("@refObj.a", RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef("@refObj.a", RULES.number.value(1)), RULES.text.value("A")],
+						["case_b", RULES.references.fieldRef("@refObj.a", RULES.number.value(2)), RULES.text.value("B")]
 					],
 					RULES.text.value("C")
 				)
@@ -181,8 +181,8 @@ it('validateFields.field-reference.namedObj.backwardRef.array', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						[RULES.references.fieldRef("@refObj[0].a", RULES.number.value(1)), RULES.text.value("A")],
-						[RULES.references.fieldRef("@refObj[0].a", RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef("@refObj[0].a", RULES.number.value(1)), RULES.text.value("A")],
+						["case_b", RULES.references.fieldRef("@refObj[0].a", RULES.number.value(2)), RULES.text.value("B")]
 					],
 					RULES.text.value("C")
 				)
@@ -239,8 +239,8 @@ it('validateFields.field-reference.namedObj.backwardRef.value', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						[RULES.references.fieldRef("@refObj", RULES.number.value(1)), RULES.text.value("A")],
-						[RULES.references.fieldRef("@refObj", RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef("@refObj", RULES.number.value(1)), RULES.text.value("A")],
+						["case_b", RULES.references.fieldRef("@refObj", RULES.number.value(2)), RULES.text.value("B")]
 					],
 					RULES.text.value("C")
 				)
@@ -298,8 +298,8 @@ it('validateFields.field-reference.namedObj.forwardRef.notSupported', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						[RULES.references.fieldRef(`@${refName}.a`, RULES.number.value(1)), RULES.text.value("A")],
-						[RULES.references.fieldRef(`@${refName}.a`, RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef(`@${refName}.a`, RULES.number.value(1)), RULES.text.value("A")],
+						["case_b", RULES.references.fieldRef(`@${refName}.a`, RULES.number.value(2)), RULES.text.value("B")]
 					],
 					RULES.text.value("C")
 				)
