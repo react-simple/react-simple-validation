@@ -2,8 +2,8 @@ import { FIELDS } from "fields";
 import { RULES } from "rules";
 import { validateObject } from "validation";
 
-it('validateFields.custom', () => {
-	const rule = RULES.custom(field => ({ isValid: field.value === "123" }));
+it('validateFields.custom.text', () => {
+	const rule = RULES.text.custom(field => ({ isValid: field.value === "123" }));
 
 	const validationResult = validateObject(
 		{
@@ -25,8 +25,9 @@ it('validateFields.custom.array', () => {
 	const itemType1 = FIELDS.object({ a: FIELDS.number() });
 	const itemType2 = FIELDS.object({ a: FIELDS.text() });
 
-	const rule = RULES.custom((_, context, validateField) => {
-		return validateField(context.itemIndex! % 2 === 0 ? itemType1 : itemType2);
+	const rule = RULES.object.custom((field, context, validateField) => {
+		// change field type dynamically and call default implementation
+		return validateField({ ...field, type: context.itemIndex! % 2 === 0 ? itemType1 : itemType2 });
 	});
 
 	const itemType = FIELDS.object({ a: FIELDS.any() }, [rule]);

@@ -1,18 +1,20 @@
 import { ValueOrArray } from "@react-simple/react-simple-util";
 import {
-	FieldCustomValidationRule, FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, 
-	FieldFileContentTypeRule, FieldArrayMaxLengthRule, FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule,
-	FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule, FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextMatchRule,
-	FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule, FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule,
-	FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule, FieldArrayMatchAllRule, FieldArrayMatchSomeRule,
-	FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule, FieldIfThenElseConditionalRule, FieldSwitchConditionalRule,
-	ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule, FieldReferenceRule, FieldComparisonConditionalRule
+	FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, FieldFileContentTypeRule, FieldArrayMaxLengthRule,
+	FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule, FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule,
+	FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextMatchRule, FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule,
+	FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule,
+	FieldArrayMatchAllRule, FieldArrayMatchSomeRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule,
+	FieldIfThenElseConditionalRule, FieldSwitchConditionalRule, ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule,
+	FieldReferenceRule, FieldComparisonConditionalRule, FieldTextCustomValidationRule, FieldNumberCustomValidationRule, FieldDateCustomValidationRule,
+	FieldBooleanCustomValidationRule, FieldFileCustomValidationRule, FieldArrayCustomValidationRule, FieldObjectCustomValidationRule, FieldAnyCustomValidationRule
 } from "./types";
 
 export interface ValidationRuleOptions {
 	readonly message?: string;
 }
 
+// Factory methods for rules
 export const RULES: {
 	readonly required: (options?: ValidationRuleOptions) => FieldRequiredRule;
 
@@ -34,6 +36,8 @@ export const RULES: {
 				options?: ValidationRuleOptions
 			) => FieldTextLengthRangeRule;
 		};
+
+		readonly custom: (validate: FieldTextCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldTextCustomValidationRule;
 	};
 
 	readonly number: {
@@ -48,6 +52,8 @@ export const RULES: {
 				mustBeGreater?: boolean;
 			}
 		) => FieldNumberRangeRule;
+
+		readonly custom: (validate: FieldNumberCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldNumberCustomValidationRule;
 	};
 
 	readonly date: {
@@ -61,10 +67,13 @@ export const RULES: {
 				mustBeLess?: boolean;
 				mustBeGreater?: boolean;
 			}) => FieldDateRangeRule;
+
+		readonly custom: (validate: FieldDateCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldDateCustomValidationRule;
 	};
 
 	readonly boolean: {
 		readonly value: (expectedValue: FieldBooleanValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldBooleanValueRule;
+		readonly custom: (validate: FieldBooleanCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldBooleanCustomValidationRule;
 	};
 
 	readonly file: {
@@ -73,6 +82,7 @@ export const RULES: {
 		};
 
 		readonly contentType: (contentTypes: FieldFileContentTypeRule["allowedContentTypes"], options?: ValidationRuleOptions) => FieldFileContentTypeRule;
+		readonly custom: (validate: FieldFileCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldFileCustomValidationRule;
 	};
 
 	readonly array: {
@@ -138,9 +148,17 @@ export const RULES: {
 				options?: ValidationRuleOptions & { filter?: FieldArrayMatchSomeRule["filter"] }
 			) => FieldArrayMatchSomeRule;
 		};
+
+		readonly custom: (validate: FieldArrayCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldArrayCustomValidationRule;
 	};
 
-	readonly custom: (validate: FieldCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldCustomValidationRule;
+	readonly object: {
+		readonly custom: (validate: FieldObjectCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldObjectCustomValidationRule;
+	};
+
+	readonly any: {
+		readonly custom: (validate: FieldAnyCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldAnyCustomValidationRule;
+	};
 
 	readonly operators: {
 		readonly some: (rules: SomeRulesValidRule["rules"], options?: ValidationRuleOptions) => SomeRulesValidRule;
@@ -223,7 +241,13 @@ export const RULES: {
 				minLength,
 				maxLength
 			})
-		}
+		},
+
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "text-custom",
+			validate
+		})
 	},
 
 	number: {
@@ -250,6 +274,12 @@ export const RULES: {
 			...options,
 			ruleType: "number-value",
 			expectedValue
+		}),
+
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "number-custom",
+			validate
 		})
 	},
 
@@ -277,6 +307,12 @@ export const RULES: {
 			...options,
 			ruleType: "date-value",
 			expectedValue
+		}),
+
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "date-custom",
+			validate
 		})
 	},
 
@@ -285,6 +321,12 @@ export const RULES: {
 			...options,
 			ruleType: "boolean-value",
 			expectedValue
+		}),
+
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "boolean-custom",
+			validate
 		})
 	},
 
@@ -299,9 +341,15 @@ export const RULES: {
 
 		contentType: (allowedContentTypes, options) => ({
 			...options,
-			ruleType: "file-contenttype",
+			ruleType: "file-content-type",
 			allowedContentTypes
 		}),
+
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "file-custom",
+			validate
+		})
 	},
 
 	array: {
@@ -355,25 +403,25 @@ export const RULES: {
 		itemIndex: {
 			min: (minIndex, options) => ({
 				...options,
-				ruleType: "array-item-index-min",
+				ruleType: "array-itemindex-min",
 				minIndex
 			}),
 
 			max: (maxIndex, options) => ({
 				...options,
-				ruleType: "array-item-index-max",
+				ruleType: "array-itemindex-max",
 				maxIndex
 			}),
 
 			value: (index, options) => ({
 				...options,
-				ruleType: "array-item-index",
+				ruleType: "array-itemindex",
 				index
 			}),
 
 			range: (minIndex, maxIndex, options) => ({
 				...options,
-				ruleType: "array-item-index-range",
+				ruleType: "array-itemindex-range",
 				minIndex,
 				maxIndex
 			})
@@ -391,14 +439,30 @@ export const RULES: {
 				ruleType: "array-match-some",
 				predicate
 			})
-		}
+		},
+
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "array-custom",
+			validate
+		})
 	},
 
-	custom: (validate, options) => ({
-		...options,
-		ruleType: "custom",
-		validate
-	}),
+	object: {
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "object-custom",
+			validate
+		})
+	},
+
+	any: {
+		custom: (validate, options) => ({
+			...options,
+			ruleType: "any-custom",
+			validate
+		})
+	},
 
 	operators: {
 		some: (rules, options) => ({

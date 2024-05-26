@@ -1,35 +1,45 @@
+import {
+	AnyFieldValidationRules, ArrayFieldValidationRules, BooleanFieldValidationRules, DateFieldValidationRules, FileFieldValidationRules,
+	NumberFieldValidationRules, ObjectFieldValidationRules, TextFieldValidationRules
+} from "rules";
 import { ReactSimpleValidationDependencyInjection } from "types.di";
 
 export interface ReactSimpleValidation {
-	FIELD_DEFAULTS: {
-		validation: {
-			defaultRules: {
-				required: boolean;
-			}
-		};
-		shortText: {
-			maxLength: number;
+	// Field instance default values by [baseType, type]. Base types are fixed, but any custom types can be added here (text -> short-text, tel, email etc.)
+	// Specified rules will overwrite default rules by using 'ruleType'. 
+	// Default rules should only contain basic rules (required, max value, max length, regex etc.)
+	DEFAULT_RULES: {
+		any: {
+			any: AnyFieldValidationRules[];
+			[customType: string]: AnyFieldValidationRules[];
 		};
 		text: {
-			maxLength: number;
+			text: TextFieldValidationRules[];
+			[customType: string]: TextFieldValidationRules[];
 		};
-		longText: {
-			maxLength: number;
+		number: {
+			number: NumberFieldValidationRules[];
+			[customType: string]: NumberFieldValidationRules[];
 		};
-		textArea: {
-			maxLength: number;
+		date: {
+			date: DateFieldValidationRules[];
+			[customType: string]: DateFieldValidationRules[];
 		};
-		percent: {
-			minValue: number;
-			maxValue: number;
+		boolean: {
+			boolean: BooleanFieldValidationRules[];
+			[customType: string]: BooleanFieldValidationRules[];
 		};
-		tel: {
-			maxLength: number;
-			regExp: RegExp;
+		file: {
+			file: FileFieldValidationRules[];
+			[customType: string]: FileFieldValidationRules[];
 		};
-		email: {
-			maxLength: number;
-			regExp: RegExp;
+		array: {
+			array: ArrayFieldValidationRules[];
+			[customType: string]: ArrayFieldValidationRules[];
+		};
+		object: {
+			object: ObjectFieldValidationRules[];
+			[customType: string]: ObjectFieldValidationRules[];
 		};
 	};
 

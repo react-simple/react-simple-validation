@@ -226,7 +226,7 @@ it('validateFields.array-match-all', () => {
 	expect(validationResult.errors.bad.isValid).toBe(false);
 });
 
-it('validateFields.array-item-index', () => {
+it('validateFields.array-itemindex', () => {
 	// item at index 2 should be 'C'
 	const rule = RULES.conditions.ifThenElse(
 		RULES.array.itemIndex.value(2),

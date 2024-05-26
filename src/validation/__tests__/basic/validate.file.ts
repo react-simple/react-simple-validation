@@ -3,7 +3,7 @@ import { FIELDS } from "fields";
 import { RULES } from "rules";
 import { validateObject } from "validation";
 
-it('validateFields.file-contenttype', () => {
+it('validateFields.file-content-type', () => {
 	const rule = RULES.file.contentType(CONTENT_TYPES.documents);
 
 	const validationResult = validateObject(

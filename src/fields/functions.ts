@@ -1,5 +1,5 @@
 import { getObjectChildValue } from "@react-simple/react-simple-mapping";
-import { FieldType } from "./types";
+import { FieldType } from "./types/types";
 
 export const getFieldTypeChildType = (fieldType: FieldType, fullQualifiedName: string) => {
 	return getObjectChildValue<FieldType>(

@@ -3,36 +3,42 @@ import { ReactSimpleValidation } from "types";
 // For depndency injection references. All stub references are set by the respective util files.
 const stub: any = () => { };
 
+// Custom types are set in types.custom.ts and can be set by the client code if more types are defined.
 export const REACT_SIMPLE_VALIDATION: ReactSimpleValidation = {
-	FIELD_DEFAULTS: {
-		validation: {
-			defaultRules: {
-				required: true
-			}
-		},
-		shortText: {
-			maxLength: 50
+	// Field instance default values by [baseType, type]. Base types are fixed, but any custom types can be added here (text -> short-text, tel, email etc.)
+	// Specified rules will overwrite default rules by using 'ruleType'.
+	// Default rules should only contain basic rules (required, max value, max length, regex etc.)
+	DEFAULT_RULES: {
+		any: {
+			any: [{ ruleType: "required" }]
 		},
 		text: {
-			maxLength: 200
+			text: [
+				{ ruleType: "required" },
+				{ ruleType: "text-length-max", maxLength: 200 }
+			]
 		},
-		longText: {
-			maxLength: 500
+		number: {
+			number: [{ ruleType: "required" }],
+			percent: [
+				{ ruleType: "number-min", minValue: 0 },
+				{ ruleType: "number-max", maxValue: 100 }
+			]
 		},
-		textArea: {
-			maxLength: 3000
+		date: {
+			date: [{ ruleType: "required" }]
 		},
-		percent: {
-			minValue: 0,
-			maxValue: 100
+		boolean: {
+			boolean: [{ ruleType: "required" }]
 		},
-		tel: {
-			maxLength: 20,
-			regExp: /^[\(\d+][\(\)-\d]*$/
+		file: {
+			file: [{ ruleType: "required" }]
 		},
-		email: {
-			maxLength: 50,
-			regExp: /^\w.+@\w.+\.\w+$/
+		array: {
+			array: [{ ruleType: "required" }]
+		},
+		object: {
+			object: [{ ruleType: "required" }]
 		}
 	},
 

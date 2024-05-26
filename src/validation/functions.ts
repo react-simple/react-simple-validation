@@ -181,7 +181,7 @@ function validateRule_default(
 	field: Field,
 	context: FieldValidationContext
 ): FieldRuleValidationResult {
-	let isValid = false;
+	let isValid = true;
 	let message = rule.message;
 	let regExpMatch: RegExpMatchArray | undefined;
 	let details: FieldRuleValidationResultReason[] = []; // custom info
@@ -247,6 +247,9 @@ function validateRule_default(
 			);
 			break;
 
+		// we only validate existing values with correct type
+		// if it's empty or has invalid type then those are the 'required' and 'type' roles' responsibilities to catch it
+
 		case "text-match":
 			if (type.baseType === "text" && isString(value) && value) {
 				regExpMatch = (
@@ -259,7 +262,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "file-contenttype":
+		case "file-content-type":
 			if (type.baseType === "file" && isFile(value)) {
 				if (value.type && rule.allowedContentTypes) {
 					if (!isArray(rule.allowedContentTypes)) {
@@ -272,16 +275,15 @@ function validateRule_default(
 			}
 			break;
 
-		case "custom": {
-			const res = rule.validate(field, context, customType => {
-				const res2 = validateField({ ...field, type: customType }, context);
-
-				return {
-					isValid: res2.isValid,
-					errors: res2.errors,
-					children: res2.children
-				};
-			});
+		case "text-custom":
+		case "number-custom":
+		case "date-custom":
+		case "boolean-custom":
+		case "file-custom":
+		case "array-custom":
+		case "object-custom":
+		case "any-custom": {
+			const res = rule.validate(field as any, context, customField => validateField(customField, context));
 
 			isValid = res.isValid;
 			message = res.message || message;
@@ -511,19 +513,19 @@ function validateRule_default(
 			break;
 		}
 
-		case "array-item-index":
+		case "array-itemindex":
 			isValid = context.itemIndex == rule.index;
 			break;
 
-		case "array-item-index-min":
+		case "array-itemindex-min":
 			isValid = !isEmpty(context.itemIndex) && context.itemIndex >= rule.minIndex;
 			break;
 
-		case "array-item-index-max":
+		case "array-itemindex-max":
 			isValid = !isEmpty(context.itemIndex) && context.itemIndex <= rule.maxIndex;
 			break;
 
-		case "array-item-index-range":
+		case "array-itemindex-range":
 			isValid = !isEmpty(context.itemIndex) && context.itemIndex >= rule.minIndex && context.itemIndex <= rule.maxIndex;
 			break;
 

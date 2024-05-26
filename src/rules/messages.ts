@@ -4,42 +4,50 @@ import {
 	AllRulesValidRule, ArrayItemIndexMaxRule, ArrayItemIndexMinRule, ArrayItemIndexRangeRule, ArrayItemIndexRule, FieldArrayIncludeAllRule,
 	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule,
 	FieldArrayMinLengthRule, FieldArrayMatchAllRule, FieldArrayMatchSomeRule, FieldBooleanValueRule, FieldComparisonConditionalRule,
-	FieldCustomValidationRule, FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule,
-	FieldFileMaxSizeRule, FieldIfThenElseConditionalRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule,
-	FieldReferenceRule, FieldRequiredRule, FieldSwitchConditionalRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule,
-	FieldTextMinLengthRule, FieldTextMatchRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule
+	FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule, FieldFileMaxSizeRule,
+	FieldIfThenElseConditionalRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule, FieldReferenceRule,
+	FieldRequiredRule, FieldSwitchConditionalRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule, FieldTextMinLengthRule,
+	FieldTextMatchRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule, FieldArrayCustomValidationRule,
+	FieldBooleanCustomValidationRule, FieldDateCustomValidationRule, FieldFileCustomValidationRule, FieldNumberCustomValidationRule,
+	FieldTextCustomValidationRule, FieldAnyCustomValidationRule, FieldObjectCustomValidationRule
 } from "./types";
 
 const BLANK = {
+	"any-custom": (_: FieldAnyCustomValidationRule) => "",
 	"all-rules-valid": (_: AllRulesValidRule) => "",
 	"array-include-all": (_: FieldArrayIncludeAllRule) => "",
 	"array-include-none": (_: FieldArrayIncludeNoneRule) => "",
 	"array-include-some": (_: FieldArrayIncludeSomeRule) => "",
-	"array-item-index": (_: ArrayItemIndexRule) => "",
-	"array-item-index-min": (_: ArrayItemIndexMinRule) => "",
-	"array-item-index-max": (_: ArrayItemIndexMaxRule) => "",
-	"array-item-index-range": (_: ArrayItemIndexRangeRule) => "",
+	"array-itemindex": (_: ArrayItemIndexRule) => "",
+	"array-itemindex-min": (_: ArrayItemIndexMinRule) => "",
+	"array-itemindex-max": (_: ArrayItemIndexMaxRule) => "",
+	"array-itemindex-range": (_: ArrayItemIndexRangeRule) => "",
 	"array-length": (_: FieldArrayLengthRule) => "",
 	"array-length-max": (_: FieldArrayMaxLengthRule) => "",
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
 	"array-length-range": (_: FieldArrayLengthRangeRule) => "",
 	"array-match-all": (_: FieldArrayMatchAllRule) => "",
 	"array-match-some": (_: FieldArrayMatchSomeRule) => "",
+	"array-custom": (_: FieldArrayCustomValidationRule) => "",
 	"boolean-value": (_: FieldBooleanValueRule) => "",
+	"boolean-custom": (_: FieldBooleanCustomValidationRule) => "",
 	"compare": (_: FieldComparisonConditionalRule) => "",
-	"custom": (_: FieldCustomValidationRule) => "",
 	"date-max": (_: FieldDateMaxValueRule) => "",
 	"date-min": (_: FieldDateMinValueRule) => "",
 	"date-range": (_: FieldDateRangeRule) => "",
 	"date-value": (_: FieldDateValueRule) => "",
+	"date-custom": (_: FieldDateCustomValidationRule) => "",
 	"field-reference": (_: FieldReferenceRule) => "",
-	"file-contenttype": (_: FieldFileContentTypeRule) => "",
+	"file-content-type": (_: FieldFileContentTypeRule) => "",
 	"file-size-max": (_: FieldFileMaxSizeRule) => "",
+	"file-custom": (_: FieldFileCustomValidationRule) => "",
 	"if-then-else": (_: FieldIfThenElseConditionalRule) => "",
 	"number-max": (_: FieldNumberMaxValueRule) => "",
 	"number-min": (_: FieldNumberMinValueRule) => "",
 	"number-range": (_: FieldNumberRangeRule) => "",
 	"number-value": (_: FieldNumberValueRule) => "",
+	"number-custom": (_: FieldNumberCustomValidationRule) => "",
+	"object-custom": (_: FieldObjectCustomValidationRule) => "",
 	"required": (_: FieldRequiredRule) => "",
 	"some-rules-valid": (_: SomeRulesValidRule) => "",
 	"switch": (_: FieldSwitchConditionalRule) => "",
@@ -49,6 +57,7 @@ const BLANK = {
 	"text-length-range": (_: FieldTextLengthRangeRule) => "",
 	"text-match": (_: FieldTextMatchRule) => "",
 	"text-value": (_: FieldTextValueRule) => "",
+	"text-custom": (_: FieldTextCustomValidationRule) => "",
 	"type": (_: FieldTypeRule) => ""
 };
 
@@ -81,7 +90,7 @@ const EN_US: ValidationRuleMessages = {
 		? `Must be one of the following dates: ${expectedValue.map(t => dateToStr(t), ", ").join(", ")}`
 		: `Must be ${dateToStr(expectedValue)}`,
 
-	"file-contenttype": ({ allowedContentTypes }) => `Allowed content: ${getResolvedArray(allowedContentTypes).map(t => t.name).join(", ")}`,
+	"file-content-type": ({ allowedContentTypes }) => `Allowed content: ${getResolvedArray(allowedContentTypes).map(t => t.name).join(", ")}`,
 	"file-size-max": ({ maxFileSize }) => maxFileSize >= 0x100000
 		? `Maximum size is ${floatToStr(maxFileSize / 0x100000, { maxDecimalDigits: 1 })} Mb`
 		: `Maximum size is ${floatToStr(maxFileSize / 0x400, { maxDecimalDigits: 1 })} Kb`,

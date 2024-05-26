@@ -138,7 +138,7 @@ it('validateFields.field-reference.root', () => {
 it('validateFields.field-reference.namedObj.backwardRef.object', () => {
 	// Validate that if field 'a' is 1 then field 'b' is A and if field 'a' is 2 then field 'b' is B, otherwise 'C'
 	const fieldTypes = FIELDS.array(FIELDS.object({
-		subObj1: FIELDS.object({ a: FIELDS.number() }, [], "refObj"),
+		subObj1: FIELDS.object({ a: FIELDS.number() }, [], { refName: "refObj" }),
 
 		subObj2: FIELDS.object({
 			b: FIELDS.text([
@@ -175,7 +175,7 @@ it('validateFields.field-reference.namedObj.backwardRef.object', () => {
 it('validateFields.field-reference.namedObj.backwardRef.array', () => {
 	// Validate that if field 'a' is 1 then field 'b' is A and if field 'a' is 2 then field 'b' is B, otherwise 'C'
 	const fieldTypes = FIELDS.array(FIELDS.object({
-		subObj1: FIELDS.array(FIELDS.object({ a: FIELDS.number() }), [], "refObj"),
+		subObj1: FIELDS.array(FIELDS.object({ a: FIELDS.number() }), [], { refName: "refObj" }),
 
 		subObj2: FIELDS.object({
 			b: FIELDS.text([
@@ -233,7 +233,7 @@ it('validateFields.field-reference.namedObj.backwardRef.array', () => {
 it('validateFields.field-reference.namedObj.backwardRef.value', () => {
 	// Validate that if field 'a' is 1 then field 'b' is A and if field 'a' is 2 then field 'b' is B, otherwise 'C'
 	const fieldTypes = FIELDS.array(FIELDS.object({
-		subObj1: FIELDS.object({ a: FIELDS.number([], "refObj") }),
+		subObj1: FIELDS.object({ a: FIELDS.number([], { refName: "refObj" }) }),
 
 		subObj2: FIELDS.object({
 			b: FIELDS.text([
@@ -306,7 +306,7 @@ it('validateFields.field-reference.namedObj.forwardRef.notSupported', () => {
 			])
 		}),
 
-		subObj1: FIELDS.object({ a: FIELDS.number() }, [], refName)
+		subObj1: FIELDS.object({ a: FIELDS.number() }, [], { refName })
 	});
 
 	const validationResult = validateObject(
