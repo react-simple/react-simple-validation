@@ -4,15 +4,15 @@ Validation library for React application development. Intended usage is form val
 Documentation is for version 0.5.2.
 
 Features:
-- Validation is based on schema built from field types. Field types support primitive values (text, number, Date, boolean) and structures (arrays, object), therefore nested child objects are supported. 
-- Field types can have associated validation rules. Besides basic validation also conditions, operators and references to other fields are supported.
-- Validating child objects or array of child objects are natively supported (array-match-some, array-match-all etc.)
-- It's possible to refer to other fields using full qualified names (name.name[0].name...) or by assigned names (@partner_type).
+- Validation is based on **schema of field types**. Field types support primitive values (text, number, Date, boolean) and structures (arrays, object), therefore nested child objects are supported. 
+- Field types can have associated **validation rules**. Besides basic validation also conditions, operators and references to other fields are supported.
+- Validating **child objects** or **array of child objects** are natively supported (array-match-some, array-match-all etc.)
+- It's possible to **refer to other fields** using **full qualified names** (name.name[0].name...) or by assigned **reference names** (@partner_type).
 - External parameters can also be used.
 - Localization is not added intentionally. All number, Date and boolean values are expected to be present in their native format. 
 It is the responsibility of the consuming component to do the conversion (forms binding for example).
 - Detailed error result is returned.
-- **Dependency injection** for pluggable architecture. All the important methods can be replaced with custom implementation by setting REACT_SIMPLE_UTIL.DI members.
+- **Dependency injection** for pluggable architecture. All the important methods can be replaced with custom implementation by setting REACT_SIMPLE_VALIDATION.DI members.
 - **Unit tests** for all fetaures
 
 # Usage
