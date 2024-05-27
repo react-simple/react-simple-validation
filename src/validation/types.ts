@@ -1,6 +1,8 @@
 import { Field, FieldTypes } from "fields";
 import { FieldValidationRule } from "rules/types";
 
+export type FieldRuleValidationErrors = { [fullQualifiedName: string]: string[] };
+
 // rootObj to resolve field references starting with "/", see the "reference" rule
 // namedObjs to resolve field references starting with "@refName", see the "field-reference" rules
 export interface FieldValidationContext {
@@ -34,11 +36,14 @@ export interface FieldValidationContext {
 		};
 	};
 
+	readonly errorsFlatList: FieldRuleValidationErrors;
+
 	readonly data?: any; // for custom validation, whatever is needed will be passed over
+	readonly cultureId?: string; /// if not REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current
 }
 
 // custom info, provided by the 'custom' rule, but other rules also put info here ('switch' puts the value)
-export interface FieldRuleValidationResultReason {
+export interface FieldValidationResultDetails {
 	readonly key: string;
 	readonly value?: unknown;
 	readonly message?: string;
@@ -53,11 +58,10 @@ export interface FieldRuleValidationResult {
 	readonly isValid: boolean;
 	readonly message?: string; // custom message
 	readonly errors?: FieldRuleValidationResult[];
-	readonly children?: { [name: string]: FieldValidationResult };
 
 	// meta
 	readonly regExpMatch?: RegExpMatchArray;
-	readonly details?: FieldRuleValidationResultReason[];
+	readonly details?: FieldValidationResultDetails[];
 }
 
 export interface FieldValidationResult {
@@ -85,8 +89,9 @@ export interface ObjectValidationResult<Schema extends FieldTypes = any> {
 	// details with all evaluated rules
 	// we only have this at the root level in basic validation; use detailed validation to get it for the whole hierarchy
 	readonly errors: { [name in keyof Schema]: FieldValidationResult };
+	readonly errorsFlatList: FieldValidationContext["errorsFlatList"];
 
 	// meta
 	readonly namedObjs: FieldValidationContext["namedObjs"]; // collected named objs
-	readonly refNames: FieldValidationContext["refNames"];
+	readonly refNames: FieldValidationContext["refNames"];	
 }

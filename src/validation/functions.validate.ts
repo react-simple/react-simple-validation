@@ -1,16 +1,15 @@
 import {
-	appendDictionary, compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray,
-	isArray, isBoolean, isDate, isEmpty, isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, sameDates,
-	stringAppend, stringIndexOfAny
+	compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray, isArray, isBoolean, isDate, isEmpty,
+	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, sameDates, stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
 import { getObjectChildValue } from "@react-simple/react-simple-mapping";
-import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChildType } from "fields";
-import { FieldRuleValidationResult, FieldRuleValidationResultReason, FieldValidationResult, ObjectValidationResult } from "./types";
+import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChild } from "fields";
+import { FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult } from "./types";
 import { FieldValidationContext } from "validation/types";
 import { REACT_SIMPLE_VALIDATION } from "data";
 import { FieldValidationRule } from "rules";
+import { getFieldRuleValidationErrorMessages } from "./functions.result";
 
-// the FieldCustomValidationRule.validate() callback must have the same signature
 function validateField_default(
 	field: Field,
 	context: FieldValidationContext
@@ -88,7 +87,7 @@ function validateField_default(
 		}
 	}
 
-	return {
+	const result: FieldValidationResult = {
 		// location
 		name,
 		fullQualifiedName,
@@ -104,6 +103,19 @@ function validateField_default(
 		errors,
 		children
 	};
+
+	if (result.isValid) {
+		delete context.errorsFlatList[fullQualifiedName];
+	} else if (errors.some(t => !t.isValid)) {
+		context.errorsFlatList[fullQualifiedName] = [
+			...errors.flatMap(t => getFieldRuleValidationErrorMessages(t, context.cultureId)),
+
+			// do not propagate child field errors to parents
+			// ...Object.values(children).flatMap(t => Object.values(getFieldValidationErrorMessages(t, context.cultureId))).flat()
+		];
+	}
+
+	return result;
 }
 
 REACT_SIMPLE_VALIDATION.DI.validateField = validateField_default;
@@ -143,6 +155,7 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 		rootObj: field,
 		namedObjs: options.namedObjs || {},
 		refNames: { notFound: {}, resolved: {} },
+		errorsFlatList: {},
 		data: options.data
 	};
 
@@ -154,7 +167,8 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 		// @ts-ignore
 		errors: children,
 		namedObjs: context.namedObjs,
-		refNames: context.refNames
+		refNames: context.refNames,
+		errorsFlatList: context.errorsFlatList
 	};
 }
 
@@ -184,13 +198,12 @@ function validateRule_default(
 	let isValid = true;
 	let message = rule.message;
 	let regExpMatch: RegExpMatchArray | undefined;
-	let details: FieldRuleValidationResultReason[] = []; // custom info
+	let details: FieldValidationResultDetails[] = []; // custom info
 
 	const scope = "validateRule";
 	const { value, type, fullQualifiedName } = field;
 
 	const errors: FieldRuleValidationResult[] = [];
-	const children: { [name: string]: FieldValidationResult } = {};
 
 	switch (rule.ruleType) {
 		case "type":
@@ -295,10 +308,6 @@ function validateRule_default(
 			if (res.errors) {
 				errors.push(...res.errors);
 			}
-			
-			if (res.children) {
-				appendDictionary(children, res.children);
-			}
 			break;
 		}
 			
@@ -376,9 +385,9 @@ function validateRule_default(
 			if (type.baseType === "array" && isArray(value)) {
 				const items = getFilteredArrayItems(rule, field as any, context);
 
-				isValid = isArray(rule.item)
-					? rule.item.some(expectedValue => items.includes(expectedValue))
-					: items.includes(rule.item);
+				isValid = isArray(rule.items)
+					? rule.items.some(expectedValue => items.includes(expectedValue))
+					: items.includes(rule.items);
 			}
 			break;
 
@@ -386,9 +395,9 @@ function validateRule_default(
 			if (type.baseType === "array" && isArray(value)) {
 				const items = getFilteredArrayItems(rule, field as any, context);
 
-				isValid = isArray(rule.item)
-					? rule.item.every(expectedValue => items.includes(expectedValue))
-					: items.includes(rule.item);
+				isValid = isArray(rule.items)
+					? rule.items.every(expectedValue => items.includes(expectedValue))
+					: items.includes(rule.items);
 			}
 			break;
 
@@ -396,9 +405,9 @@ function validateRule_default(
 			if (type.baseType === "array" && isArray(value)) {
 				const items = getFilteredArrayItems(rule, field as any, context);
 
-				isValid = isArray(rule.item)
-					? rule.item.every(expectedValue => !items.includes(expectedValue))
-					: !items.includes(rule.item);
+				isValid = isArray(rule.items)
+					? rule.items.every(expectedValue => !items.includes(expectedValue))
+					: !items.includes(rule.items);
 			}
 			break;
 
@@ -631,8 +640,7 @@ function validateRule_default(
 
 		regExpMatch,
 		details: details.length ? details : undefined,
-		errors,
-		children
+		errors
 	};
 }
 
@@ -704,7 +712,7 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 		const i = path.lastIndexOf(".");
 
 		const value = getObjectChildValue(context.rootObj.value as object, path).value;
-		const type = getFieldTypeChildType(context.rootObj.type, path).value;
+		const type = getFieldTypeChild(context.rootObj.type, path).value;
 
 		if (!type) {
 			return undefined;
@@ -726,7 +734,7 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 
 		if (namedObj) {
 			const value = getObjectChildValue(namedObj.value as object, path).value;
-			const type = getFieldTypeChildType(namedObj.type, path).value;
+			const type = getFieldTypeChild(namedObj.type, path).value;
 
 			if (!type) {
 				return undefined;
@@ -756,7 +764,7 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 	// local (same obj)
 	else {
 		const value = getObjectChildValue(context.currentObj.value as object, path).value;
-		const type = getFieldTypeChildType(context.currentObj.type, path).value;
+		const type = getFieldTypeChild(context.currentObj.type, path).value;
 
 		if (!type) {
 			return undefined;

@@ -178,6 +178,7 @@ export interface FieldBooleanValueRule extends FieldValidationRuleBase {
 export interface FieldTextMatchRule extends FieldValidationRuleBase {
 	readonly ruleType: "text-match";
 	readonly regExp: ValueOrArray<RegExp>;
+	readonly regExpName?: string; // user friendly description ("Password number", "Tax identification number" etc.)
 }
 
 export interface FieldFileMaxSizeRule extends FieldValidationRuleBase {
@@ -217,19 +218,19 @@ export interface FieldArrayLengthRangeRule extends FieldValidationRuleBase {
 
 export interface FieldArrayIncludeSomeRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-include-some";
-	readonly item: ValueOrArray<unknown>;
+	readonly items: ValueOrArray<unknown>;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldArrayIncludeAllRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-include-all";
-	readonly item: ValueOrArray<unknown>;
+	readonly items: ValueOrArray<unknown>;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 
 export interface FieldArrayIncludeNoneRule extends FieldValidationRuleBase {
 	readonly ruleType: "array-include-none";
-	readonly item: ValueOrArray<unknown>;
+	readonly items: ValueOrArray<unknown>;
 	readonly filter?: FieldValidationRule; // inspect only matching items
 }
 

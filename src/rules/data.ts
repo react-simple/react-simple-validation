@@ -24,7 +24,7 @@ export const RULES: {
 			options?: ValidationRuleOptions & { ignoreCase?: boolean }
 		) => FieldTextValueRule;
 
-		readonly match: (regExp: FieldTextMatchRule["regExp"], options?: ValidationRuleOptions) => FieldTextMatchRule;
+		readonly match: (regExp: FieldTextMatchRule["regExp"], regExpName?: FieldTextMatchRule["regExpName"], options?: ValidationRuleOptions) => FieldTextMatchRule;
 
 		readonly length: {
 			readonly min: (minLength: FieldTextMinLengthRule["minLength"], options?: ValidationRuleOptions) => FieldTextMinLengthRule;
@@ -88,17 +88,17 @@ export const RULES: {
 	readonly array: {
 		readonly include: {
 			readonly some: (
-				item: FieldArrayIncludeSomeRule["item"],
+				item: FieldArrayIncludeSomeRule["items"],
 				options?: ValidationRuleOptions & { filter?: FieldArrayIncludeSomeRule["filter"] }
 			) => FieldArrayIncludeSomeRule;
 
 			readonly all: (
-				item: FieldArrayIncludeAllRule["item"],
+				item: FieldArrayIncludeAllRule["items"],
 				options?: ValidationRuleOptions & { filter?: FieldArrayIncludeAllRule["filter"] }
 			) => FieldArrayIncludeAllRule;
 
 			readonly none: (
-				item: FieldArrayIncludeNoneRule["item"],
+				item: FieldArrayIncludeNoneRule["items"],
 				options?: ValidationRuleOptions & { filter?: FieldArrayIncludeNoneRule["filter"] }
 			) => FieldArrayIncludeNoneRule;
 		};
@@ -210,10 +210,11 @@ export const RULES: {
 			expectedValue
 		}),
 
-		match: (regExp, options) => ({
+		match: (regExp, regExpName, options) => ({
 			...options,
 			ruleType: "text-match",
-			regExp
+			regExp,
+			regExpName
 		}),
 
 		length: {
@@ -354,22 +355,22 @@ export const RULES: {
 
 	array: {
 		include: {
-			some: (item, options) => ({
+			some: (items, options) => ({
 				...options,
 				ruleType: "array-include-some",
-				item
+				items
 			}),
 
-			all: (item, options) => ({
+			all: (items, options) => ({
 				...options,
 				ruleType: "array-include-all",
-				item
+				items
 			}),
 
-			none: (item, options) => ({
+			none: (items, options) => ({
 				...options,
 				ruleType: "array-include-none",
-				item
+				items
 			})
 		},
 

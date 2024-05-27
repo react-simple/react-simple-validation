@@ -15,6 +15,7 @@ import {
 const BLANK = {
 	"any-custom": (_: FieldAnyCustomValidationRule) => "",
 	"all-rules-valid": (_: AllRulesValidRule) => "",
+	
 	"array-include-all": (_: FieldArrayIncludeAllRule) => "",
 	"array-include-none": (_: FieldArrayIncludeNoneRule) => "",
 	"array-include-some": (_: FieldArrayIncludeSomeRule) => "",
@@ -27,30 +28,40 @@ const BLANK = {
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
 	"array-length-range": (_: FieldArrayLengthRangeRule) => "",
 	"array-match-all": (_: FieldArrayMatchAllRule) => "",
-	"array-match-some": (_: FieldArrayMatchSomeRule) => "",
+	"array-match-some": (_: FieldArrayMatchSomeRule) => "",	
 	"array-custom": (_: FieldArrayCustomValidationRule) => "",
+
 	"boolean-value": (_: FieldBooleanValueRule) => "",
 	"boolean-custom": (_: FieldBooleanCustomValidationRule) => "",
+	
 	"compare": (_: FieldComparisonConditionalRule) => "",
 	"date-max": (_: FieldDateMaxValueRule) => "",
 	"date-min": (_: FieldDateMinValueRule) => "",
 	"date-range": (_: FieldDateRangeRule) => "",
 	"date-value": (_: FieldDateValueRule) => "",
 	"date-custom": (_: FieldDateCustomValidationRule) => "",
+	
 	"field-reference": (_: FieldReferenceRule) => "",
+	
 	"file-content-type": (_: FieldFileContentTypeRule) => "",
 	"file-size-max": (_: FieldFileMaxSizeRule) => "",
 	"file-custom": (_: FieldFileCustomValidationRule) => "",
+	
 	"if-then-else": (_: FieldIfThenElseConditionalRule) => "",
+	
 	"number-max": (_: FieldNumberMaxValueRule) => "",
 	"number-min": (_: FieldNumberMinValueRule) => "",
 	"number-range": (_: FieldNumberRangeRule) => "",
 	"number-value": (_: FieldNumberValueRule) => "",
 	"number-custom": (_: FieldNumberCustomValidationRule) => "",
+	
 	"object-custom": (_: FieldObjectCustomValidationRule) => "",
+	
 	"required": (_: FieldRequiredRule) => "",
+	
 	"some-rules-valid": (_: SomeRulesValidRule) => "",
 	"switch": (_: FieldSwitchConditionalRule) => "",
+	
 	"text-length": (_: FieldTextLengthRule) => "",
 	"text-length-max": (_: FieldTextMaxLengthRule) => "",
 	"text-length-min": (_: FieldTextMinLengthRule) => "",
@@ -58,6 +69,7 @@ const BLANK = {
 	"text-match": (_: FieldTextMatchRule) => "",
 	"text-value": (_: FieldTextValueRule) => "",
 	"text-custom": (_: FieldTextCustomValidationRule) => "",
+	
 	"type": (_: FieldTypeRule) => ""
 };
 
@@ -66,12 +78,16 @@ export type ValidationRuleMessages = typeof BLANK;
 // we don't want BLANK to be a Record, since that kills the member level typing, but Record help to validate that all FieldValidationRuleType values are listed
 const _CHECK_ALL_DEFINED: Record<FieldValidationRuleType, Function> = BLANK;
 
-const dateToStr = (d: Date) => formatDateOrDateTime(d, CULTURE_INFO.DATE_FORMATS["EN-US"]);
-const floatToStr = (n: number, options?: NumberFormatOptions) => formatNumber(n, CULTURE_INFO.NUMBER_FORMATS["EN-US"], options);
+const dateToStr = (d: Date) => formatDateOrDateTime(d, CULTURE_INFO.formats.dateFormats["EN-US"]);
+const floatToStr = (n: number, options?: NumberFormatOptions) => formatNumber(n, CULTURE_INFO.formats.numberFormats["EN-US"], options);
 
 // not all validation rules have default messages
 const EN_US: ValidationRuleMessages = {
 	...BLANK,
+	"array-include-all": ({ items }) => isArray(items) ? `Must contain all values: ${items.join(", ")}` : `Must contain value: ${items}`,
+	"array-include-none": ({ items }) => isArray(items) ? `Must not contain values: ${items.join(", ")}` : `Must not contain value: ${items}`,
+	"array-include-some": ({ items }) => isArray(items) ? `Must contain some of the following values: ${items.join(", ")}` : `Must contain value: ${items}`,
+
 	"array-length": ({ expectedLength }) => `Must have ${expectedLength} items`,
 	"array-length-max": ({ maxLength }) => `Must have ${maxLength} items at most`,
 	"array-length-min": ({ minLength }) => `Must have ${minLength} items at least`,
@@ -107,6 +123,7 @@ const EN_US: ValidationRuleMessages = {
 		: `Must be ${floatToStr(expectedValue)}`,
 
 	"required": () => "Required",
+
 	"text-length": ({ expectedLength }) => expectedLength === 1 ? "Must be a single character" : `Must be ${expectedLength} characters long`,
 	"text-length-min": ({ minLength }) => minLength === 1 ? "Minimum 1 character" : `Minimum ${minLength} characters`,
 	"text-length-max": ({ maxLength }) => maxLength === 1 ? "Maximum 1 character" : `Maximum ${maxLength} characters`,
@@ -117,12 +134,16 @@ const EN_US: ValidationRuleMessages = {
 				`Must be ${minLength} characters`
 	),
 
+	"text-match": ({ regExpName }) => `Must match format${regExpName ? ` (${regExpName})` : ""}`,
+
 	"text-value": ({ expectedValue }) => isArray(expectedValue)
 		? `Must be one of the following values: ${expectedValue.join(", ")}`
-		: `Must be '${expectedValue}'`
+		: `Must be '${expectedValue}'`,
+	
+	"type": ({ valueType }) => `Must be a ${valueType} value`
 };
 
-export const FIELD_VALIDATION_RULE_MESSAGES: { readonly [cultureId: string]: ValidationRuleMessages } = {
+export const FIELD_VALIDATION_RULE_MESSAGES: { [cultureId: string]: ValidationRuleMessages } = {
 	BLANK,
 	DEFAULT: EN_US, 
 	"EN-US": EN_US
