@@ -12,7 +12,7 @@ export const getValidationResultChild = (
 		result,
 		fullQualifiedName,
 		{
-			getValue: (res, name) => res["children"]?.[name] || res["errors"]?.[name] || res[name]
+			getValue: (res, name) => res["childErrors"]?.[name] || res[name]
 		}
 	);
 };
@@ -53,7 +53,7 @@ export function getFieldValidationErrorMessages(result: ValueOrArray<FieldValida
 					}]
 					: [],
 			
-				...Object.values(result.children || {}).map(t => getFieldValidationErrorMessages(t, cultureId))
+				...Object.values(result.childErrors || {}).map(t => getFieldValidationErrorMessages(t, cultureId))
 			]);
 	}
 }
@@ -65,6 +65,6 @@ export function getObjectValidationErrorMessages(result: ValueOrArray<ObjectVali
 	else {
 		return result.isValid
 			? {}
-			: mergeDictionaries(Object.values(result.errors || {}).map(t => getFieldValidationErrorMessages(t, cultureId)))
+			: mergeDictionaries(Object.values(result.childErrors || {}).map(t => getFieldValidationErrorMessages(t, cultureId)))
 	}
 }

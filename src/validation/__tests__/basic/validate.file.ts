@@ -18,8 +18,8 @@ it('validateFields.file-content-type', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.file-size-max', () => {
@@ -37,6 +37,6 @@ it('validateFields.file-size-max', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });

@@ -17,8 +17,8 @@ it('validateFields.custom.text', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.custom.array', () => {
@@ -44,6 +44,6 @@ it('validateFields.custom.array', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });

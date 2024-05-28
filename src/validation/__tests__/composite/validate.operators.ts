@@ -21,8 +21,8 @@ it('validateFields.some-rules-valid', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.all-rules-valid', () => {
@@ -46,7 +46,7 @@ it('validateFields.all-rules-valid', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });

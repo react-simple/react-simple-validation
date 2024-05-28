@@ -13,6 +13,7 @@ export interface ReactSimpleValidationDependencyInjection {
   validateField: (
     field: Field,
     context: FieldValidationContext,
+    previousResult: FieldValidationResult | undefined,
     defaultImpl: ReactSimpleValidationDependencyInjection["validateField"]
   ) => FieldValidationResult;
 

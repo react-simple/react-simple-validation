@@ -17,6 +17,6 @@ it('validateFields.boolean-value', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });

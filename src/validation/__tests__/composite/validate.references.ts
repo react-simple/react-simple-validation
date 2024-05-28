@@ -58,9 +58,9 @@ it('validateFields.field-reference.local', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });
 
 it('validateFields.field-reference.local-array', () => {
@@ -96,9 +96,9 @@ it('validateFields.field-reference.local-array', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });
 
 it('validateFields.field-reference.root', () => {
@@ -166,10 +166,10 @@ it('validateFields.field-reference.namedObj.backwardRef.object', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
-	expect(validationResult.errors.bad3.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.bad3.isValid).toBe(false);
 });
 
 it('validateFields.field-reference.namedObj.backwardRef.array', () => {
@@ -224,10 +224,10 @@ it('validateFields.field-reference.namedObj.backwardRef.array', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
-	expect(validationResult.errors.bad3.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.bad3.isValid).toBe(false);
 });
 
 it('validateFields.field-reference.namedObj.backwardRef.value', () => {
@@ -282,10 +282,10 @@ it('validateFields.field-reference.namedObj.backwardRef.value', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
-	expect(validationResult.errors.bad3.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.bad3.isValid).toBe(false);
 });
 
 // Validation of the schema is sequential, therefore, @refName references can only refer to objects/values
@@ -321,14 +321,14 @@ it('validateFields.field-reference.namedObj.forwardRef.notSupported', () => {
 
 	// all tests will faill since forward references are not enabled, so @refObj won't be found
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good.isValid).toBe(false);
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
-	expect(validationResult.errors.bad3.isValid).toBe(false);
+	expect(validationResult.childErrors.good.isValid).toBe(false);
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.bad3.isValid).toBe(false);
 });
 
 it('validateFields.field-reference.external-parameter', () => {
-	// Validate that if field 'a' is 1 then field 'b' is A and if field 'a' is 2 then field 'b' is B.
+	// Validate that if parameter '@a' is 1 then field 'b' is A and if parameter '@a' is 2 then field 'b' is B.
 	const fieldTypes = FIELDS.object({
 		b: FIELDS.text([
 			// [a] == 1 -> [b] == "A"
@@ -359,8 +359,8 @@ it('validateFields.field-reference.external-parameter', () => {
 			}
 		}
 	);
-	console.log(JSON.stringify(validationResult, null, 2));
+
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });

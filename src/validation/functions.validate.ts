@@ -2,7 +2,7 @@ import {
 	compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray, isArray, isBoolean, isDate, isEmpty,
 	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, mapDictionaryValues, sameDates, stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
-import { getObjectChildValue } from "@react-simple/react-simple-mapping";
+import { fullQualifiedMemberNameMatchSubTree, getObjectChildValue } from "@react-simple/react-simple-mapping";
 import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChild } from "fields";
 import { FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult, FieldValidationOptions } from "./types";
 import { FieldValidationContext } from "validation/types";
@@ -12,9 +12,11 @@ import { getFieldRuleValidationErrorMessages } from "./functions.result";
 
 function validateField_default(
 	field: Field,
-	context: FieldValidationContext
+	context: FieldValidationContext,
+	previousResult?: FieldValidationResult
 ): FieldValidationResult {
 	const { type, value, name, fullQualifiedName } = field;
+	const { incrementalValidation, cultureId, callbacks } = context.options || {};
 
 	// this is non-local
 	if (type.refName) {
@@ -31,7 +33,8 @@ function validateField_default(
 	].filter(t => !t.isValid);
 
 	let isValid = !errors.length;
-	let children: FieldValidationResult["children"] = {};
+	let childErrors: FieldValidationResult["childErrors"] = {}; // errors only
+	let childResult: FieldValidationResult["childErrors"] = {}; // errors + valid
 
 	if (value) {
 		// validate object
@@ -47,17 +50,39 @@ function validateField_default(
 			};
 
 			for (const [childName, childType] of Object.entries<FieldType>(type.schema)) {
-				const valResult = validateField(
-					{
-						type: childType,
-						value: (value as any)[childName],
-						name: childName,
-						fullQualifiedName: stringAppend(fullQualifiedName, childName, ".")
-					},
-					childContext);
+				const childField: Field = {
+					type: childType,
+					value: (value as any)[childName],
+					name: childName,
+					fullQualifiedName: stringAppend(fullQualifiedName, childName, ".")
+				};
+
+				let valResult: FieldValidationResult | undefined;
+				const prevResult = previousResult?.childResult?.[childName];
+
+				if (!incrementalValidation ||
+					(isArray(incrementalValidation.filter)
+						? incrementalValidation.filter.some(t => fullQualifiedMemberNameMatchSubTree(t, childField.fullQualifiedName))
+						: incrementalValidation.filter(childField, childContext)
+					)
+				) {
+					// validate it, it's not incremental validation
+					valResult = validateField(childField, childContext, prevResult);
+				}
+				else if (prevResult) {
+					// it's incremental validation and we can use previous validation result, we skip this field
+					valResult = prevResult;
+					callbacks?.onFieldSkipped?.(childField, prevResult, childContext);
+				}
+				else {
+					// it's incremental validation but there is no previous validation result, so we need to validate this field anyway
+					valResult = validateField(childField, childContext);
+				}
+
+				childResult[childName] = valResult;
 
 				if (!valResult.isValid) {
-					children[childName] = valResult;
+					childErrors[childName] = valResult;
 					isValid = false;
 				}
 			}
@@ -66,21 +91,39 @@ function validateField_default(
 		// validate array
 		if (type.baseType === "array") {
 			getResolvedArray(value).forEach((itemValue, itemIndex) => {
-				const valResult = validateField(
-					{
-						value: itemValue,
-						type: type.itemType,
-						name: `${name}[${itemIndex}]`,
-						fullQualifiedName: `${fullQualifiedName}[${itemIndex}]`
-					},
-					{
-						...context,
-						itemIndex
-					}
-				);
+				const childField: Field = {
+					value: itemValue,
+					type: type.itemType,
+					name: `${name}[${itemIndex}]`,
+					fullQualifiedName: `${fullQualifiedName}[${itemIndex}]`
+				};
+
+				const childContext: FieldValidationContext = { ...context, itemIndex };
+				let valResult: FieldValidationResult | undefined;
+				const prevResult = previousResult?.childResult?.[itemIndex];
+
+				if (!incrementalValidation ||
+					(isArray(incrementalValidation.filter)
+						? incrementalValidation.filter.some(t => fullQualifiedMemberNameMatchSubTree(t, childField.fullQualifiedName))
+						: incrementalValidation.filter(childField, childContext)
+					)) {
+					// validate it, it's not incremental validation
+					valResult = validateField(childField, childContext, prevResult);
+				}
+				else if (prevResult) {
+					// it's incremental validation and we can use previous validation result, we skip this field
+					valResult = prevResult;
+					callbacks?.onFieldSkipped?.(childField, prevResult, childContext);
+				}
+				else {
+					// it's incremental validation but there is no previous validation result, so we need to validate this field anyway
+					valResult = validateField(childField, childContext);
+				}
+					
+				childResult[itemIndex] = valResult;
 
 				if (!valResult.isValid) {
-					children[itemIndex] = valResult;
+					childErrors[itemIndex] = valResult;
 					isValid = false;
 				}
 			});
@@ -101,18 +144,19 @@ function validateField_default(
 		// result
 		isValid,
 		errors,
-		children
+		childErrors,
+		childResult
 	};
 
-	if (context.options?.onFieldValidated) {
-		result = context.options.onFieldValidated(result, context);
+	if (callbacks?.onFieldValidated) {
+		result = callbacks.onFieldValidated(result, context) || result;
 	}
 
 	if (result.isValid) {
 		delete context.errorsFlatList[fullQualifiedName];
 	} else if (errors.some(t => !t.isValid)) {
 		context.errorsFlatList[fullQualifiedName] = [
-			...errors.flatMap(t => getFieldRuleValidationErrorMessages(t, context.options?.cultureId)),
+			...errors.flatMap(t => getFieldRuleValidationErrorMessages(t, cultureId)),
 
 			// do not propagate child field errors to parents
 			// ...Object.values(children).flatMap(t => Object.values(getFieldValidationErrorMessages(t, context.cultureId))).flat()
@@ -127,9 +171,10 @@ REACT_SIMPLE_VALIDATION.DI.validateField = validateField_default;
 // the FieldCustomValidationRule.validate() callback must have the same signature
 export function validateField(
 	field: Field,
-	context: FieldValidationContext
+	context: FieldValidationContext,
+	previousResult?: FieldValidationResult
 ): FieldValidationResult { 
-	return REACT_SIMPLE_VALIDATION.DI.validateField(field, context, validateField_default);
+	return REACT_SIMPLE_VALIDATION.DI.validateField(field, context, previousResult, validateField_default);
 }
 
 // If context is not specified that is understood as a 'validate root object' call, therefore the fieldTypes tree will be first iterated
@@ -165,20 +210,30 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 		options
 	};
 
-	// root objects cannot have rules which are not on the members, therefore 'errors' can be ignored here, 'children' is sufficient
-	const { isValid, children } = validateField(field, context);
+	const { isValid, childErrors, childResult } = validateField(field, context,
+		options?.incrementalValidation && {
+			fullQualifiedName: "",
+			name: "",
+			objectFullQualifiedName: "",
+			fieldType: field.type.type,
+			value: obj,
+			isValid: options.incrementalValidation.previousResult.isValid,
+			errors: [],
+			childErrors: options.incrementalValidation.previousResult.childErrors,
+			childResult: options.incrementalValidation.previousResult.childResult
+		});
 	
 	let result: ObjectValidationResult = {
 		isValid,
-		// @ts-ignore
-		errors: children,
+		childErrors,
+		childResult,
 		namedObjs: context.namedObjs,
 		references: context.references,
 		errorsFlatList: context.errorsFlatList
 	};
 
-	if (context.options?.onObjectValidated) {
-		result = context.options.onObjectValidated(result, context);
+	if (context.options?.callbacks?.onObjectValidated) {
+		result = context.options.callbacks.onObjectValidated(result, context) || result;
 	}
 
 	return result;
@@ -652,8 +707,8 @@ function validateRule_default(
 		errors
 	};
 
-	if (context.options?.onFieldRuleValidated) {
-		result = context.options.onFieldRuleValidated(result, field, context);
+	if (context.options?.callbacks?.onFieldRuleValidated) {
+		result = context.options.callbacks.onFieldRuleValidated(result, field, context) || result;
 	}
 
 	return result;

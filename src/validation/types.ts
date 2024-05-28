@@ -1,18 +1,25 @@
 import { Field, FieldTypes } from "fields";
 import { FieldValidationRule } from "rules/types";
-import { ReactSimpleValidationDependencyInjection } from "types.di";
 
 export type FieldRuleValidationErrors = { [fullQualifiedName: string]: string[] };
 
 export interface FieldValidationOptions {
-	// if specified and full qualified member name starts with "@refName" then the evaluation will start at the named object found here, not the parameter object
+	// parameters which are accessible using "@refName" references (@refName can also be used to access fields with refName property set)
 	readonly namedObjs?: { [refName: string]: Pick<Field, "value" | "type"> };
 	readonly data?: any; // for custom validation, whatever is needed will be passed over
 	readonly cultureId?: string; /// if not REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current
 
-	readonly onFieldRuleValidated?: (result: FieldRuleValidationResult, field: Field, context: FieldValidationContext) => FieldRuleValidationResult;
-	readonly onFieldValidated?: (result: FieldValidationResult, context: FieldValidationContext) => FieldValidationResult;
-	readonly onObjectValidated?: (result: ObjectValidationResult, context: FieldValidationContext) => ObjectValidationResult;
+	readonly incrementalValidation?: {
+		readonly filter: string[] | ((field: Field, context: FieldValidationContext) => boolean); // full qualified names or filter callback
+		readonly previousResult: ObjectValidationResult;		
+	};
+
+	readonly callbacks?: {
+		readonly onFieldRuleValidated?: (result: FieldRuleValidationResult, field: Field, context: FieldValidationContext) => FieldRuleValidationResult | void;
+		readonly onFieldValidated?: (result: FieldValidationResult, context: FieldValidationContext) => FieldValidationResult | void;
+		readonly onFieldSkipped?: (field: Field, prevResult: FieldValidationResult | undefined, context: FieldValidationContext) => void;
+		readonly onObjectValidated?: (result: ObjectValidationResult, context: FieldValidationContext) => ObjectValidationResult | void;
+	};
 }
 
 // rootObj to resolve field references starting with "/", see the "reference" rule
@@ -88,7 +95,8 @@ export interface FieldValidationResult {
 	// result
 	readonly isValid: boolean;
 	readonly errors: FieldRuleValidationResult[];
-	readonly children: { [name: string]: FieldValidationResult };
+	readonly childErrors: { [name: string]: FieldValidationResult }; // errors only
+	readonly childResult: { [name: string]: FieldValidationResult }; // all validation result (errors + valid)
 }
 
 // Schema is not FieldType or value type, it's an object with the keys we need.
@@ -98,7 +106,9 @@ export interface ObjectValidationResult<Schema extends FieldTypes = any> {
 
 	// details with all evaluated rules
 	// we only have this at the root level in basic validation; use detailed validation to get it for the whole hierarchy
-	readonly errors: { [name in keyof Schema]: FieldValidationResult };
+	readonly childErrors: { [name in keyof Schema]: FieldValidationResult }; // errors only
+	readonly childResult: { [name in keyof Schema]: FieldValidationResult }; // all validation result (errors + valid)
+	
 	readonly errorsFlatList: FieldValidationContext["errorsFlatList"];
 
 	// meta

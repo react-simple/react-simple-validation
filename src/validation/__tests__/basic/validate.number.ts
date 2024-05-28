@@ -17,8 +17,8 @@ it('validateFields.number-max', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.number-max.mustBeLess', () => {
@@ -36,8 +36,8 @@ it('validateFields.number-max.mustBeLess', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.number-min', () => {
@@ -55,8 +55,8 @@ it('validateFields.number-min', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.number-min', () => {
@@ -74,8 +74,8 @@ it('validateFields.number-min', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.number-value', () => {
@@ -93,8 +93,8 @@ it('validateFields.number-value', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
 it('validateFields.number-range', () => {
@@ -114,9 +114,9 @@ it('validateFields.number-range', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
-	expect(validationResult.errors.bad1.isValid).toBe(false);
-	expect(validationResult.errors.bad2.isValid).toBe(false);
+	expect(validationResult.childErrors.good).toBeUndefined();
+	expect(validationResult.childErrors.bad1.isValid).toBe(false);
+	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });
 
 it('validateFields.number-value.array', () => {
@@ -136,7 +136,7 @@ it('validateFields.number-value.array', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good1).toBeUndefined()
-	expect(validationResult.errors.good2).toBeUndefined()
-	expect(validationResult.errors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.good1).toBeUndefined()
+	expect(validationResult.childErrors.good2).toBeUndefined()
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });

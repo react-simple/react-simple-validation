@@ -16,15 +16,15 @@ it('validateFields.required', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.childErrors.good).toBeUndefined();
 
-	expect(validationResult.errors.bad.isValid).toBe(false);
-	expect(validationResult.errors.bad.errors.length).toBe(1);
-	expect(validationResult.errors.bad.errors[0].isValid).toBe(false);
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.bad.errors.length).toBe(1);
+	expect(validationResult.childErrors.bad.errors[0].isValid).toBe(false);
 
-	expect(validationResult.errors.ugly.isValid).toBe(false);
-	expect(validationResult.errors.ugly.errors.length).toBe(1);
-	expect(validationResult.errors.ugly.errors[0].isValid).toBe(false);
+	expect(validationResult.childErrors.ugly.isValid).toBe(false);
+	expect(validationResult.childErrors.ugly.errors.length).toBe(1);
+	expect(validationResult.childErrors.ugly.errors[0].isValid).toBe(false);
 });
 
 it('validateFields.required.customMessage', () => {
@@ -43,15 +43,15 @@ it('validateFields.required.customMessage', () => {
 	);
 
 	expect(validationResult.isValid).toBe(false);
-	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.childErrors.good).toBeUndefined();
 
-	expect(validationResult.errors.bad.isValid).toBe(false);
-	expect(validationResult.errors.bad.errors.length).toBe(1);
-	expect(validationResult.errors.bad.errors[0].isValid).toBe(false);
-	expect(validationResult.errors.bad.errors[0].message).toBe("Mandatory field");
+	expect(validationResult.childErrors.bad.isValid).toBe(false);
+	expect(validationResult.childErrors.bad.errors.length).toBe(1);
+	expect(validationResult.childErrors.bad.errors[0].isValid).toBe(false);
+	expect(validationResult.childErrors.bad.errors[0].message).toBe("Mandatory field");
 
-	expect(validationResult.errors.ugly.isValid).toBe(false);
-	expect(validationResult.errors.ugly.errors.length).toBe(1);
-	expect(validationResult.errors.ugly.errors[0].isValid).toBe(false);
-	expect(validationResult.errors.ugly.errors[0].message).toBe("Mandatory field");
+	expect(validationResult.childErrors.ugly.isValid).toBe(false);
+	expect(validationResult.childErrors.ugly.errors.length).toBe(1);
+	expect(validationResult.childErrors.ugly.errors[0].isValid).toBe(false);
+	expect(validationResult.childErrors.ugly.errors[0].message).toBe("Mandatory field");
 });
