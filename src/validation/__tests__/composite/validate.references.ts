@@ -326,3 +326,41 @@ it('validateFields.field-reference.namedObj.forwardRef.notSupported', () => {
 	expect(validationResult.errors.bad2.isValid).toBe(false);
 	expect(validationResult.errors.bad3.isValid).toBe(false);
 });
+
+it('validateFields.field-reference.external-parameter', () => {
+	// Validate that if field 'a' is 1 then field 'b' is A and if field 'a' is 2 then field 'b' is B.
+	const fieldTypes = FIELDS.object({
+		b: FIELDS.text([
+			// [a] == 1 -> [b] == "A"
+			RULES.conditions.ifThenElse(
+				RULES.references.fieldRef("@a", RULES.number.value(1)),
+				RULES.text.value("A")
+			),
+			// [a] == 2 -> [b] == "B"
+			RULES.conditions.ifThenElse(
+				RULES.references.fieldRef("@a", RULES.number.value(2)),
+				RULES.text.value("B")
+			)
+		])
+	});
+
+	const validationResult = validateObject(
+		{
+			good: { b: "A" },
+			bad: {  b: "B" }
+		},
+		{
+			good: fieldTypes,
+			bad: fieldTypes
+		},
+		{
+			namedObjs: {
+				a: { value: 1, type: FIELDS.number() }
+			}
+		}
+	);
+	console.log(JSON.stringify(validationResult, null, 2));
+	expect(validationResult.isValid).toBe(false);
+	expect(validationResult.errors.good).toBeUndefined();
+	expect(validationResult.errors.bad.isValid).toBe(false);
+});

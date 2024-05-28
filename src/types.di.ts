@@ -1,6 +1,6 @@
 import { Field, FieldTypes } from "fields/types";
 import { FieldValidationRule } from "rules/types";
-import { FieldRuleValidationResult, FieldValidationContext, FieldValidationResult, ObjectValidationResult } from "validation/types";
+import { FieldRuleValidationResult, FieldValidationContext, FieldValidationOptions, FieldValidationResult, ObjectValidationResult } from "validation/types";
 
 export interface ReactSimpleValidationDependencyInjection {
   validateRule: (
@@ -19,10 +19,7 @@ export interface ReactSimpleValidationDependencyInjection {
   validateObject: <Schema extends FieldTypes, Obj extends object = object>(
     obj: Obj,
     schema: Schema,
-    options: {
-      namedObjs?: FieldValidationContext["namedObjs"];
-      data?: any;
-    },
+    options: FieldValidationOptions,
     defaultImpl: ReactSimpleValidationDependencyInjection["validateObject"]
   ) => ObjectValidationResult<Schema>;
 }

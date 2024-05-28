@@ -1,10 +1,10 @@
 import {
 	compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray, isArray, isBoolean, isDate, isEmpty,
-	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, sameDates, stringAppend, stringIndexOfAny
+	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, mapDictionaryValues, sameDates, stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
 import { getObjectChildValue } from "@react-simple/react-simple-mapping";
 import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChild } from "fields";
-import { FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult } from "./types";
+import { FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult, FieldValidationOptions } from "./types";
 import { FieldValidationContext } from "validation/types";
 import { REACT_SIMPLE_VALIDATION } from "data";
 import { FieldValidationRule } from "rules";
@@ -87,7 +87,7 @@ function validateField_default(
 		}
 	}
 
-	const result: FieldValidationResult = {
+	let result: FieldValidationResult = {
 		// location
 		name,
 		fullQualifiedName,
@@ -104,11 +104,15 @@ function validateField_default(
 		children
 	};
 
+	if (context.options?.onFieldValidated) {
+		result = context.options.onFieldValidated(result, context);
+	}
+
 	if (result.isValid) {
 		delete context.errorsFlatList[fullQualifiedName];
 	} else if (errors.some(t => !t.isValid)) {
 		context.errorsFlatList[fullQualifiedName] = [
-			...errors.flatMap(t => getFieldRuleValidationErrorMessages(t, context.cultureId)),
+			...errors.flatMap(t => getFieldRuleValidationErrorMessages(t, context.options?.cultureId)),
 
 			// do not propagate child field errors to parents
 			// ...Object.values(children).flatMap(t => Object.values(getFieldValidationErrorMessages(t, context.cultureId))).flat()
@@ -135,10 +139,7 @@ export function validateField(
 function validateObject_default<Schema extends FieldTypes, Obj extends object = object>(
 	obj: Obj,
 	schema: Schema,
-	options: {
-		namedObjs?: FieldValidationContext["namedObjs"];
-		data?: any;
-	} = {}
+	options: FieldValidationOptions
 ): ObjectValidationResult<Schema> {
 
 	const type = FIELDS.object(schema);
@@ -153,23 +154,34 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 	const context: FieldValidationContext = {
 		currentObj: field,
 		rootObj: field,
-		namedObjs: options.namedObjs || {},
-		refNames: { notFound: {}, resolved: {} },
+		namedObjs: mapDictionaryValues(options.namedObjs || {}, ({ value, type }, name) => ({
+			value,
+			type,
+			name: `@${name}`,
+			fullQualifiedName: `@${name}`
+		})),
+		references: { notFound: {}, resolved: {} },
 		errorsFlatList: {},
-		data: options.data
+		options
 	};
 
 	// root objects cannot have rules which are not on the members, therefore 'errors' can be ignored here, 'children' is sufficient
 	const { isValid, children } = validateField(field, context);
 	
-	return {
+	let result: ObjectValidationResult = {
 		isValid,
 		// @ts-ignore
 		errors: children,
 		namedObjs: context.namedObjs,
-		refNames: context.refNames,
+		references: context.references,
 		errorsFlatList: context.errorsFlatList
 	};
+
+	if (context.options?.onObjectValidated) {
+		result = context.options.onObjectValidated(result, context);
+	}
+
+	return result;
 }
 
 REACT_SIMPLE_VALIDATION.DI.validateObject = validateObject_default;
@@ -181,12 +193,9 @@ REACT_SIMPLE_VALIDATION.DI.validateObject = validateObject_default;
 export function validateObject<Schema extends FieldTypes, Obj extends object = object>(
 	obj: Obj,
 	schema: Schema,
-	options: {
-		namedObjs?: FieldValidationContext["namedObjs"];
-		data?: any;
-	} = {}
+	options?: FieldValidationOptions
 ): ObjectValidationResult<Schema> {
-	return REACT_SIMPLE_VALIDATION.DI.validateObject(obj, schema, options, validateObject_default);
+	return REACT_SIMPLE_VALIDATION.DI.validateObject(obj, schema, options || {}, validateObject_default);
 }
 
 // can return multiple rules, if there are child rules ('switch' or 'if-then-else' for example)
@@ -577,7 +586,7 @@ function validateRule_default(
 				errors.push(...casesResult.filter(t => !t.isValid));
 			}
 			else {
-				details.push({ key: "not_found" });
+				details.push({ key: "case_not_found", value });
 				isValid = true;
 			}
 
@@ -596,7 +605,7 @@ function validateRule_default(
 						? rule.rules.every(childRule => validateRule(childRule, refTo!, context).isValid)
 						: validateRule(rule.rules, refTo, context).isValid;
 				} else {
-					details.push({ key: "not_found" });
+					details.push({ key: "ref_not_found", path: rule.path });
 				}
 			}
 
@@ -627,13 +636,13 @@ function validateRule_default(
 
 					isValid = evaluateValueBinaryOperator(value, refValue, rule.operator, { ignoreCase: rule.ignoreCase });
 				} else {
-					details.push({ key: "not_found" });
+					details.push({ key: "ref_not_found", path: rule.path });
 				}
 			}
 		}
 	}
 
-	return {
+	let result: FieldRuleValidationResult = {
 		rule,
 		isValid,
 		message: !isValid ? message : undefined,
@@ -642,6 +651,12 @@ function validateRule_default(
 		details: details.length ? details : undefined,
 		errors
 	};
+
+	if (context.options?.onFieldRuleValidated) {
+		result = context.options.onFieldRuleValidated(result, field, context);
+	}
+
+	return result;
 }
 
 REACT_SIMPLE_VALIDATION.DI.validateRule = validateRule_default;
@@ -709,21 +724,19 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 	// /root -> context.rootObj
 	if (path.startsWith("/")) {
 		path = path.substring(1);
-		const i = path.lastIndexOf(".");
-
-		const value = getObjectChildValue(context.rootObj.value as object, path).value;
 		const type = getFieldTypeChild(context.rootObj.type, path).value;
 
-		if (!type) {
-			return undefined;
-		}
+		if (type) {
+			const value = getObjectChildValue(context.rootObj.value as object, path).value;
+			const i = path.lastIndexOf(".");
 
-		refTo = {
-			value,
-			type,
-			name: i >= 0 ? path.substring(i + 1) : path,
-			fullQualifiedName: path
-		};
+			refTo = {
+				value,
+				type,
+				name: i >= 0 ? path.substring(i + 1) : path,
+				fullQualifiedName: path
+			};
+		}
 	}
 	// @refName -> context.refNames
 	else if (path[0].startsWith("@")) {
@@ -733,50 +746,47 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 		path = i >= 0 ? path.substring(path[i] === "." ? i + 1 : i) : "";
 
 		if (namedObj) {
-			const value = getObjectChildValue(namedObj.value as object, path).value;
 			const type = getFieldTypeChild(namedObj.type, path).value;
 
-			if (!type) {
-				return undefined;
+			if (type) {
+				const value = getObjectChildValue(namedObj.value as object, path).value;
+				i = path.lastIndexOf(".");
+
+				refTo = {
+					value,
+					type,
+					name: i >= 0 ? path.substring(i + 1) : path,
+					fullQualifiedName: stringAppend(namedObj.fullQualifiedName, path, ".")
+				};
 			}
-
-			i = path.lastIndexOf(".");
-
-			refTo = {
-				value,
-				type,
-				name: i >= 0 ? path.substring(i + 1) : path,
-				fullQualifiedName: stringAppend(namedObj.fullQualifiedName, path, ".")
-			};
-
-			context.refNames.resolved[refName] = {
-				...context.refNames.resolved[refName],
-				[fullQualifiedName]: { refFrom: field, refTo }
-			};
-		}
-		else {
-			context.refNames.notFound[refName] = {
-				...context.refNames.notFound[refName],
-				[fullQualifiedName]: { refFrom: field }
-			};
 		}
 	}
 	// local (same obj)
 	else {
-		const value = getObjectChildValue(context.currentObj.value as object, path).value;
 		const type = getFieldTypeChild(context.currentObj.type, path).value;
 
-		if (!type) {
-			return undefined;
-		}
-
-		const i = path.lastIndexOf(".");
+		if (type) {
+			const value = getObjectChildValue(context.currentObj.value as object, path).value;
+			const i = path.lastIndexOf(".");
 		
-		refTo = {
-			value,
-			type,
-			name: i >= 0 ? path.substring(i + 1) : path,
-			fullQualifiedName: stringAppend(context.currentObj.fullQualifiedName, path, ".")
+			refTo = {
+				value,
+				type,
+				name: i >= 0 ? path.substring(i + 1) : path,
+				fullQualifiedName: stringAppend(context.currentObj.fullQualifiedName, path, ".")
+			};
+		}
+	}
+
+	if (refTo) {
+		context.references.resolved[path] = {
+			...context.references.resolved[path],
+			[fullQualifiedName]: { refFrom: field, refTo }
+		};
+	} else {
+		context.references.notFound[path] = {
+			...context.references.notFound[path],
+			[fullQualifiedName]: { refFrom: field }
 		};
 	}
 
