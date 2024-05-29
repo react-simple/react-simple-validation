@@ -33,8 +33,8 @@ function validateField_default(
 	].filter(t => !t.isValid);
 
 	let isValid = !errors.length;
-	let childErrors: FieldValidationResult["childErrors"] = {}; // errors only
-	let childResult: FieldValidationResult["childErrors"] = {}; // errors + valid
+	const childErrors: FieldValidationResult["childErrors"] = {}; // errors only
+	const childResult: FieldValidationResult["childErrors"] = {}; // errors + valid
 
 	if (value) {
 		// validate object

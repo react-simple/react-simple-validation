@@ -76,6 +76,7 @@ const BLANK = {
 export type ValidationRuleMessages = typeof BLANK;
 
 // we don't want BLANK to be a Record, since that kills the member level typing, but Record help to validate that all FieldValidationRuleType values are listed
+// eslint-disable-next-line @typescript-eslint/ban-types
 const _CHECK_ALL_DEFINED: Record<FieldValidationRuleType, Function> = BLANK;
 
 const dateToStr = (d: Date) => formatDateOrDateTime(d, CULTURE_INFO.formats.dateFormats["EN-US"]);
