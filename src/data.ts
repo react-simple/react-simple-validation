@@ -43,8 +43,24 @@ export const REACT_SIMPLE_VALIDATION: ReactSimpleValidation = {
 	},
 
 	DI: {
-		validateRule: stub,
-		validateField: stub,
-		validateObject: stub
+		fields: {
+			getChildFieldTypeByName: stub,			
+			getChildFieldTypeByFullQualifiedName: stub,
+			getChildFieldTypeInfoByFullQualifiedName: stub
+		},
+
+		validation: {
+			validateRule: stub,
+			validateField: stub,
+			validateObject: stub
+		},
+
+		validationResult: {
+			getChildValidationResult: stub,
+			getFieldRuleValidationErrorMessage: stub,
+			getFieldRuleValidationErrorMessages: stub,
+			getFieldValidationErrorMessages: stub,
+			getObjectValidationErrorMessages: stub
+		}
 	}
 };

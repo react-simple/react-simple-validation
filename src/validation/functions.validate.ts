@@ -1,9 +1,11 @@
 import {
 	compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray, isArray, isBoolean, isDate, isEmpty,
-	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logWarning, mapDictionaryValues, sameDates, stringAppend, stringIndexOfAny
+	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logTrace, logWarning, mapDictionaryValues, sameDates, stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
-import { fullQualifiedMemberNameMatchSubTree, getObjectChildValue } from "@react-simple/react-simple-mapping";
-import { ArrayFieldType, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, getFieldTypeChild } from "fields";
+import { fullQualifiedMemberNameMatchSubTree, getChildMemberValue } from "@react-simple/react-simple-mapping";
+import {
+	ArrayFieldType, ArrayFieldTypeBase, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, ObjectFieldTypeBase, getChildFieldTypeByFullQualifiedName
+ } from "fields";
 import { FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult, FieldValidationOptions } from "./types";
 import { FieldValidationContext } from "validation/types";
 import { REACT_SIMPLE_VALIDATION } from "data";
@@ -21,7 +23,7 @@ function validateField_default(
 	// this is non-local
 	if (type.refName) {
 		// set this object in the namedObjs collection if it has a name (see "field-reference" rules)
-		context.namedObjs[type.refName] = field;
+		context.namedFields[type.refName] = field;
 	}
 
 	const errors: FieldValidationResult["errors"] = [
@@ -41,12 +43,7 @@ function validateField_default(
 		if (type.baseType === "object") {
 			const childContext: FieldValidationContext = {
 				...context,
-				currentObj: {
-					value: value,
-					type: type,
-					name,
-					fullQualifiedName
-				}
+				parentObj: field as Field<ObjectFieldTypeBase, object>
 			};
 
 			for (const [childName, childType] of Object.entries<FieldType>(type.schema)) {
@@ -98,7 +95,14 @@ function validateField_default(
 					fullQualifiedName: `${fullQualifiedName}[${itemIndex}]`
 				};
 
-				const childContext: FieldValidationContext = { ...context, itemIndex };
+				const childContext: FieldValidationContext = {
+					...context,
+					parentArray: {
+						field: field as Field<ArrayFieldTypeBase, unknown[]>,
+						itemIndex
+					}
+				};
+
 				let valResult: FieldValidationResult | undefined;
 				const prevResult = previousResult?.childResult?.[itemIndex];
 
@@ -134,8 +138,7 @@ function validateField_default(
 		// location
 		name,
 		fullQualifiedName,
-		objectFullQualifiedName: context.currentObj.fullQualifiedName,
-		itemIndex: context.itemIndex,
+		objectFullQualifiedName: context.parentObj.fullQualifiedName,
 
 		// validated
 		fieldType: type.type,
@@ -163,10 +166,15 @@ function validateField_default(
 		];
 	}
 
+	logTrace(log => log(
+		`[validateField]: Field validated, isValid: ${result.isValid}, field: ${field.fullQualifiedName}`,
+		field, context, result
+	));
+
 	return result;
 }
 
-REACT_SIMPLE_VALIDATION.DI.validateField = validateField_default;
+REACT_SIMPLE_VALIDATION.DI.validation.validateField = validateField_default;
 
 // the FieldCustomValidationRule.validate() callback must have the same signature
 export function validateField(
@@ -174,7 +182,7 @@ export function validateField(
 	context: FieldValidationContext,
 	previousResult?: FieldValidationResult
 ): FieldValidationResult { 
-	return REACT_SIMPLE_VALIDATION.DI.validateField(field, context, previousResult, validateField_default);
+	return REACT_SIMPLE_VALIDATION.DI.validation.validateField(field, context, previousResult, validateField_default);
 }
 
 // If context is not specified that is understood as a 'validate root object' call, therefore the fieldTypes tree will be first iterated
@@ -183,11 +191,13 @@ export function validateField(
 // Usually, those keys are coming from ObjectFieldType.schema.
 function validateObject_default<Schema extends FieldTypes, Obj extends object = object>(
 	obj: Obj,
-	schema: Schema,
+	schema: Schema | ObjectFieldType<Schema>,
 	options: FieldValidationOptions
 ): ObjectValidationResult<Schema> {
 
-	const type = FIELDS.object(schema);
+	const type = (schema as ObjectFieldType).baseType === "object" && (schema as ObjectFieldType).type === "object"
+		? schema as ObjectFieldType<Schema>
+		: FIELDS.object(schema as Schema);
 
 	const field: Field<ObjectFieldType<Schema>, Obj> = {
 		type,
@@ -197,15 +207,15 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 	};
 
 	const context: FieldValidationContext = {
-		currentObj: field,
+		parentObj: field,
 		rootObj: field,
-		namedObjs: mapDictionaryValues(options.namedObjs || {}, ({ value, type }, name) => ({
+		namedFields: mapDictionaryValues(options.namedObjs || {}, ({ value, type }, name) => ({
 			value,
 			type,
 			name: `@${name}`,
 			fullQualifiedName: `@${name}`
 		})),
-		references: { notFound: {}, resolved: {} },
+		namedFieldsNotFound: {},
 		errorsFlatList: {},
 		options
 	};
@@ -227,8 +237,8 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 		isValid,
 		childErrors,
 		childResult,
-		namedObjs: context.namedObjs,
-		references: context.references,
+		namedFields: context.namedFields,
+		namedFieldsNotFound: context.namedFieldsNotFound,
 		errorsFlatList: context.errorsFlatList
 	};
 
@@ -236,10 +246,15 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 		result = context.options.callbacks.onObjectValidated(result, context) || result;
 	}
 
+	logTrace(log => log(
+		`[validateObject]: Object validated, isValid: ${result.isValid}`,
+		obj, schema, context, result
+	));
+
 	return result;
 }
 
-REACT_SIMPLE_VALIDATION.DI.validateObject = validateObject_default;
+REACT_SIMPLE_VALIDATION.DI.validation.validateObject = validateObject_default;
 
 // If context is not specified that is understood as a 'validate root object' call, therefore the fieldTypes tree will be first iterated
 // to collect all named objects (for forward references, when an object later in the hierarchy is referred by @refName).
@@ -247,10 +262,10 @@ REACT_SIMPLE_VALIDATION.DI.validateObject = validateObject_default;
 // Usually, those keys are coming from ObjectFieldType.schema.
 export function validateObject<Schema extends FieldTypes, Obj extends object = object>(
 	obj: Obj,
-	schema: Schema,
+	schema: Schema | ObjectFieldType<Schema>,
 	options?: FieldValidationOptions
 ): ObjectValidationResult<Schema> {
-	return REACT_SIMPLE_VALIDATION.DI.validateObject(obj, schema, options || {}, validateObject_default);
+	return REACT_SIMPLE_VALIDATION.DI.validation.validateObject(obj, schema, options || {}, validateObject_default);
 }
 
 // can return multiple rules, if there are child rules ('switch' or 'if-then-else' for example)
@@ -587,19 +602,23 @@ function validateRule_default(
 		}
 
 		case "array-itemindex":
-			isValid = context.itemIndex == rule.index;
+			isValid = context.parentArray?.itemIndex == rule.index;
 			break;
 
 		case "array-itemindex-min":
-			isValid = !isEmpty(context.itemIndex) && context.itemIndex >= rule.minIndex;
+			isValid = !!context.parentArray && context.parentArray.itemIndex >= rule.minIndex;
 			break;
 
 		case "array-itemindex-max":
-			isValid = !isEmpty(context.itemIndex) && context.itemIndex <= rule.maxIndex;
+			isValid = !!context.parentArray && context.parentArray.itemIndex <= rule.maxIndex;
 			break;
 
 		case "array-itemindex-range":
-			isValid = !isEmpty(context.itemIndex) && context.itemIndex >= rule.minIndex && context.itemIndex <= rule.maxIndex;
+			isValid = (
+				!!context.parentArray &&
+				context.parentArray.itemIndex >= rule.minIndex &&
+				context.parentArray.itemIndex <= rule.maxIndex
+			);
 			break;
 
 		case "if-then-else": {
@@ -711,17 +730,22 @@ function validateRule_default(
 		result = context.options.callbacks.onFieldRuleValidated(result, field, context) || result;
 	}
 
+	logTrace(log => log(
+		`[validateRule]: Rule validated, isValid: ${result.isValid}, rule: ${rule.ruleType}, field: ${field.fullQualifiedName}`,
+		rule, field, context, result
+	));
+
 	return result;
 }
 
-REACT_SIMPLE_VALIDATION.DI.validateRule = validateRule_default;
+REACT_SIMPLE_VALIDATION.DI.validation.validateRule = validateRule_default;
 
 export function validateRule(
 	rule: FieldValidationRule,
 	field: Field,
 	context: FieldValidationContext
 ): FieldRuleValidationResult {
-	return REACT_SIMPLE_VALIDATION.DI.validateRule(rule, field, context, validateRule_default);
+	return REACT_SIMPLE_VALIDATION.DI.validation.validateRule(rule, field, context, validateRule_default);
 }
 
 
@@ -744,7 +768,10 @@ const getFilteredArrayItems = (
 			},
 			{
 				...context,
-				itemIndex
+				parentArray: {
+					field,
+					itemIndex
+				}
 			}
 		).isValid)
 		: field.value;
@@ -767,7 +794,10 @@ const validateRuleForArrayItem = (
 		},
 		{
 			...context,
-			itemIndex
+			parentArray: {
+				field,
+				itemIndex
+			}
 		}
 	)
 };
@@ -775,14 +805,14 @@ const validateRuleForArrayItem = (
 const resolveReference = (path: string, field: Field, context: FieldValidationContext) => {
 	let refTo: Field | undefined;
 	const { fullQualifiedName } = field;
-
+	
 	// /root -> context.rootObj
 	if (path.startsWith("/")) {
 		path = path.substring(1);
-		const type = getFieldTypeChild(context.rootObj.type, path).value;
+		const type = getChildFieldTypeByFullQualifiedName(context.rootObj.type, path);
 
 		if (type) {
-			const value = getObjectChildValue(context.rootObj.value as object, path).value;
+			const value = getChildMemberValue(context.rootObj.value as object, path);
 			const i = path.lastIndexOf(".");
 
 			refTo = {
@@ -794,17 +824,17 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 		}
 	}
 	// @refName -> context.refNames
-	else if (path[0].startsWith("@")) {
+	else if (path[0] === "@") {
 		let i = stringIndexOfAny(path, [".", "["]);
 		const refName = i >= 0 ? path.substring(1, i) : path.substring(1);
-		const namedObj = context.namedObjs[refName];
+		const namedObj = context.namedFields[refName];
 		path = i >= 0 ? path.substring(path[i] === "." ? i + 1 : i) : "";
 
 		if (namedObj) {
-			const type = getFieldTypeChild(namedObj.type, path).value;
+			const type = getChildFieldTypeByFullQualifiedName(namedObj.type, path);
 
 			if (type) {
-				const value = getObjectChildValue(namedObj.value as object, path).value;
+				const value = getChildMemberValue(namedObj.value as object, path);
 				i = path.lastIndexOf(".");
 
 				refTo = {
@@ -818,29 +848,24 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 	}
 	// local (same obj)
 	else {
-		const type = getFieldTypeChild(context.currentObj.type, path).value;
-
+		const type = getChildFieldTypeByFullQualifiedName(context.parentObj.type, path);
+		
 		if (type) {
-			const value = getObjectChildValue(context.currentObj.value as object, path).value;
+			const value = getChildMemberValue(context.parentObj.value as object, path);
 			const i = path.lastIndexOf(".");
 		
 			refTo = {
 				value,
 				type,
 				name: i >= 0 ? path.substring(i + 1) : path,
-				fullQualifiedName: stringAppend(context.currentObj.fullQualifiedName, path, ".")
+				fullQualifiedName: stringAppend(context.parentObj.fullQualifiedName, path, ".")
 			};
 		}
 	}
 
-	if (refTo) {
-		context.references.resolved[path] = {
-			...context.references.resolved[path],
-			[fullQualifiedName]: { refFrom: field, refTo }
-		};
-	} else {
-		context.references.notFound[path] = {
-			...context.references.notFound[path],
+	if (!refTo) {
+		context.namedFieldsNotFound[path] = {
+			...context.namedFieldsNotFound[path],
 			[fullQualifiedName]: { refFrom: field }
 		};
 	}

@@ -1,25 +1,75 @@
-import { getObjectChildValue } from "@react-simple/react-simple-mapping";
-import { FieldType } from "./types/types";
+import { ChildMemberInfo, getChildMember } from "@react-simple/react-simple-mapping";
+import { FieldType, FieldTypes, ObjectFieldType } from "./types/types";
+import { REACT_SIMPLE_VALIDATION } from "data";
+import { FIELDS } from "./data";
 
-export const getFieldTypeChild = (fieldType: FieldType, fullQualifiedName: string) => {
-	return getObjectChildValue<FieldType>(
+function getChildFieldTypeByName_default(fieldType: FieldType, name: string): FieldType | undefined {
+	switch (fieldType.baseType) {
+		case "object":
+			return fieldType.schema[name];
+
+		case "array":
+			return fieldType.itemType;
+
+		default:
+			return undefined;
+	}
+}
+
+REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeByName = getChildFieldTypeByName_default;
+
+export function getChildFieldTypeByName(fieldType: FieldType, name: string): FieldType | undefined {
+	return REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeByName(fieldType, name, getChildFieldTypeByName_default);
+}
+
+function getChildFieldTypeInfoByFullQualifiedName_default(
+	fieldType: FieldType,
+	fullQualifiedName: string,
+	createMissingChildObjects: boolean
+): ChildMemberInfo<FieldType, FieldType> | undefined {
+	return getChildMember<FieldType>(
 		fieldType,
 		fullQualifiedName,
+		createMissingChildObjects,
 		{
-			getValue: (type, name) => {
-				const fieldType = type as FieldType;
-
-				switch (fieldType.baseType) {
-					case "object":
-						return fieldType.schema[name];
-          
-					case "array":
-						return fieldType.itemType;
-          
-					default:
-						return undefined;
-				}
-			}
+			getValue: (type, name) => getChildFieldTypeByName(type, name)
 		}
 	);
+}
+
+REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeInfoByFullQualifiedName = getChildFieldTypeInfoByFullQualifiedName_default;
+
+// Returns accessors for the child type from the type hierarchy, but does not create missing child objects, if it's not yet created; returns undefined
+export function getChildFieldTypeInfoByFullQualifiedName(
+	fieldType: FieldType,
+	fullQualifiedName: string,
+	createMissingChildObjects: boolean
+): ChildMemberInfo<FieldType, FieldType> | undefined {
+	return REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeInfoByFullQualifiedName(
+		fieldType, fullQualifiedName, createMissingChildObjects, getChildFieldTypeInfoByFullQualifiedName_default
+	);
+}
+
+// Returns the child type from the type hierarchy, but does not create missing child objects, if it's not yet created; returns undefined
+function getChildFieldTypeByFullQualifiedName_default(fieldType: FieldType, fullQualifiedName: string): FieldType | undefined {
+	return getChildFieldTypeInfoByFullQualifiedName(fieldType, fullQualifiedName, false)?.getValue?.();
+}
+
+REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeByFullQualifiedName = getChildFieldTypeByFullQualifiedName_default;
+
+// Returns the child type from the type hierarchy, but does not create missing child objects, if it's not yet created; returns undefined
+export function getChildFieldTypeByFullQualifiedName(fieldType: FieldType, fullQualifiedName: string): FieldType | undefined {
+	return REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeByFullQualifiedName(
+		fieldType, fullQualifiedName, getChildFieldTypeByFullQualifiedName_default
+	);
+}
+
+export const iterateFieldTypes = <Schema extends FieldTypes, Obj extends object = object>(
+	schema: Schema | ObjectFieldType<Schema>,
+	obj?: Obj,
+) => {
+	const type = (schema as ObjectFieldType).baseType === "object" && (schema as ObjectFieldType).type === "object"
+		? schema as ObjectFieldType<Schema>
+		: FIELDS.object(schema as Schema);
+	
 };

@@ -27,7 +27,7 @@ it('validateFields.custom.array', () => {
 
 	const rule = RULES.object.custom((field, context, validateField) => {
 		// change field type dynamically and call default implementation
-		return validateField({ ...field, type: context.itemIndex! % 2 === 0 ? itemType1 : itemType2 });
+		return validateField({ ...field, type: context.parentArray!.itemIndex! % 2 === 0 ? itemType1 : itemType2 });
 	});
 
 	const itemType = FIELDS.object({ a: FIELDS.any() }, [rule]);

@@ -1,7 +1,7 @@
 import { sameArrays } from "@react-simple/react-simple-util";
 import { FIELDS } from "fields";
 import { RULES } from "rules";
-import { getFieldRuleValidationErrorMessages, getValidationResultChild, validateObject } from "validation";
+import { getFieldRuleValidationErrorMessages, getChildValidationResult, validateObject } from "validation";
 
 const OBJ = {
 	text: "ABC",
@@ -79,12 +79,12 @@ it('validateFields.messages.errors-hierarchical-dom', () => {
 	)).toBe(true);
 
 	expect(sameArrays(
-		getFieldRuleValidationErrorMessages(getValidationResultChild(validationResult, "object.array[0].text")?.value?.errors || []),
+		getFieldRuleValidationErrorMessages(getChildValidationResult(validationResult, "object.array[0].text")?.errors || []),
 		TEXT_ERRORS
 	)).toBe(true);
 	
 	expect(sameArrays(
-		getFieldRuleValidationErrorMessages(getValidationResultChild(validationResult, "object.array[0].number")?.value?.errors || []),
+		getFieldRuleValidationErrorMessages(getChildValidationResult(validationResult, "object.array[0].number")?.errors || []),
 		NUMBER_ERRORS
 	)).toBe(true);
 });

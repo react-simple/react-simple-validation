@@ -1,4 +1,4 @@
-import { Field, FieldTypes } from "fields";
+import { ArrayFieldTypeBase, Field, FieldTypes, ObjectFieldTypeBase } from "fields";
 import { FieldValidationRule } from "rules/types";
 
 export type FieldRuleValidationErrors = { [fullQualifiedName: string]: string[] };
@@ -25,34 +25,25 @@ export interface FieldValidationOptions {
 // rootObj to resolve field references starting with "/", see the "reference" rule
 // namedObjs to resolve field references starting with "@refName", see the "field-reference" rules
 export interface FieldValidationContext {
-	readonly itemIndex?: number; // index in the array (closest in hierarchy)
 
 	// if specified and full qualified member name starts with "/" then the evaluation will start at the root object, not the parameter object
-	readonly rootObj: Field;
-	readonly currentObj: Field; // closest object in the hierarchy where references are resolved by default (unless referring to root or named obj)
+	readonly rootObj: Field<ObjectFieldTypeBase, object>;
+	readonly parentObj: Field<ObjectFieldTypeBase, object>; // closest object in the hierarchy where references are resolved by default (unless referring to root or named obj)
+
+	readonly parentArray?: {
+		readonly field: Field<ArrayFieldTypeBase, unknown[]>;
+		readonly itemIndex: number;
+	};
 
 	// if specified and full qualified member name starts with "@refName" then the evaluation will start at the named object found here, not the parameter object
-	readonly namedObjs: { [refName: string]: Field };
-
-	readonly references: {
-		readonly notFound: {
-			[refName: string]: {
-				// referrer -> target not found
-				[referrerFullQualifiedName: string]: {
-					readonly refFrom: Field;
-				}
+	readonly namedFields: { [refName: string]: Field };
+	readonly namedFieldsNotFound: {
+		[refName: string]: {
+			// referrer -> target not found
+			[referrerFullQualifiedName: string]: {
+				readonly refFrom: Field;
 			}
-		};
-
-		readonly resolved: {
-			[refName: string]: {
-				// referrer -> referred
-				[referrerFullQualifiedName: string]: {
-					readonly refFrom: Field;
-					readonly refTo: Field;
-				}
-			}
-		};
+		}
 	};
 
 	readonly errorsFlatList: FieldRuleValidationErrors;
@@ -86,7 +77,6 @@ export interface FieldValidationResult {
 	readonly name: string;
 	readonly fullQualifiedName: string; // use this to get the FieldType from the schema or the value from the validated object
 	readonly objectFullQualifiedName: string; // closest parent object in the hierarchy
-	readonly itemIndex?: number; // closest last array index in the hierarchy
 
 	// validated
 	readonly fieldType: string;
@@ -112,6 +102,6 @@ export interface ObjectValidationResult<Schema extends FieldTypes = any> {
 	readonly errorsFlatList: FieldValidationContext["errorsFlatList"];
 
 	// meta
-	readonly namedObjs: FieldValidationContext["namedObjs"]; // collected named objs
-	readonly references: FieldValidationContext["references"];	
+	readonly namedFields: FieldValidationContext["namedFields"]; // collected named objs
+	readonly namedFieldsNotFound: FieldValidationContext["namedFieldsNotFound"];	
 }
