@@ -78,8 +78,8 @@ it('validateFields.number-min', () => {
 	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
-it('validateFields.number-value', () => {
-	const rule = RULES.number.value(3);
+it('validateFields.number-equals', () => {
+	const rule = RULES.number.equals(3);
 
 	const validationResult = validateObject(
 		{
@@ -119,8 +119,8 @@ it('validateFields.number-range', () => {
 	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });
 
-it('validateFields.number-value.array', () => {
-	const rule = RULES.number.value([3, 4]);
+it('validateFields.number-equals.array', () => {
+	const rule = RULES.number.equals([3, 4]);
 
 	const validationResult = validateObject(
 		{

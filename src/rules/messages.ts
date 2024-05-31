@@ -1,13 +1,13 @@
 import { getResolvedArray, isArray } from "@react-simple/react-simple-util";
 import { CULTURE_INFO, NumberFormatOptions, formatDateOrDateTime, formatNumber } from "@react-simple/react-simple-localization";
 import {
-	AllRulesValidRule, ArrayItemIndexMaxRule, ArrayItemIndexMinRule, ArrayItemIndexRangeRule, ArrayItemIndexRule, FieldArrayIncludeAllRule,
-	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthRule, FieldArrayMaxLengthRule,
-	FieldArrayMinLengthRule, FieldArrayMatchAllRule, FieldArrayMatchSomeRule, FieldBooleanValueRule, FieldComparisonConditionalRule,
-	FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateValueRule, FieldFileContentTypeRule, FieldFileMaxSizeRule,
-	FieldIfThenElseConditionalRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberValueRule, FieldReferenceRule,
-	FieldRequiredRule, FieldSwitchConditionalRule, FieldTextLengthRangeRule, FieldTextLengthRule, FieldTextMaxLengthRule, FieldTextMinLengthRule,
-	FieldTextMatchRule, FieldTextValueRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule, FieldArrayCustomValidationRule,
+	AllRulesValidRule, ArrayItemIndexMaxRule, ArrayItemIndexMinRule, ArrayItemIndexRangeRule, ArrayItemIndexEqualsRule, FieldArrayIncludeAllRule,
+	FieldArrayIncludeNoneRule, FieldArrayIncludeSomeRule, FieldArrayLengthRangeRule, FieldArrayLengthEqualsRule, FieldArrayMaxLengthRule,
+	FieldArrayMinLengthRule, FieldArrayMatchAllRule, FieldArrayMatchSomeRule, FieldBooleanEqualsRule, FieldComparisonConditionalRule,
+	FieldDateMaxValueRule, FieldDateMinValueRule, FieldDateRangeRule, FieldDateEqualsRule, FieldFileContentTypeRule, FieldFileMaxSizeRule,
+	FieldIfThenElseConditionalRule, FieldNumberMaxValueRule, FieldNumberMinValueRule, FieldNumberRangeRule, FieldNumberEqualsRule, FieldReferenceRule,
+	FieldRequiredRule, FieldSwitchConditionalRule, FieldTextLengthRangeRule, FieldTextLengthEqualsRule, FieldTextMaxLengthRule, FieldTextMinLengthRule,
+	FieldTextMatchRule, FieldTextEqualsRule, FieldTypeRule, FieldValidationRuleType, SomeRulesValidRule, FieldArrayCustomValidationRule,
 	FieldBooleanCustomValidationRule, FieldDateCustomValidationRule, FieldFileCustomValidationRule, FieldNumberCustomValidationRule,
 	FieldTextCustomValidationRule, FieldAnyCustomValidationRule, FieldObjectCustomValidationRule
 } from "./types";
@@ -19,11 +19,11 @@ const BLANK = {
 	"array-include-all": (_: FieldArrayIncludeAllRule) => "",
 	"array-include-none": (_: FieldArrayIncludeNoneRule) => "",
 	"array-include-some": (_: FieldArrayIncludeSomeRule) => "",
-	"array-itemindex": (_: ArrayItemIndexRule) => "",
+	"array-itemindex-equals": (_: ArrayItemIndexEqualsRule) => "",
 	"array-itemindex-min": (_: ArrayItemIndexMinRule) => "",
 	"array-itemindex-max": (_: ArrayItemIndexMaxRule) => "",
 	"array-itemindex-range": (_: ArrayItemIndexRangeRule) => "",
-	"array-length": (_: FieldArrayLengthRule) => "",
+	"array-length-equals": (_: FieldArrayLengthEqualsRule) => "",
 	"array-length-max": (_: FieldArrayMaxLengthRule) => "",
 	"array-length-min": (_: FieldArrayMinLengthRule) => "",
 	"array-length-range": (_: FieldArrayLengthRangeRule) => "",
@@ -31,14 +31,14 @@ const BLANK = {
 	"array-match-some": (_: FieldArrayMatchSomeRule) => "",	
 	"array-custom": (_: FieldArrayCustomValidationRule) => "",
 
-	"boolean-value": (_: FieldBooleanValueRule) => "",
+	"boolean-equals": (_: FieldBooleanEqualsRule) => "",
 	"boolean-custom": (_: FieldBooleanCustomValidationRule) => "",
 	
 	"compare": (_: FieldComparisonConditionalRule) => "",
 	"date-max": (_: FieldDateMaxValueRule) => "",
 	"date-min": (_: FieldDateMinValueRule) => "",
 	"date-range": (_: FieldDateRangeRule) => "",
-	"date-value": (_: FieldDateValueRule) => "",
+	"date-equals": (_: FieldDateEqualsRule) => "",
 	"date-custom": (_: FieldDateCustomValidationRule) => "",
 	
 	"field-reference": (_: FieldReferenceRule) => "",
@@ -52,7 +52,7 @@ const BLANK = {
 	"number-max": (_: FieldNumberMaxValueRule) => "",
 	"number-min": (_: FieldNumberMinValueRule) => "",
 	"number-range": (_: FieldNumberRangeRule) => "",
-	"number-value": (_: FieldNumberValueRule) => "",
+	"number-equals": (_: FieldNumberEqualsRule) => "",
 	"number-custom": (_: FieldNumberCustomValidationRule) => "",
 	
 	"object-custom": (_: FieldObjectCustomValidationRule) => "",
@@ -62,12 +62,12 @@ const BLANK = {
 	"some-rules-valid": (_: SomeRulesValidRule) => "",
 	"switch": (_: FieldSwitchConditionalRule) => "",
 	
-	"text-length": (_: FieldTextLengthRule) => "",
+	"text-length-equals": (_: FieldTextLengthEqualsRule) => "",
 	"text-length-max": (_: FieldTextMaxLengthRule) => "",
 	"text-length-min": (_: FieldTextMinLengthRule) => "",
 	"text-length-range": (_: FieldTextLengthRangeRule) => "",
 	"text-match": (_: FieldTextMatchRule) => "",
-	"text-value": (_: FieldTextValueRule) => "",
+	"text-equals": (_: FieldTextEqualsRule) => "",
 	"text-custom": (_: FieldTextCustomValidationRule) => "",
 	
 	"type": (_: FieldTypeRule) => ""
@@ -89,12 +89,12 @@ const EN_US: ValidationRuleMessages = {
 	"array-include-none": ({ items }) => isArray(items) ? `Must not contain values: ${items.join(", ")}` : `Must not contain value: ${items}`,
 	"array-include-some": ({ items }) => isArray(items) ? `Must contain some of the following values: ${items.join(", ")}` : `Must contain value: ${items}`,
 
-	"array-length": ({ expectedLength }) => `Must have ${expectedLength} items`,
+	"array-length-equals": ({ expectedLength }) => `Must have ${expectedLength} items`,
 	"array-length-max": ({ maxLength }) => `Must have ${maxLength} items at most`,
 	"array-length-min": ({ minLength }) => `Must have ${minLength} items at least`,
 	"array-length-range": ({ minLength, maxLength }) => `Must have ${minLength} to ${maxLength} items`,
 
-	"boolean-value": ({ expectedValue }) => `Must be ${expectedValue ? "checked" : "unchecked"}`,
+	"boolean-equals": ({ expectedValue }) => `Must be ${expectedValue ? "checked" : "unchecked"}`,
 
 	"date-min": ({ minDate, mustBeGreater }) => `Must be ${mustBeGreater ? "after" : "not earler than"} ${dateToStr(minDate)}`,
 	"date-max": ({ maxDate, mustBeLess }) => `Must be ${mustBeLess ? "before" : "not later than"} ${dateToStr(maxDate)}`,
@@ -103,7 +103,7 @@ const EN_US: ValidationRuleMessages = {
 		`Must be ${mustBeGreater ? "after" : "not earler than"} ${dateToStr(minDate)} and ` +
 		`${mustBeLess ? "before" : "not later than"} ${dateToStr(maxDate)}`,
 
-	"date-value": ({ expectedValue }) => isArray(expectedValue)
+	"date-equals": ({ expectedValue }) => isArray(expectedValue)
 		? `Must be one of the following dates: ${expectedValue.map(t => dateToStr(t), ", ").join(", ")}`
 		: `Must be ${dateToStr(expectedValue)}`,
 
@@ -119,13 +119,13 @@ const EN_US: ValidationRuleMessages = {
 		`Must be ${mustBeGreater ? "greater" : "greater or equal"} than ${floatToStr(minValue)} and ` +
 		`${mustBeLess ? "less" : "less or equal"} than ${floatToStr(maxValue)}`,
 
-	"number-value": ({ expectedValue }) => isArray(expectedValue)
+	"number-equals": ({ expectedValue }) => isArray(expectedValue)
 		? `Must be one of the following values: ${expectedValue.map(t => floatToStr(t), ", ").join(", ")}`
 		: `Must be ${floatToStr(expectedValue)}`,
 
 	"required": () => "Required",
 
-	"text-length": ({ expectedLength }) => expectedLength === 1 ? "Must be a single character" : `Must be ${expectedLength} characters long`,
+	"text-length-equals": ({ expectedLength }) => expectedLength === 1 ? "Must be a single character" : `Must be ${expectedLength} characters long`,
 	"text-length-min": ({ minLength }) => minLength === 1 ? "Minimum 1 character" : `Minimum ${minLength} characters`,
 	"text-length-max": ({ maxLength }) => maxLength === 1 ? "Maximum 1 character" : `Maximum ${maxLength} characters`,
 
@@ -137,7 +137,7 @@ const EN_US: ValidationRuleMessages = {
 
 	"text-match": ({ regExpName }) => `Must match format${regExpName ? ` (${regExpName})` : ""}`,
 
-	"text-value": ({ expectedValue }) => isArray(expectedValue)
+	"text-equals": ({ expectedValue }) => isArray(expectedValue)
 		? `Must be one of the following values: ${expectedValue.join(", ")}`
 		: `Must be '${expectedValue}'`,
 	

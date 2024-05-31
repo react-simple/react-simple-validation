@@ -5,6 +5,10 @@ const stub: any = () => { };
 
 // Custom types are set in types.custom.ts and can be set by the client code if more types are defined.
 export const REACT_SIMPLE_VALIDATION: ReactSimpleValidation = {
+	LOGGING: {
+		logLevel: "error" // for functions in react-simple-validation
+	},
+
 	// Field instance default values by [baseType, type]. Base types are fixed, but any custom types can be added here (text -> short-text, tel, email etc.)
 	// Specified rules will overwrite default rules by using 'ruleType'.
 	// Default rules should only contain basic rules (required, max value, max length, regex etc.)

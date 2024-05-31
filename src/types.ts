@@ -1,3 +1,4 @@
+import { LogLevel } from "@react-simple/react-simple-util";
 import {
 	AnyFieldValidationRules, ArrayFieldValidationRules, BooleanFieldValidationRules, DateFieldValidationRules, FileFieldValidationRules,
 	NumberFieldValidationRules, ObjectFieldValidationRules, TextFieldValidationRules
@@ -5,6 +6,10 @@ import {
 import { ReactSimpleValidationDependencyInjection } from "types.di";
 
 export interface ReactSimpleValidation {
+	LOGGING: {
+		logLevel: LogLevel; // for functions in react-simple-validation
+	};
+
 	// Field instance default values by [baseType, type]. Base types are fixed, but any custom types can be added here (text -> short-text, tel, email etc.)
 	// Specified rules will overwrite default rules by using 'ruleType'. 
 	// Default rules should only contain basic rules (required, max value, max length, regex etc.)

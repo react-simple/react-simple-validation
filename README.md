@@ -149,7 +149,7 @@ Most of the text validation rules support the **ignoreCase** member ('false* by 
 - **FieldTextMaxLengthRule ("text-length-max")**: Max text length
 - **FieldTextLengthRule ("text-length-value")**: Exact text length
 - **FieldTextLengthRangeRule ("text-length-range")**: Min-max range for text length
-- **FieldTextValueRule ("text-value")**: Exact text value
+- **FieldTextValueRule ("text-equals")**: Exact text value
 - **FieldTextMatchRule ("text-match")**: Validate by regular expression(s)
 - **FieldTextCustomValidationRule ("text-custom")**: The **customValidate(*field, context, validateField*)** callback can be used to implement custom validation logic. Provides the ***validateField()***  callback to invoke the default validation logic which makes implementing wrappers easier.
 
@@ -157,7 +157,7 @@ Most of the text validation rules support the **ignoreCase** member ('false* by 
 
 - **FieldNumberMinValueRule ("number-min")**: Minimum value, specify *mustBeGreater* to exclude equality
 - **FieldNumberMaxValueRule ("number-max")**: Maximum value, specify *mustBeLess* to exclude equality
-- **FieldNumberValueRule ("number-value")**: Exact value
+- **FieldNumberValueRule ("number-equals")**: Exact value
 - **FieldNumberRangeRule ("number-range")**: Min-max range, specify *mustBeGreater* and/or *mustBeLess* to exclude equality
 - **FieldNumberCustomValidationRule ("number-custom")**: The **customValidate(*field, context, validateField*)** callback can be used to implement custom validation logic. Provides the ***validateField()***  callback to invoke the default validation logic which makes implementing wrappers easier.
 
@@ -165,7 +165,7 @@ Most of the text validation rules support the **ignoreCase** member ('false* by 
 
 - **FieldDateMinValueRule ("date-min")**: Minimum value, specify *mustBeGreater* to exclude equality
 - **FieldDateMaxValueRule ("date-max")**: Maximum value, specify *mustBeLess* to exclude equality
-- **FieldDateValueRule ("date-value")**: Exact value
+- **FieldDateValueRule ("date-equals")**: Exact value
 - **FieldDateRangeRule ("date-range")**: Min-max range, specify *mustBeGreater* and/or *mustBeLess* to exclude equality
 - **FieldDateCustomValidationRule ("date-custom")**: The **customValidate(*field, context, validateField*)** callback can be used to implement custom validation logic. Provides the ***validateField()***  callback to invoke the default validation logic which makes implementing wrappers easier.
 

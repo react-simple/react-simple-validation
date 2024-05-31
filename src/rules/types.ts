@@ -14,8 +14,8 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["text-length-min"]: "text-length-min",
 	["text-length-max"]: "text-length-max",
 	["text-length-range"]: "text-length-range",
-	["text-length"]: "text-length", // exact length
-	["text-value"]: "text-value", // exact value or values
+	["text-length-equals"]: "text-length-equals", // exact length
+	["text-equals"]: "text-equals", // exact value or values
 	["text-match"]: "text-match", // only for 'text'
 	["text-custom"]: "text-custom", 
 
@@ -23,18 +23,18 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["number-min"]: "number-min",
 	["number-max"]: "number-max",
 	["number-range"]: "number-range",
-	["number-value"]: "number-value",
+	["number-equals"]: "number-equals",
 	["number-custom"]: "number-custom", 
 
 	// date
 	["date-min"]: "date-min",
 	["date-max"]: "date-max",
 	["date-range"]: "date-range",
-	["date-value"]: "date-value",
+	["date-equals"]: "date-equals",
 	["date-custom"]: "date-custom", 
 
 	// boolean
-	["boolean-value"]: "boolen-value",
+	["boolean-equals"]: "boolen-value",
 	["boolean-custom"]: "boolean-custom", 
 
 	// file
@@ -46,13 +46,13 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["array-length-min"]: "array-length-min",
 	["array-length-max"]: "array-length-max",
 	["array-length-range"]: "array-length-range",
-	["array-length"]: "array-length",
+	["array-length-equals"]: "array-length-equals",
 	["array-include-some"]: "array-include-some",
 	["array-include-all"]: "array-include-all",
 	["array-include-none"]: "array-include-none",
 	["array-match-some"]: "array-match-some",
 	["array-match-all"]: "array-match-all",
-	["array-itemindex"]: "array-itemindex",
+	["array-itemindex-equals"]: "array-itemindex-equals",
 	["array-itemindex-min"]: "array-itemindex-min",
 	["array-itemindex-max"]: "array-itemindex-min",
 	["array-itemindex-range"]: "array-itemindex-min",
@@ -103,8 +103,8 @@ export interface FieldTextMaxLengthRule extends FieldValidationRuleBase {
 	readonly maxLength: number;
 }
 
-export interface FieldTextLengthRule extends FieldValidationRuleBase {
-	readonly ruleType: "text-length";
+export interface FieldTextLengthEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "text-length-equals";
 	readonly expectedLength: ValueOrArray<number>;
 }
 
@@ -114,8 +114,8 @@ export interface FieldTextLengthRangeRule extends FieldValidationRuleBase {
 	readonly maxLength: number;
 }
 
-export interface FieldTextValueRule extends FieldValidationRuleBase {
-	readonly ruleType: "text-value";
+export interface FieldTextEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "text-equals";
 	readonly expectedValue: ValueOrArray<string>;
 	readonly ignoreCase?: boolean;
 }
@@ -132,8 +132,8 @@ export interface FieldNumberMaxValueRule extends FieldValidationRuleBase {
 	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
-export interface FieldNumberValueRule extends FieldValidationRuleBase {
-	readonly ruleType: "number-value";
+export interface FieldNumberEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "number-equals";
 	readonly expectedValue: ValueOrArray<number>;
 }
 
@@ -157,8 +157,8 @@ export interface FieldDateMaxValueRule extends FieldValidationRuleBase {
 	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
-export interface FieldDateValueRule extends FieldValidationRuleBase {
-	readonly ruleType: "date-value";
+export interface FieldDateEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "date-equals";
 	readonly expectedValue: ValueOrArray<Date>;
 }
 
@@ -170,8 +170,8 @@ export interface FieldDateRangeRule extends FieldValidationRuleBase {
 	readonly mustBeLess?: boolean; // by default less-or-equal is checked
 }
 
-export interface FieldBooleanValueRule extends FieldValidationRuleBase {
-	readonly ruleType: "boolean-value";
+export interface FieldBooleanEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "boolean-equals";
 	readonly expectedValue: boolean;
 }
 
@@ -203,8 +203,8 @@ export interface FieldArrayMaxLengthRule extends FieldValidationRuleBase {
 	readonly filter?: FieldValidationRule; // count only matching items
 }
 
-export interface FieldArrayLengthRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-length";
+export interface FieldArrayLengthEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-length-equals";
 	readonly expectedLength: ValueOrArray<number>;
 	readonly filter?: FieldValidationRule; // count only matching items
 }
@@ -296,8 +296,8 @@ export interface AllRulesValidRule extends FieldValidationRuleBase {
 	readonly rules: FieldValidationRule[]; // all rules must be valid
 }
 
-export interface ArrayItemIndexRule extends FieldValidationRuleBase {
-	readonly ruleType: "array-itemindex";
+export interface ArrayItemIndexEqualsRule extends FieldValidationRuleBase {
+	readonly ruleType: "array-itemindex-equals";
 	readonly index: ValueOrArray<number>;
 }
 
@@ -386,9 +386,9 @@ export type SimpleTextFieldValidationRules =
 	| FieldTextCustomValidationRule
 	| FieldTextMinLengthRule
 	| FieldTextMaxLengthRule
-	| FieldTextLengthRule
+	| FieldTextLengthEqualsRule
 	| FieldTextLengthRangeRule
-	| FieldTextValueRule
+	| FieldTextEqualsRule
 	| FieldTextMatchRule;
 
 export type TextFieldValidationRules = SimpleTextFieldValidationRules | CompositeValidationRules;	
@@ -398,7 +398,7 @@ export type SimpleNumberFieldValidationRules =
 	| FieldNumberCustomValidationRule
 	| FieldNumberMinValueRule
 	| FieldNumberMaxValueRule
-	| FieldNumberValueRule
+	| FieldNumberEqualsRule
 	| FieldNumberRangeRule;
 
 export type NumberFieldValidationRules = SimpleNumberFieldValidationRules | CompositeValidationRules;
@@ -406,7 +406,7 @@ export type NumberFieldValidationRules = SimpleNumberFieldValidationRules | Comp
 export type SimpleBooleanFieldValidationRules =
 	| CommonFieldValidationRules
 	| FieldBooleanCustomValidationRule
-	| FieldBooleanValueRule;
+	| FieldBooleanEqualsRule;
 
 export type BooleanFieldValidationRules = SimpleBooleanFieldValidationRules | CompositeValidationRules;
 
@@ -415,7 +415,7 @@ export type SimpleDateFieldValidationRules =
 	| FieldDateCustomValidationRule
 	| FieldDateMinValueRule
 	| FieldDateMaxValueRule
-	| FieldDateValueRule
+	| FieldDateEqualsRule
 	| FieldDateRangeRule;
 
 export type DateFieldValidationRules = SimpleDateFieldValidationRules | CompositeValidationRules;
@@ -439,14 +439,14 @@ export type SimpleArrayFieldValidationRules =
 	| FieldArrayCustomValidationRule
 	| FieldArrayMinLengthRule
 	| FieldArrayMaxLengthRule
-	| FieldArrayLengthRule
+	| FieldArrayLengthEqualsRule
 	| FieldArrayLengthRangeRule
 	| FieldArrayMatchAllRule
 	| FieldArrayMatchSomeRule
 	| FieldArrayIncludeSomeRule
 	| FieldArrayIncludeAllRule
 	| FieldArrayIncludeNoneRule
-	| ArrayItemIndexRule
+	| ArrayItemIndexEqualsRule
 	| ArrayItemIndexMinRule
 	| ArrayItemIndexMaxRule
 	| ArrayItemIndexRangeRule;

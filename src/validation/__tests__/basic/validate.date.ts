@@ -100,8 +100,8 @@ it('validateFields.date-range', () => {
 	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });
 
-it('validateFields.date-value', () => {
-	const rule = RULES.date.value(new Date(2000, 1, 2, 3, 4, 5, 6));
+it('validateFields.date-equals', () => {
+	const rule = RULES.date.equals(new Date(2000, 1, 2, 3, 4, 5, 6));
 
 	const validationResult = validateObject(
 		{
@@ -119,8 +119,8 @@ it('validateFields.date-value', () => {
 	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
-it('validateFields.date-value.array', () => {
-	const rule = RULES.date.value([new Date(2000, 1, 2, 3, 4, 5, 6), new Date(2001, 1, 2, 3, 4, 5, 6)]);
+it('validateFields.date-equals.array', () => {
+	const rule = RULES.date.equals([new Date(2000, 1, 2, 3, 4, 5, 6), new Date(2001, 1, 2, 3, 4, 5, 6)]);
 
 	const validationResult = validateObject(
 		{

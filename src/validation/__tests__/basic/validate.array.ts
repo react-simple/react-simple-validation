@@ -85,7 +85,7 @@ it('validateFields.array-length-range', () => {
 });
 
 it('validateFields.array-length', () => {
-	const rule = RULES.array.length.value(3);
+	const rule = RULES.array.length.equals(3);
 
 	const validationResult = validateObject(
 		{
@@ -185,7 +185,7 @@ it('validateFields.array-include-none', () => {
 
 it('validateFields.array-match-some', () => {
 	// some items in the array must be 1 or 6 (but we don't need both)
-	const rule = RULES.array.match.some(RULES.number.value([1, 6]));
+	const rule = RULES.array.match.some(RULES.number.equals([1, 6]));
 
 	const validationResult = validateObject(
 		{
@@ -208,7 +208,7 @@ it('validateFields.array-match-some', () => {
 
 it('validateFields.array-match-all', () => {
 	// all items in the array must be 1 or 3 (but we don't need both)
-	const rule = RULES.array.match.all(RULES.number.value([1, 3]));
+	const rule = RULES.array.match.all(RULES.number.equals([1, 3]));
 
 	const validationResult = validateObject(
 		{
@@ -229,8 +229,8 @@ it('validateFields.array-match-all', () => {
 it('validateFields.array-itemindex', () => {
 	// item at index 2 should be 'C'
 	const rule = RULES.conditions.ifThenElse(
-		RULES.array.itemIndex.value(2),
-		RULES.text.value("C"));
+		RULES.array.itemIndex.equals(2),
+		RULES.text.equals("C"));
 
 	const validationResult = validateObject(
 		{

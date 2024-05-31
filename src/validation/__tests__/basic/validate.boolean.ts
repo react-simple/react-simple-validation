@@ -2,8 +2,8 @@ import { FIELDS } from "fields";
 import { RULES } from "rules";
 import { validateObject } from "validation";
 
-it('validateFields.boolean-value', () => {
-	const rule = RULES.boolean.value(false);
+it('validateFields.boolean-equals', () => {
+	const rule = RULES.boolean.equals(false);
 
 	const validationResult = validateObject(
 		{

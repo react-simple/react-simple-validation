@@ -1,11 +1,11 @@
 import { ValueOrArray } from "@react-simple/react-simple-util";
 import {
-	FieldBooleanValueRule, FieldDateValueRule, FieldNumberValueRule, FieldTextValueRule, FieldFileContentTypeRule, FieldArrayMaxLengthRule,
+	FieldBooleanEqualsRule, FieldDateEqualsRule, FieldNumberEqualsRule, FieldTextEqualsRule, FieldFileContentTypeRule, FieldArrayMaxLengthRule,
 	FieldDateMaxValueRule, FieldFileMaxSizeRule, FieldNumberMaxValueRule, FieldTextMaxLengthRule, FieldArrayMinLengthRule, FieldDateMinValueRule,
 	FieldNumberMinValueRule, FieldTextMinLengthRule, FieldTextMatchRule, FieldRequiredRule, FieldValidationRule, AllRulesValidRule, SomeRulesValidRule,
-	FieldTextLengthRule, FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule,
+	FieldTextLengthEqualsRule, FieldNumberRangeRule, FieldDateRangeRule, FieldArrayLengthEqualsRule, FieldArrayLengthRangeRule, FieldArrayIncludeSomeRule,
 	FieldArrayMatchAllRule, FieldArrayMatchSomeRule, FieldTextLengthRangeRule, FieldArrayIncludeAllRule, FieldArrayIncludeNoneRule,
-	FieldIfThenElseConditionalRule, FieldSwitchConditionalRule, ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexRule, ArrayItemIndexRangeRule,
+	FieldIfThenElseConditionalRule, FieldSwitchConditionalRule, ArrayItemIndexMinRule, ArrayItemIndexMaxRule, ArrayItemIndexEqualsRule, ArrayItemIndexRangeRule,
 	FieldReferenceRule, FieldComparisonConditionalRule, FieldTextCustomValidationRule, FieldNumberCustomValidationRule, FieldDateCustomValidationRule,
 	FieldBooleanCustomValidationRule, FieldFileCustomValidationRule, FieldArrayCustomValidationRule, FieldObjectCustomValidationRule, FieldAnyCustomValidationRule
 } from "./types";
@@ -19,17 +19,17 @@ export const RULES: {
 	readonly required: (options?: ValidationRuleOptions) => FieldRequiredRule;
 
 	readonly text: {
-		readonly value: (
-			expectedValue: FieldTextValueRule["expectedValue"],
+		readonly equals: (
+			expectedValue: FieldTextEqualsRule["expectedValue"],
 			options?: ValidationRuleOptions & { ignoreCase?: boolean }
-		) => FieldTextValueRule;
+		) => FieldTextEqualsRule;
 
 		readonly match: (regExp: FieldTextMatchRule["regExp"], regExpName?: FieldTextMatchRule["regExpName"], options?: ValidationRuleOptions) => FieldTextMatchRule;
 
 		readonly length: {
 			readonly min: (minLength: FieldTextMinLengthRule["minLength"], options?: ValidationRuleOptions) => FieldTextMinLengthRule;
 			readonly max: (maxLength: FieldTextMaxLengthRule["maxLength"], options?: ValidationRuleOptions) => FieldTextMaxLengthRule;
-			readonly value: (length: FieldTextLengthRule["expectedLength"], options?: ValidationRuleOptions) => FieldTextLengthRule;
+			readonly equals: (length: FieldTextLengthEqualsRule["expectedLength"], options?: ValidationRuleOptions) => FieldTextLengthEqualsRule;
 			readonly range: (
 				minLength: FieldTextLengthRangeRule["minLength"],
 				maxLength: FieldTextLengthRangeRule["maxLength"],
@@ -43,7 +43,7 @@ export const RULES: {
 	readonly number: {
 		readonly min: (minValue: FieldNumberMinValueRule["minValue"], options?: { message?: string; mustBeGreater?: boolean }) => FieldNumberMinValueRule;
 		readonly max: (maxValue: FieldNumberMaxValueRule["maxValue"], options?: { message?: string; mustBeLess?: boolean }) => FieldNumberMaxValueRule;
-		readonly value: (expectedValue: FieldNumberValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldNumberValueRule;
+		readonly equals: (expectedValue: FieldNumberEqualsRule["expectedValue"], options?: ValidationRuleOptions) => FieldNumberEqualsRule;
 		readonly range: (
 			minValue: FieldNumberRangeRule["minValue"],
 			maxValue: FieldNumberRangeRule["maxValue"],
@@ -59,7 +59,7 @@ export const RULES: {
 	readonly date: {
 		readonly min: (minDate: FieldDateMinValueRule["minDate"], options?: { message?: string; mustBeGreater?: boolean }) => FieldDateMinValueRule;
 		readonly max: (maxDate: FieldDateMaxValueRule["maxDate"], options?: { message?: string; mustBeLess?: boolean }) => FieldDateMaxValueRule;
-		readonly value: (expectedValue: FieldDateValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldDateValueRule;
+		readonly equals: (expectedValue: FieldDateEqualsRule["expectedValue"], options?: ValidationRuleOptions) => FieldDateEqualsRule;
 		readonly range: (
 			minDate: FieldDateRangeRule["minDate"],
 			maxDate: FieldDateRangeRule["maxDate"],
@@ -72,7 +72,7 @@ export const RULES: {
 	};
 
 	readonly boolean: {
-		readonly value: (expectedValue: FieldBooleanValueRule["expectedValue"], options?: ValidationRuleOptions) => FieldBooleanValueRule;
+		readonly equals: (expectedValue: FieldBooleanEqualsRule["expectedValue"], options?: ValidationRuleOptions) => FieldBooleanEqualsRule;
 		readonly custom: (validate: FieldBooleanCustomValidationRule["validate"], options?: ValidationRuleOptions) => FieldBooleanCustomValidationRule;
 	};
 
@@ -114,10 +114,10 @@ export const RULES: {
 				options?: ValidationRuleOptions & { filter?: FieldArrayMaxLengthRule["filter"] }
 			) => FieldArrayMaxLengthRule;
 
-			readonly value: (
-				length: FieldArrayLengthRule["expectedLength"],
-				options?: ValidationRuleOptions & { filter?: FieldArrayLengthRule["filter"] }
-			) => FieldArrayLengthRule;
+			readonly equals: (
+				length: FieldArrayLengthEqualsRule["expectedLength"],
+				options?: ValidationRuleOptions & { filter?: FieldArrayLengthEqualsRule["filter"] }
+			) => FieldArrayLengthEqualsRule;
 
 			readonly range: (
 				minLength: FieldArrayLengthRangeRule["minLength"],
@@ -129,7 +129,7 @@ export const RULES: {
 		readonly itemIndex: {
 			readonly min: (minIndex: ArrayItemIndexMinRule["minIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMinRule;
 			readonly max: (maxIndex: ArrayItemIndexMaxRule["maxIndex"], options?: ValidationRuleOptions) => ArrayItemIndexMaxRule,
-			readonly value: (index: ArrayItemIndexRule["index"], options?: ValidationRuleOptions) => ArrayItemIndexRule;
+			readonly equals: (index: ArrayItemIndexEqualsRule["index"], options?: ValidationRuleOptions) => ArrayItemIndexEqualsRule;
 			readonly range: (
 				minIndex: ArrayItemIndexRangeRule["minIndex"],
 				maxIndex: ArrayItemIndexRangeRule["maxIndex"],
@@ -204,9 +204,9 @@ export const RULES: {
 	}),
 
 	text: {
-		value: (expectedValue, options) => ({
+		equals: (expectedValue, options) => ({
 			...options,
-			ruleType: "text-value",
+			ruleType: "text-equals",
 			expectedValue
 		}),
 
@@ -230,9 +230,9 @@ export const RULES: {
 				maxLength
 			}),
 
-			value: (expectedLength, options) => ({
+			equals: (expectedLength, options) => ({
 				...options,
-				ruleType: "text-length",
+				ruleType: "text-length-equals",
 				expectedLength
 			}),
 
@@ -271,9 +271,9 @@ export const RULES: {
 			maxValue
 		}),
 
-		value: (expectedValue, options) => ({
+		equals: (expectedValue, options) => ({
 			...options,
-			ruleType: "number-value",
+			ruleType: "number-equals",
 			expectedValue
 		}),
 
@@ -304,9 +304,9 @@ export const RULES: {
 			maxDate
 		}),
 
-		value: (expectedValue, options) => ({
+		equals: (expectedValue, options) => ({
 			...options,
-			ruleType: "date-value",
+			ruleType: "date-equals",
 			expectedValue
 		}),
 
@@ -318,9 +318,9 @@ export const RULES: {
 	},
 
 	boolean: {
-		value: (expectedValue, options) => ({
+		equals: (expectedValue, options) => ({
 			...options,
-			ruleType: "boolean-value",
+			ruleType: "boolean-equals",
 			expectedValue
 		}),
 
@@ -387,9 +387,9 @@ export const RULES: {
 				maxLength
 			}),
 
-			value: (expectedLength, options) => ({
+			equals: (expectedLength, options) => ({
 				...options,
-				ruleType: "array-length",
+				ruleType: "array-length-equals",
 				expectedLength
 			}),
 
@@ -414,9 +414,9 @@ export const RULES: {
 				maxIndex
 			}),
 
-			value: (index, options) => ({
+			equals: (index, options) => ({
 				...options,
-				ruleType: "array-itemindex",
+				ruleType: "array-itemindex-equals",
 				index
 			}),
 

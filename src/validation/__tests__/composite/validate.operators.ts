@@ -3,10 +3,10 @@ import { validateObject } from "validation";
 import { FIELDS } from "fields";
 
 it('validateFields.some-rules-valid', () => {
-	// this actually could be done using the number-value rule with array of numbers in expectedValue
+	// this actually could be done using the number-equals rule with array of numbers in expectedValue
 	const rule = RULES.operators.some([
-		RULES.number.value(1),
-		RULES.number.value(2)
+		RULES.number.equals(1),
+		RULES.number.equals(2)
 	]);
 
 	const validationResult = validateObject(

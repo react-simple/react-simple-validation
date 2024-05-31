@@ -31,7 +31,7 @@ const NUMBER_RULES = [
 	RULES.number.min(1000),
 	RULES.number.max(100),
 	RULES.number.range(200, 300),
-	RULES.number.value(5),
+	RULES.number.equals(5),
 	RULES.number.custom(t => ({ isValid: t.value === 5 }), { message: "Custom number error" })
 ];
 

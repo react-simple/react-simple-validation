@@ -41,7 +41,7 @@ it('validateFields.text-length-max', () => {
 });
 
 it('validateFields.text-length', () => {
-	const rule = RULES.text.length.value(3);
+	const rule = RULES.text.length.equals(3);
 
 	const validationResult = validateObject(
 		{
@@ -128,8 +128,8 @@ it('validateFields.text-match.array', () => {
 	expect(validationResult.childErrors.bad2.isValid).toBe(false);
 });
 
-it('validateFields.text-value', () => {
-	const rule = RULES.text.value("ABC", { ignoreCase: true });
+it('validateFields.text-equals', () => {
+	const rule = RULES.text.equals("ABC", { ignoreCase: true });
 
 	const validationResult = validateObject(
 		{
@@ -147,8 +147,8 @@ it('validateFields.text-value', () => {
 	expect(validationResult.childErrors.bad.isValid).toBe(false);
 });
 
-it('validateFields.text-value.array', () => {
-	const rule = RULES.text.value(["ABC", "123"], { ignoreCase: true });
+it('validateFields.text-equals.array', () => {
+	const rule = RULES.text.equals(["ABC", "123"], { ignoreCase: true });
 
 	const validationResult = validateObject(
 		{

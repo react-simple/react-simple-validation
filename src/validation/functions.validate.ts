@@ -168,7 +168,8 @@ function validateField_default(
 
 	logTrace(log => log(
 		`[validateField]: Field validated, isValid: ${result.isValid}, field: ${field.fullQualifiedName}`,
-		field, context, result
+		{ field, context, result },
+		REACT_SIMPLE_VALIDATION.LOGGING.logLevel
 	));
 
 	return result;
@@ -248,7 +249,8 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 
 	logTrace(log => log(
 		`[validateObject]: Object validated, isValid: ${result.isValid}`,
-		obj, schema, context, result
+		{ obj, schema, context, result },
+		REACT_SIMPLE_VALIDATION.LOGGING.logLevel
 	));
 
 	return result;
@@ -325,7 +327,7 @@ function validateRule_default(
 						break;
 					
 					default:
-						logWarning(`[validateRule]: Unsupported field type '${type}'`);
+						logWarning(`[validateRule]: Unsupported field type '${type}'`, undefined, REACT_SIMPLE_VALIDATION.LOGGING.logLevel);
 						break;
 				}
 			}
@@ -415,7 +417,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "date-value":
+		case "date-equals":
 			if (type.baseType === "date" && isDate(value)) {
 				isValid = isArray(rule.expectedValue)
 					? rule.expectedValue.some(expectedValue => sameDates(value, expectedValue))
@@ -450,7 +452,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "array-length":
+		case "array-length-equals":
 			if (type.baseType === "array" && isArray(value)) {
 				const items = getFilteredArrayItems(rule, field as any, context);
 
@@ -528,7 +530,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "text-length":
+		case "text-length-equals":
 			if (type.baseType === "text" && isString(value)) {
 				isValid = isArray(rule.expectedLength)
 					? rule.expectedLength.includes(value.length)
@@ -536,7 +538,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "text-value":
+		case "text-equals":
 			if (type.baseType === "text" && isString(value)) {
 				if (rule.ignoreCase) {
 					const valueToLower = value?.toLocaleLowerCase();
@@ -552,7 +554,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "boolean-value":
+		case "boolean-equals":
 			if (type.baseType === "boolean" && isBoolean(value)) {
 				isValid = value === rule.expectedValue;
 			}
@@ -579,7 +581,7 @@ function validateRule_default(
 			}
 			break;
 
-		case "number-value":
+		case "number-equals":
 			if (type.baseType === "number" && isNumber(value)) {
 				isValid = isArray(rule.expectedValue)
 					? rule.expectedValue.includes(value)
@@ -601,7 +603,7 @@ function validateRule_default(
 			break;
 		}
 
-		case "array-itemindex":
+		case "array-itemindex-equals":
 			isValid = context.parentArray?.itemIndex == rule.index;
 			break;
 
@@ -732,7 +734,8 @@ function validateRule_default(
 
 	logTrace(log => log(
 		`[validateRule]: Rule validated, isValid: ${result.isValid}, rule: ${rule.ruleType}, field: ${field.fullQualifiedName}`,
-		rule, field, context, result
+		{ rule, field, context, result },
+		REACT_SIMPLE_VALIDATION.LOGGING.logLevel
 	));
 
 	return result;

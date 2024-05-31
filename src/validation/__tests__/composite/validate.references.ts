@@ -33,13 +33,13 @@ it('validateFields.field-reference.local', () => {
 		b: FIELDS.text([
 			// [a] == 1 -> [b] == "A"
 			RULES.conditions.ifThenElse(
-				RULES.references.fieldRef("a", RULES.number.value(1)),
-				RULES.text.value("A")
+				RULES.references.fieldRef("a", RULES.number.equals(1)),
+				RULES.text.equals("A")
 			),
 			// [a] == 2 -> [b] == "B"
 			RULES.conditions.ifThenElse(
-				RULES.references.fieldRef("a", RULES.number.value(2)),
-				RULES.text.value("B")
+				RULES.references.fieldRef("a", RULES.number.equals(2)),
+				RULES.text.equals("B")
 			)
 		])
 	}));
@@ -71,13 +71,13 @@ it('validateFields.field-reference.local-array', () => {
 		b: FIELDS.array(FIELDS.text([
 			// [a] == 1 -> [b] == "A"
 			RULES.conditions.ifThenElse(
-				RULES.references.fieldRef("a", RULES.number.value(1)),
-				RULES.text.value("A")
+				RULES.references.fieldRef("a", RULES.number.equals(1)),
+				RULES.text.equals("A")
 			),
 			// [a] == 2 -> [b] == "B"
 			RULES.conditions.ifThenElse(
-				RULES.references.fieldRef("a", RULES.number.value(2)),
-				RULES.text.value("B")
+				RULES.references.fieldRef("a", RULES.number.equals(2)),
+				RULES.text.equals("B")
 			)
 		]))
 	}));
@@ -110,13 +110,13 @@ it('validateFields.field-reference.root', () => {
 			b: FIELDS.text([
 				// [a] == 1 -> [b] == "A"
 				RULES.conditions.ifThenElse(
-					RULES.references.fieldRef("/a", RULES.number.value(1)),
-					RULES.text.value("A")
+					RULES.references.fieldRef("/a", RULES.number.equals(1)),
+					RULES.text.equals("A")
 				),
 				// [a] == 2 -> [b] == "B"
 				RULES.conditions.ifThenElse(
-					RULES.references.fieldRef("/a", RULES.number.value(2)),
-					RULES.text.value("B")
+					RULES.references.fieldRef("/a", RULES.number.equals(2)),
+					RULES.text.equals("B")
 				)
 			])
 		})
@@ -144,10 +144,10 @@ it('validateFields.field-reference.namedObj.backwardRef.object', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						["case_a", RULES.references.fieldRef("@refObj.a", RULES.number.value(1)), RULES.text.value("A")],
-						["case_b", RULES.references.fieldRef("@refObj.a", RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef("@refObj.a", RULES.number.equals(1)), RULES.text.equals("A")],
+						["case_b", RULES.references.fieldRef("@refObj.a", RULES.number.equals(2)), RULES.text.equals("B")]
 					],
-					RULES.text.value("C")
+					RULES.text.equals("C")
 				)
 			])
 		})
@@ -181,10 +181,10 @@ it('validateFields.field-reference.namedObj.backwardRef.array', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						["case_a", RULES.references.fieldRef("@refObj[0].a", RULES.number.value(1)), RULES.text.value("A")],
-						["case_b", RULES.references.fieldRef("@refObj[0].a", RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef("@refObj[0].a", RULES.number.equals(1)), RULES.text.equals("A")],
+						["case_b", RULES.references.fieldRef("@refObj[0].a", RULES.number.equals(2)), RULES.text.equals("B")]
 					],
-					RULES.text.value("C")
+					RULES.text.equals("C")
 				)
 			])
 		})
@@ -239,10 +239,10 @@ it('validateFields.field-reference.namedObj.backwardRef.value', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						["case_a", RULES.references.fieldRef("@refObj", RULES.number.value(1)), RULES.text.value("A")],
-						["case_b", RULES.references.fieldRef("@refObj", RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef("@refObj", RULES.number.equals(1)), RULES.text.equals("A")],
+						["case_b", RULES.references.fieldRef("@refObj", RULES.number.equals(2)), RULES.text.equals("B")]
 					],
-					RULES.text.value("C")
+					RULES.text.equals("C")
 				)
 			])
 		})
@@ -298,10 +298,10 @@ it('validateFields.field-reference.namedObj.forwardRef.notSupported', () => {
 			b: FIELDS.text([
 				RULES.conditions.switch(
 					[
-						["case_a", RULES.references.fieldRef(`@${refName}.a`, RULES.number.value(1)), RULES.text.value("A")],
-						["case_b", RULES.references.fieldRef(`@${refName}.a`, RULES.number.value(2)), RULES.text.value("B")]
+						["case_a", RULES.references.fieldRef(`@${refName}.a`, RULES.number.equals(1)), RULES.text.equals("A")],
+						["case_b", RULES.references.fieldRef(`@${refName}.a`, RULES.number.equals(2)), RULES.text.equals("B")]
 					],
-					RULES.text.value("C")
+					RULES.text.equals("C")
 				)
 			])
 		}),
@@ -333,13 +333,13 @@ it('validateFields.field-reference.external-parameter', () => {
 		b: FIELDS.text([
 			// [a] == 1 -> [b] == "A"
 			RULES.conditions.ifThenElse(
-				RULES.references.fieldRef("@a", RULES.number.value(1)),
-				RULES.text.value("A")
+				RULES.references.fieldRef("@a", RULES.number.equals(1)),
+				RULES.text.equals("A")
 			),
 			// [a] == 2 -> [b] == "B"
 			RULES.conditions.ifThenElse(
-				RULES.references.fieldRef("@a", RULES.number.value(2)),
-				RULES.text.value("B")
+				RULES.references.fieldRef("@a", RULES.number.equals(2)),
+				RULES.text.equals("B")
 			)
 		])
 	});
