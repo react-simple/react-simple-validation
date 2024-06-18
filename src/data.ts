@@ -47,12 +47,6 @@ export const REACT_SIMPLE_VALIDATION: ReactSimpleValidation = {
 	},
 
 	DI: {
-		fields: {
-			getChildFieldTypeByName: stub,			
-			getChildFieldTypeByFullQualifiedName: stub,
-			getChildFieldTypeInfoByFullQualifiedName: stub
-		},
-
 		validation: {
 			validateRule: stub,
 			validateField: stub,

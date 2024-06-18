@@ -31,9 +31,10 @@ npm run test
 import { ... } from "@react-simple/react-simple-validation";
 
 # Configuration
+
 ## REACT_SIMPLE_VALIDATION
 
-Members in the REACT_SIMPLE_VALIDATION object can be set to update the behavior of the provided functions.
+Members in the **REACT_SIMPLE_VALIDATION** object can be set to update the behavior of the provided functions.
 
 ### REACT_SIMPLE_VALIDATION.FIELD_DEFAULTS
 

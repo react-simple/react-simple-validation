@@ -1,6 +1,5 @@
-import { ChildMemberInfoWithCallbacks } from "@react-simple/react-simple-mapping";
 import { ValueOrArray } from "@react-simple/react-simple-util";
-import { Field, FieldType, FieldTypes, ObjectFieldType } from "fields/types";
+import { Field, FieldTypes, ObjectFieldType } from "fields/types";
 import { FieldValidationRule } from "rules/types";
 import {
   FieldRuleValidationErrors, FieldRuleValidationResult, FieldValidationContext, FieldValidationOptions, FieldValidationResult,
@@ -8,27 +7,6 @@ import {
 } from "validation/types";
 
 export interface ReactSimpleValidationDependencyInjection {
-  fields: {
-    getChildFieldTypeByName: (
-      fieldType: FieldType,
-      name: string,
-      defaultImpl: ReactSimpleValidationDependencyInjection["fields"]["getChildFieldTypeByName"]
-    ) => FieldType | undefined;
-
-    getChildFieldTypeInfoByFullQualifiedName: (
-      fieldType: FieldType,
-      fullQualifiedName: string,
-      createMissingChildObjects: boolean,
-      defaultImpl: ReactSimpleValidationDependencyInjection["fields"]["getChildFieldTypeInfoByFullQualifiedName"]
-    ) => ChildMemberInfoWithCallbacks<FieldType> | undefined;
-
-    getChildFieldTypeByFullQualifiedName: (
-      fieldType: FieldType,
-      fullQualifiedName: string,
-      defaultImpl: ReactSimpleValidationDependencyInjection["fields"]["getChildFieldTypeByFullQualifiedName"]
-    ) => FieldType | undefined;
-  };
-
   validation: {
     validateRule: (
       rule: FieldValidationRule,
