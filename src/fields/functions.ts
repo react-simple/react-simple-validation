@@ -1,4 +1,4 @@
-import { ChildMemberInfo, getChildMember } from "@react-simple/react-simple-mapping";
+import { ChildMemberInfoWithCallbacks, getChildMemberInfo } from "@react-simple/react-simple-mapping";
 import { FieldType, FieldTypes, ObjectFieldType } from "./types/types";
 import { REACT_SIMPLE_VALIDATION } from "data";
 import { FIELDS } from "./data";
@@ -26,13 +26,15 @@ function getChildFieldTypeInfoByFullQualifiedName_default(
 	fieldType: FieldType,
 	fullQualifiedName: string,
 	createMissingChildObjects: boolean
-): ChildMemberInfo<FieldType, FieldType> | undefined {
-	return getChildMember<FieldType>(
+): ChildMemberInfoWithCallbacks<FieldType> | undefined {
+	return getChildMemberInfo<FieldType>(
 		fieldType,
 		fullQualifiedName,
 		createMissingChildObjects,
 		{
-			getValue: (type, name) => getChildFieldTypeByName(type, name)
+			getMemberValue: (type, name) => {
+				return getChildFieldTypeByName(type as FieldType, name.name);
+			}
 		}
 	);
 }
@@ -44,7 +46,7 @@ export function getChildFieldTypeInfoByFullQualifiedName(
 	fieldType: FieldType,
 	fullQualifiedName: string,
 	createMissingChildObjects: boolean
-): ChildMemberInfo<FieldType, FieldType> | undefined {
+): ChildMemberInfoWithCallbacks<FieldType> | undefined {
 	return REACT_SIMPLE_VALIDATION.DI.fields.getChildFieldTypeInfoByFullQualifiedName(
 		fieldType, fullQualifiedName, createMissingChildObjects, getChildFieldTypeInfoByFullQualifiedName_default
 	);

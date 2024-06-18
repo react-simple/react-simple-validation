@@ -1,6 +1,6 @@
 {
 	"name": "@react-simple/react-simple-validation",
-	"version": "0.6.3",
+	"version": "0.7.0",
 	"description": "React Simple! Validation Library",
 	"author": "Mihály Tringel",
 	"license": "MIT",
@@ -24,9 +24,9 @@
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
-		"@react-simple/react-simple-localization": "^0.6.0",
-		"@react-simple/react-simple-mapping": "^0.6.2",
-		"@react-simple/react-simple-util": "^0.6.2",
+		"@react-simple/react-simple-localization": "^0.7.0",
+		"@react-simple/react-simple-mapping": "^0.7.1",
+		"@react-simple/react-simple-util": "^0.7.0",
 		"tslib": "^2.6.2"
 	},
 	"devDependencies": {
@@ -38,9 +38,9 @@
 		"@babel/preset-env": "^7.24.4",
 		"@babel/preset-react": "^7.24.1",
 		"@babel/preset-typescript": "^7.21.4",
-		"@react-simple/react-simple-localization": "^0.6.0",
-		"@react-simple/react-simple-mapping": "^0.6.2",
-		"@react-simple/react-simple-util": "^0.6.2",
+		"@react-simple/react-simple-localization": "^0.7.0",
+		"@react-simple/react-simple-mapping": "^0.7.1",
+		"@react-simple/react-simple-util": "^0.7.0",
 		"@rollup/plugin-babel": "^6.0.4",
 		"@types/node": "^20.12.7",
 		"@types/react": "^18.2.79",

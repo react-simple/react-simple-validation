@@ -7,14 +7,14 @@ Features:
 - Validation is based on **schema of field types**. Field types support primitive values (text, number, Date, boolean) and structures (arrays, object), therefore nested child objects are supported. 
 - Field types can have associated **validation rules**. Besides basic validation also conditions, operators and references to other fields are supported.
 - Validating **child objects** or **array of child objects** are natively supported (array-match-some, array-match-all etc.)
-- It's possible to **refer to other fields** using **full qualified names** (name.name[0].name...) or by assigned **reference names** (@partner_type).
+- It's possible to **refer to 0other fields** using **full qualified names** (name.name[0].name...) or by assigned **reference names** (@partner_type).
 - External parameters can also be used (@param)
 - Localization is not added intentionally. All number, Date and boolean values are expected to be present in their native format. 
 It is the responsibility of the consuming component to do the conversion (forms binding for example).
 - Detailed error result is returned.
 - **Incremental validation** by keeping previous results, it's possible to filter fields by full qualified names
 - **Dependency injection** for pluggable architecture. All the important methods can be replaced with custom implementation by setting REACT_SIMPLE_VALIDATION.DI members.
-- **Unit tests** for all fetaures
+- See **Unit tests** for samples for all features
 
 # Usage
 

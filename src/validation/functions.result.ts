@@ -13,7 +13,9 @@ function getChildValidationResult_default(
 		result,
 		fullQualifiedName,
 		{
-			getValue: (res, name) => res["childErrors"]?.[name] || res[name]
+			getMemberValue: (res, name) =>
+				(res as FieldValidationResult)["childErrors"]?.[name.name] ||
+				(res as any)[name.name]
 		}
 	);
 }

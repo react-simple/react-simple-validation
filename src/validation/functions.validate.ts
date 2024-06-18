@@ -1,12 +1,15 @@
 import {
 	compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray, isArray, isBoolean, isDate, isEmpty,
-	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logTrace, logWarning, mapDictionaryValues, sameDates, stringAppend, stringIndexOfAny
+	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logTrace, logWarning, mapDictionaryValues, sameDates,
+	stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
-import { fullQualifiedMemberNameMatchSubTree, getChildMemberValue } from "@react-simple/react-simple-mapping";
+import { getChildMemberValue, isFullQualifiedMemberNameParentChild } from "@react-simple/react-simple-mapping";
 import {
 	ArrayFieldType, ArrayFieldTypeBase, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, ObjectFieldTypeBase, getChildFieldTypeByFullQualifiedName
  } from "fields";
-import { FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult, FieldValidationOptions } from "./types";
+import {
+	FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult, FieldValidationOptions
+ } from "./types";
 import { FieldValidationContext } from "validation/types";
 import { REACT_SIMPLE_VALIDATION } from "data";
 import { FieldValidationRule } from "rules";
@@ -31,7 +34,7 @@ function validateField_default(
 		validateRule({ ruleType: "type", valueType: type.baseType }, field, context),
 
 		// validate rules
-		...type.rules.map(rule => validateRule(rule, field, context))
+		...(type.rules || []).map(rule => validateRule(rule, field, context))
 	].filter(t => !t.isValid);
 
 	let isValid = !errors.length;
@@ -59,7 +62,7 @@ function validateField_default(
 
 				if (!incrementalValidation ||
 					(isArray(incrementalValidation.filter)
-						? incrementalValidation.filter.some(t => fullQualifiedMemberNameMatchSubTree(t, childField.fullQualifiedName))
+						? incrementalValidation.filter.some(t => isFullQualifiedMemberNameParentChild(t, childField.fullQualifiedName, true))
 						: incrementalValidation.filter(childField, childContext)
 					)
 				) {
@@ -108,7 +111,7 @@ function validateField_default(
 
 				if (!incrementalValidation ||
 					(isArray(incrementalValidation.filter)
-						? incrementalValidation.filter.some(t => fullQualifiedMemberNameMatchSubTree(t, childField.fullQualifiedName))
+					? incrementalValidation.filter.some(t => isFullQualifiedMemberNameParentChild(t, childField.fullQualifiedName, true))
 						: incrementalValidation.filter(childField, childContext)
 					)) {
 					// validate it, it's not incremental validation
@@ -327,7 +330,7 @@ function validateRule_default(
 						break;
 					
 					default:
-						logWarning(`[validateRule]: Unsupported field type '${type}'`, undefined, REACT_SIMPLE_VALIDATION.LOGGING.logLevel);
+						logWarning(`[validateRule]: Unsupported field type '${type}'`, null, REACT_SIMPLE_VALIDATION.LOGGING.logLevel);
 						break;
 				}
 			}
@@ -672,7 +675,7 @@ function validateRule_default(
 		case "field-reference": {
 			// resolve path starting from the closest object in hierarchy by default; using "/" or "@" in path can refer to root or named objects
 			if (rule.path) {
-				const refTo = resolveReference(rule.path, field, context);
+				const refTo = getResolveReference(rule.path, field, context);
 
 				if (refTo) {
 					details.push({ key: "found", path: refTo.fullQualifiedName, value: refTo.value });
@@ -690,7 +693,7 @@ function validateRule_default(
 			
 		case "compare": {
 			if (rule.path) {
-				const refTo = resolveReference(rule.path, field, context);
+				const refTo = getResolveReference(rule.path, field, context);
 
 				if (refTo) {
 					details.push({ key: "found", path: refTo.fullQualifiedName, value: refTo.value });
@@ -805,7 +808,7 @@ const validateRuleForArrayItem = (
 	)
 };
 
-const resolveReference = (path: string, field: Field, context: FieldValidationContext) => {
+const getResolveReference = (path: string, field: Field, context: FieldValidationContext) => {
 	let refTo: Field | undefined;
 	const { fullQualifiedName } = field;
 	
@@ -847,7 +850,7 @@ const resolveReference = (path: string, field: Field, context: FieldValidationCo
 					fullQualifiedName: stringAppend(namedObj.fullQualifiedName, path, ".")
 				};
 			}
-		}
+		}		
 	}
 	// local (same obj)
 	else {

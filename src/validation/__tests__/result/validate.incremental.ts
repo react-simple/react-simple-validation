@@ -1,6 +1,6 @@
-import { fullQualifiedMemberNameMatchSubTree } from "@react-simple/react-simple-mapping";
+import { isFullQualifiedMemberNameParentChild } from "@react-simple/react-simple-mapping";
 import { deepCopyObject, sameArrays } from "@react-simple/react-simple-util";
-import { FIELDS } from "fields";
+import { FieldTypes } from "fields";
 import { validateObject } from "validation";
 
 const OBJ = {
@@ -10,11 +10,62 @@ const OBJ = {
 	array: ["ABC", "ABC"]
 };
 
-const SCHEMA = {
-	obj1: FIELDS.object({ text: FIELDS.text() }),
-	obj2: FIELDS.object({ text: FIELDS.text() }),
-	obj3: FIELDS.object({ text: FIELDS.text() }),
-	array: FIELDS.array(FIELDS.text())
+// const SCHEMA: FieldTypes = {
+// 	obj1: FIELDS.object({ text: FIELDS.text() }),
+// 	obj2: FIELDS.object({ text: FIELDS.text() }),
+// 	obj3: FIELDS.object({ text: FIELDS.text() }),
+// 	array: FIELDS.array(FIELDS.text())
+// };
+
+// we can use curly braces initialization too; it's a bit more chatty
+// FIELDS factory methods automatically add the 'required' rule, that's the default, but here we have to add those manually
+const SCHEMA: FieldTypes = {
+	obj1: {
+		baseType: "object",
+		type: "object",
+		rules: [{ ruleType: "required" }],
+		schema: {
+			text: {
+				baseType: "text",
+				type: "text",
+				rules: [{ ruleType: "required" }]
+			}
+		}
+	},
+	obj2: {
+		baseType: "object",
+		type: "object",
+		rules: [{ ruleType: "required" }],
+		schema: {
+			text: {
+				baseType: "text",
+				type: "text",
+				rules: [{ ruleType: "required" }]
+			}
+		}
+	},
+	obj3: {
+		baseType: "object",
+		type: "object",
+		rules: [{ ruleType: "required" }],
+		schema: {
+			text: {
+				baseType: "text",
+				type: "text",
+				rules: [{ ruleType: "required" }]
+			}
+		}
+	},
+	array: {
+		baseType: "array",
+		type: "array",
+		rules: [{ ruleType: "required" }],
+		itemType: {
+			baseType: "text",
+			type: "text",
+			rules: [{ ruleType: "required" }]
+		}
+	}
 };
 
 it('validateFields.incremental.filter.array', () => {
@@ -109,7 +160,7 @@ it('validateFields.incremental.filter.callback', () => {
 
 	const result2 = validateObject(obj, SCHEMA, {
 		incrementalValidation: {
-			filter: t => ["obj2", "array[1]"].some(t2 => fullQualifiedMemberNameMatchSubTree(t.fullQualifiedName, t2)),
+			filter: t => ["obj2", "array[1]"].some(t2 => isFullQualifiedMemberNameParentChild(t.fullQualifiedName, t2, true)),
 			previousResult: result1
 		},
 		callbacks: {

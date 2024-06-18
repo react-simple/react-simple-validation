@@ -1,6 +1,6 @@
-import { getToday } from "@react-simple/react-simple-util";
+import { ValueOrCallback, getToday } from "@react-simple/react-simple-util";
 import {
-	AnyFieldType, ArrayFieldType, BooleanFieldType, DateFieldType, FieldType, FieldTypeBase, FieldTypes, FileFieldType, NumberFieldType,
+	AnyFieldType, ArrayFieldType, BaseFieldType, BooleanFieldType, DateFieldType, FieldType, FieldTypeBase, FieldTypes, FileFieldType, NumberFieldType,
 	ObjectFieldType, TextFieldType
 } from "./types/types";
 import {
@@ -10,16 +10,51 @@ import {
 import { REACT_SIMPLE_VALIDATION } from "data";
 import { EmailTextFieldType, LongTextFieldType, NotesTextFieldType, ShortTextFieldType, TelTextFieldType } from "./types";
 import { PercentNumberFieldType } from "./types/custom.number";
+import { RULES } from "rules/data";
+
+// this is the 'empty' value, the default value is always undefined
+export const BASE_FIELD_TYPE_EMPTY_VALUES: Record<BaseFieldType, ValueOrCallback<unknown>> = {
+	any: {},
+	text: "",
+	number: 0,
+	boolean: false,
+	date: () => new Date(),
+	file: new File([], ""),
+	array: [],
+	object: {}
+};
 
 // Specified rules will overwrite default rules by using 'ruleType'. 
 // Default rules should only contain basic rules (required, max value, max length, regex etc.)
-const getUniqueRules = <Rule extends FieldValidationRule>(defaultRules: Rule[], rules?: Rule[]) => {
-	return rules
-		? [...defaultRules.filter(t => !rules.some(t2 => t.ruleType === t2.ruleType)), ...rules]
-		: defaultRules;
+const getResolvedRules = <Rule extends FieldValidationRule>(
+	defaultRules: Rule[],
+	rules: Rule[] | undefined,
+	required: boolean | undefined 
+) => {
+	if (required !== false) {
+		const result = rules
+			? [...defaultRules.filter(t => !rules.some(t2 => t.ruleType === t2.ruleType)), ...rules]
+			: defaultRules;
+	
+		if (!result.some(t => t.ruleType === "required")) {
+			result.push(RULES.required() as Rule);
+		}
+
+		return result;
+	}
+	else {
+		return rules
+			? [
+				...defaultRules.filter(t => t.ruleType !== "required" && !rules.some(t2 => t.ruleType === t2.ruleType)),
+				...rules.filter(t => t.ruleType !== "required")
+			]
+			: defaultRules.filter(t => t.ruleType !== "required");
+	}
 };
 
-export type FieldTypeInitOptions<ValueType> = Pick<FieldTypeBase<ValueType, any>, "refName" | "defaultValue">;
+export type FieldTypeInitOptions<ValueType> = Pick<FieldTypeBase<ValueType, any>, "refName" | "defaultValue"> & {
+	readonly required?: boolean;
+};
 
 // Factory methods for field types. Will automatically pick up default rules from REACT_SIMPLE_VALIDATION.DEFAULT_RULES.
 export const FIELDS: {
@@ -56,56 +91,49 @@ export const FIELDS: {
 	any: (rules, options) => ({
 		type: "any",
 		baseType: "any",
-		baseValue: "",
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.any.any, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.any.any, rules, options?.required),
 		...options
 	}),
 
 	text: (rules, options) => ({
 		type: "text",
 		baseType: "text",
-		baseValue: "",
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text.text, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text.text, rules, options?.required),
 		...options
 	}),
 
 	number: (rules, options) => ({
 		type: "number",
 		baseType: "number",
-		baseValue: 0,
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.number.number, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.number.number, rules, options?.required),
 		...options
 	}),
 
 	boolean: (rules, options) => ({
 		type: "boolean",
 		baseType: "boolean",
-		baseValue: false,
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.boolean.boolean, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.boolean.boolean, rules, options?.required),
 		...options
 	}),
 
 	date: (rules, options) => ({
 		type: "date",
 		baseType: "date",
-		baseValue: getToday(),
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.date.date, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.date.date, rules, options?.required),
 		...options
 	}),
 
 	file: (rules, options) => ({
 		type: "file",
 		baseType: "file",
-		baseValue: new File([], ""),
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.file.file, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.file.file, rules, options?.required),
 		...options
 	}),
 
 	object: (schema, rules, options) => ({
 		type: "object",
 		baseType: "object",
-		baseValue: {},
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.object.object, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.object.object, rules, options?.required),
 		schema,
 		...options
 	}),
@@ -113,8 +141,7 @@ export const FIELDS: {
 	array: (itemFieldType, rules, options) => ({
 		type: "array",
 		baseType: "array",
-		baseValue: [],
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.array.array, rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.array.array, rules, options?.required),
 		itemType: itemFieldType,
 		...options
 	}),
@@ -123,24 +150,21 @@ export const FIELDS: {
 	textShort: (rules, options) => ({
 		type: "text-short",
 		baseType: "text",
-		baseValue: "",
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-short"], rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-short"], rules, options?.required),
 		...options
 	}),
 
 	textLong: (rules, options) => ({
 		type: "text-long",
 		baseType: "text",
-		baseValue: "",
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-long"], rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-long"], rules, options?.required),
 		...options
 	}),
 
 	textNotes: (rules, options) => ({
 		type: "text-notes",
 		baseType: "text",
-		baseValue: "",
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-notes"], rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-notes"], rules, options?.required),
 		...options
 	}),
 
@@ -148,24 +172,21 @@ export const FIELDS: {
 		(rules, options) => ({
 			type: "text-tel",
 			baseType: "text",
-			baseValue: "",
-			rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-tel"], rules),
+			rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-tel"], rules, options?.required),
 			...options
 		}),
 
 	textEmail: (rules, options) => ({
 		type: "text-email",
 		baseType: "text",
-		baseValue: "",
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-email"], rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.text["text-email"], rules, options?.required),
 		...options
 	}),
 
 	numberPercent: (rules, options) => ({
 		type: "number-percent",
 		baseType: "number",
-		baseValue: 0,
-		rules: getUniqueRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.number["number-percent"], rules),
+		rules: getResolvedRules(REACT_SIMPLE_VALIDATION.DEFAULT_RULES.number["number-percent"], rules, options?.required),
 		...options
 	})
 };

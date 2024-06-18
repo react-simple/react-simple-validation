@@ -19,8 +19,7 @@ export type BaseFieldType = keyof typeof BASE_FIELD_TYPES;
 export interface FieldTypeBase<ValueType, RulesType extends FieldValidationRule> {
 	readonly type: string;
 	readonly baseType: BaseFieldType;
-	readonly baseValue: ValueType; // this is the 'empty' value, the default value is always undefined
-	readonly rules: RulesType[];
+	readonly rules?: RulesType[];
 	readonly refName?: string; // named value, can be referred to by using '@refName' in "field-reference" rules
 	readonly defaultValue?: ValueType;
 }

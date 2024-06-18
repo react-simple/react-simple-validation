@@ -1,4 +1,4 @@
-import { ChildMemberInfo } from "@react-simple/react-simple-mapping";
+import { ChildMemberInfoWithCallbacks } from "@react-simple/react-simple-mapping";
 import { ValueOrArray } from "@react-simple/react-simple-util";
 import { Field, FieldType, FieldTypes, ObjectFieldType } from "fields/types";
 import { FieldValidationRule } from "rules/types";
@@ -20,7 +20,7 @@ export interface ReactSimpleValidationDependencyInjection {
       fullQualifiedName: string,
       createMissingChildObjects: boolean,
       defaultImpl: ReactSimpleValidationDependencyInjection["fields"]["getChildFieldTypeInfoByFullQualifiedName"]
-    ) => ChildMemberInfo<FieldType, FieldType> | undefined;
+    ) => ChildMemberInfoWithCallbacks<FieldType> | undefined;
 
     getChildFieldTypeByFullQualifiedName: (
       fieldType: FieldType,
