@@ -3,11 +3,15 @@ import { FieldValidationRule } from "rules/types";
 
 export type FieldRuleValidationErrors = { [fullQualifiedName: string]: string[] };
 
+// Update mergeFieldValidationOptions() with new members!
 export interface FieldValidationOptions {
 	// parameters which are accessible using "@refName" references (@refName can also be used to access fields with refName property set)
 	readonly namedObjs?: { [refName: string]: Pick<Field, "value" | "type"> };
-	readonly data?: any; // for custom validation, whatever is needed will be passed over
-	readonly cultureId?: string; /// if not REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current
+	readonly data?: any; // will be passed to custom validation
+
+	// if not set then REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current is used
+	// used for returning localized error messages
+	readonly cultureId?: string; 
 
 	readonly incrementalValidation?: {
 		readonly filter: string[] | ((field: Field, context: FieldValidationContext) => boolean); // full qualified names or filter callback

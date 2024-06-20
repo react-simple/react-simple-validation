@@ -171,9 +171,8 @@ function validateField_default(
 
 	logTrace(log => log(
 		`[validateField]: Field validated, isValid: ${result.isValid}, field: ${field.fullQualifiedName}`,
-		{ field, context, result },
-		REACT_SIMPLE_VALIDATION.LOGGING.logLevel
-	));
+		{ args: { field, context, result } }
+	), { logLevel: REACT_SIMPLE_VALIDATION.LOGGING.logLevel });
 
 	return result;
 }
@@ -252,9 +251,8 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 
 	logTrace(log => log(
 		`[validateObject]: Object validated, isValid: ${result.isValid}`,
-		{ obj, schema, context, result },
-		REACT_SIMPLE_VALIDATION.LOGGING.logLevel
-	));
+		{ args: { obj, schema, context, result } }
+	), { logLevel: REACT_SIMPLE_VALIDATION.LOGGING.logLevel });
 
 	return result;
 }
@@ -330,7 +328,7 @@ function validateRule_default(
 						break;
 					
 					default:
-						logWarning(`[validateRule]: Unsupported field type '${type}'`, null, REACT_SIMPLE_VALIDATION.LOGGING.logLevel);
+						logWarning(`[validateRule]: Unsupported field type '${type}'`, { logLevel: REACT_SIMPLE_VALIDATION.LOGGING.logLevel });
 						break;
 				}
 			}
@@ -737,9 +735,8 @@ function validateRule_default(
 
 	logTrace(log => log(
 		`[validateRule]: Rule validated, isValid: ${result.isValid}, rule: ${rule.ruleType}, field: ${field.fullQualifiedName}`,
-		{ rule, field, context, result },
-		REACT_SIMPLE_VALIDATION.LOGGING.logLevel
-	));
+		{ args: { rule, field, context, result } }
+	), { logLevel: REACT_SIMPLE_VALIDATION.LOGGING.logLevel });
 
 	return result;
 }
