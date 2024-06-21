@@ -5,7 +5,7 @@ import {
 } from "@react-simple/react-simple-util";
 import { getChildMemberValue, isFullQualifiedMemberNameParentChild } from "@react-simple/react-simple-mapping";
 import {
-	ArrayFieldType, ArrayFieldTypeBase, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, ObjectFieldTypeBase, getChildFieldTypeByFullQualifiedName
+	ArrayFieldType, ArrayFieldTypeBase, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, ObjectFieldTypeBase, getChildFieldType
  } from "fields";
 import {
 	FieldRuleValidationResult, FieldValidationResultDetails, FieldValidationResult, ObjectValidationResult, FieldValidationOptions
@@ -141,7 +141,6 @@ function validateField_default(
 		// location
 		name,
 		fullQualifiedName,
-		objectFullQualifiedName: context.parentObj.fullQualifiedName,
 
 		// validated
 		fieldType: type.type,
@@ -227,7 +226,6 @@ function validateObject_default<Schema extends FieldTypes, Obj extends object = 
 		options?.incrementalValidation && {
 			fullQualifiedName: "",
 			name: "",
-			objectFullQualifiedName: "",
 			fieldType: field.type.type,
 			value: obj,
 			isValid: options.incrementalValidation.previousResult.isValid,
@@ -812,7 +810,7 @@ const getResolveReference = (path: string, field: Field, context: FieldValidatio
 	// /root -> context.rootObj
 	if (path.startsWith("/")) {
 		path = path.substring(1);
-		const type = getChildFieldTypeByFullQualifiedName(context.rootObj.type, path);
+		const type = getChildFieldType(context.rootObj.type, path);
 
 		if (type) {
 			const value = getChildMemberValue(context.rootObj.value as object, path);
@@ -834,7 +832,7 @@ const getResolveReference = (path: string, field: Field, context: FieldValidatio
 		path = i >= 0 ? path.substring(path[i] === "." ? i + 1 : i) : "";
 
 		if (namedObj) {
-			const type = getChildFieldTypeByFullQualifiedName(namedObj.type, path);
+			const type = getChildFieldType(namedObj.type, path);
 
 			if (type) {
 				const value = getChildMemberValue(namedObj.value as object, path);
@@ -851,7 +849,7 @@ const getResolveReference = (path: string, field: Field, context: FieldValidatio
 	}
 	// local (same obj)
 	else {
-		const type = getChildFieldTypeByFullQualifiedName(context.parentObj.type, path);
+		const type = getChildFieldType(context.parentObj.type, path);
 		
 		if (type) {
 			const value = getChildMemberValue(context.parentObj.value as object, path);

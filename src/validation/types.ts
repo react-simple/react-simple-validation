@@ -80,7 +80,6 @@ export interface FieldValidationResult {
 	// location
 	readonly name: string;
 	readonly fullQualifiedName: string; // use this to get the FieldType from the schema or the value from the validated object
-	readonly objectFullQualifiedName: string; // closest parent object in the hierarchy
 
 	// validated
 	readonly fieldType: string;

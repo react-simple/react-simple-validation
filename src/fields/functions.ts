@@ -3,7 +3,7 @@ import { ArrayFieldTypeBase, FieldType, FieldTypes, ObjectFieldType, ObjectField
 import { FIELDS } from "./data";
 
 // Returns the child type from the type hierarchy, but does not create missing child objects, if it's not yet created; returns undefined
-export function getChildFieldTypeByFullQualifiedName(fieldType: FieldType, fullQualifiedName: string): FieldType | undefined {
+export function getChildFieldType(fieldType: FieldType, fullQualifiedName: string): FieldType | undefined {
 	return getChildMemberValue<FieldType>(
 		fieldType,
 		fullQualifiedName,

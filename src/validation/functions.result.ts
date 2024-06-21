@@ -131,7 +131,6 @@ export function getEmptyFieldValidationResult(
 	return {
 		name: "",
 		fullQualifiedName: "",
-		objectFullQualifiedName: "",
 		fieldType,
 		value: undefined,
 		isValid: true,
