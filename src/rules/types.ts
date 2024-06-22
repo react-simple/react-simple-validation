@@ -1,4 +1,4 @@
-import { ContentType, DatePart, ValueBinaryOperator, ValueOrArray } from "@react-simple/react-simple-util";
+import { ContentType, DatePart, ValueBinaryOperator, ValueOrArray, ValueOrCallbackWithArgs } from "@react-simple/react-simple-util";
 import {
 	AnyFieldTypeBase, ArrayFieldTypeBase, BaseFieldType, BooleanFieldTypeBase, DateFieldTypeBase, Field, FieldType, FileFieldTypeBase,
 	NumberFieldTypeBase, ObjectFieldTypeBase, TextFieldTypeBase
@@ -17,30 +17,30 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["text-length-equals"]: "text-length-equals", // exact length
 	["text-equals"]: "text-equals", // exact value or values
 	["text-match"]: "text-match", // only for 'text'
-	["text-custom"]: "text-custom", 
+	["text-custom"]: "text-custom",
 
 	// number
 	["number-min"]: "number-min",
 	["number-max"]: "number-max",
 	["number-range"]: "number-range",
 	["number-equals"]: "number-equals",
-	["number-custom"]: "number-custom", 
+	["number-custom"]: "number-custom",
 
 	// date
 	["date-min"]: "date-min",
 	["date-max"]: "date-max",
 	["date-range"]: "date-range",
 	["date-equals"]: "date-equals",
-	["date-custom"]: "date-custom", 
+	["date-custom"]: "date-custom",
 
 	// boolean
 	["boolean-equals"]: "boolen-value",
-	["boolean-custom"]: "boolean-custom", 
+	["boolean-custom"]: "boolean-custom",
 
 	// file
 	["file-size-max"]: "file-size-max",
 	["file-content-type"]: "file-content-type",
-	["file-custom"]: "file-custom", 
+	["file-custom"]: "file-custom",
 
 	// array
 	["array-length-min"]: "array-length-min",
@@ -56,13 +56,13 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["array-itemindex-min"]: "array-itemindex-min",
 	["array-itemindex-max"]: "array-itemindex-min",
 	["array-itemindex-range"]: "array-itemindex-min",
-	["array-custom"]: "array-custom", 
+	["array-custom"]: "array-custom",
 
 	// object
-	["object-custom"]: "object-custom", 
+	["object-custom"]: "object-custom",
 
 	// any
-	["any-custom"]: "any-custom", 
+	["any-custom"]: "any-custom",
 
 	// rule collection, operators
 	["some-rules-valid"]: "some-rules-valid", // at least one rule must be valid
@@ -74,7 +74,7 @@ export const FIELD_VALIDATION_RULE_TYPES = {
 	["compare"]: "compare", // compare field value with another field, use various operators
 
 	// references
-	["field-reference"]: "field-reference"	
+	["field-reference"]: "field-reference"
 };
 
 export type FieldValidationRuleType = keyof typeof FIELD_VALIDATION_RULE_TYPES;
@@ -467,3 +467,72 @@ export type FieldValidationRule =
 	| ObjectFieldValidationRules
 	| ArrayFieldValidationRules
 	| AnyFieldValidationRules;
+
+// all rules correctly typed
+const ALL_RULETYPES = {
+	"any-custom": <ValueOrCallbackWithArgs<FieldAnyCustomValidationRule, string | undefined>>undefined,
+	"all-rules-valid": <ValueOrCallbackWithArgs<AllRulesValidRule, string | undefined>>undefined,
+
+	"array-include-all": <ValueOrCallbackWithArgs<FieldArrayIncludeAllRule, string | undefined>>undefined,
+	"array-include-none": <ValueOrCallbackWithArgs<FieldArrayIncludeNoneRule, string | undefined>>undefined,
+	"array-include-some": <ValueOrCallbackWithArgs<FieldArrayIncludeSomeRule, string | undefined>>undefined,
+	"array-itemindex-equals": <ValueOrCallbackWithArgs<ArrayItemIndexEqualsRule, string | undefined>>undefined,
+	"array-itemindex-min": <ValueOrCallbackWithArgs<ArrayItemIndexMinRule, string | undefined>>undefined,
+	"array-itemindex-max": <ValueOrCallbackWithArgs<ArrayItemIndexMaxRule, string | undefined>>undefined,
+	"array-itemindex-range": <ValueOrCallbackWithArgs<ArrayItemIndexRangeRule, string | undefined>>undefined,
+	"array-length-equals": <ValueOrCallbackWithArgs<FieldArrayLengthEqualsRule, string | undefined>>undefined,
+	"array-length-max": <ValueOrCallbackWithArgs<FieldArrayMaxLengthRule, string | undefined>>undefined,
+	"array-length-min": <ValueOrCallbackWithArgs<FieldArrayMinLengthRule, string | undefined>>undefined,
+	"array-length-range": <ValueOrCallbackWithArgs<FieldArrayLengthRangeRule, string | undefined>>undefined,
+	"array-match-all": <ValueOrCallbackWithArgs<FieldArrayMatchAllRule, string | undefined>>undefined,
+	"array-match-some": <ValueOrCallbackWithArgs<FieldArrayMatchSomeRule, string | undefined>>undefined,
+	"array-custom": <ValueOrCallbackWithArgs<FieldArrayCustomValidationRule, string | undefined>>undefined,
+
+	"boolean-equals": <ValueOrCallbackWithArgs<FieldBooleanEqualsRule, string | undefined>>undefined,
+	"boolean-custom": <ValueOrCallbackWithArgs<FieldBooleanCustomValidationRule, string | undefined>>undefined,
+
+	"compare": <ValueOrCallbackWithArgs<FieldComparisonConditionalRule, string | undefined>>undefined,
+	"date-max": <ValueOrCallbackWithArgs<FieldDateMaxValueRule, string | undefined>>undefined,
+	"date-min": <ValueOrCallbackWithArgs<FieldDateMinValueRule, string | undefined>>undefined,
+	"date-range": <ValueOrCallbackWithArgs<FieldDateRangeRule, string | undefined>>undefined,
+	"date-equals": <ValueOrCallbackWithArgs<FieldDateEqualsRule, string | undefined>>undefined,
+	"date-custom": <ValueOrCallbackWithArgs<FieldDateCustomValidationRule, string | undefined>>undefined,
+
+	"field-reference": <ValueOrCallbackWithArgs<FieldReferenceRule, string | undefined>>undefined,
+
+	"file-content-type": <ValueOrCallbackWithArgs<FieldFileContentTypeRule, string | undefined>>undefined,
+	"file-size-max": <ValueOrCallbackWithArgs<FieldFileMaxSizeRule, string | undefined>>undefined,
+	"file-custom": <ValueOrCallbackWithArgs<FieldFileCustomValidationRule, string | undefined>>undefined,
+
+	"if-then-else": <ValueOrCallbackWithArgs<FieldIfThenElseConditionalRule, string | undefined>>undefined,
+
+	"number-max": <ValueOrCallbackWithArgs<FieldNumberMaxValueRule, string | undefined>>undefined,
+	"number-min": <ValueOrCallbackWithArgs<FieldNumberMinValueRule, string | undefined>>undefined,
+	"number-range": <ValueOrCallbackWithArgs<FieldNumberRangeRule, string | undefined>>undefined,
+	"number-equals": <ValueOrCallbackWithArgs<FieldNumberEqualsRule, string | undefined>>undefined,
+	"number-custom": <ValueOrCallbackWithArgs<FieldNumberCustomValidationRule, string | undefined>>undefined,
+
+	"object-custom": <ValueOrCallbackWithArgs<FieldObjectCustomValidationRule, string | undefined>>undefined,
+
+	"required": <ValueOrCallbackWithArgs<FieldRequiredRule, string | undefined>>undefined,
+
+	"some-rules-valid": <ValueOrCallbackWithArgs<SomeRulesValidRule, string | undefined>>undefined,
+	"switch": <ValueOrCallbackWithArgs<FieldSwitchConditionalRule, string | undefined>>undefined,
+
+	"text-length-equals": <ValueOrCallbackWithArgs<FieldTextLengthEqualsRule, string | undefined>>undefined,
+	"text-length-max": <ValueOrCallbackWithArgs<FieldTextMaxLengthRule, string | undefined>>undefined,
+	"text-length-min": <ValueOrCallbackWithArgs<FieldTextMinLengthRule, string | undefined>>undefined,
+	"text-length-range": <ValueOrCallbackWithArgs<FieldTextLengthRangeRule, string | undefined>>undefined,
+	"text-match": <ValueOrCallbackWithArgs<FieldTextMatchRule, string | undefined>>undefined,
+	"text-equals": <ValueOrCallbackWithArgs<FieldTextEqualsRule, string | undefined>>undefined,
+	"text-custom": <ValueOrCallbackWithArgs<FieldTextCustomValidationRule, string | undefined>>undefined,
+
+	"type": <ValueOrCallbackWithArgs<FieldTypeRule, string | undefined>>undefined
+};
+
+// we don't want BLANK to be a Record, since that kills the member level typing, 
+// but using Record here helps to validate that all FieldValidationRuleType values are listed
+// eslint-disable-next-line @typescript-eslint/ban-types
+const _CHECK_RULESTYPES_DEFINED: Record<FieldValidationRuleType, any> = ALL_RULETYPES;
+
+export type ValidationRuleMessages = typeof ALL_RULETYPES;

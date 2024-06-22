@@ -1,8 +1,11 @@
 import {
 	compareDates, dateAdd, evaluateValueBinaryOperator, findMapped, findNonEmptyValue, getResolvedArray, isArray, isBoolean, isDate, isEmpty,
-	isEmptyObject, isFile, isNullOrUndefined, isNumber, isString, isValueType, logTrace, logWarning, mapDictionaryValues, sameDates,
+	isEmptyObject, isFile, isNullOrUndefined, isNumber, isObject, isString, logTrace, logWarning, mapDictionaryValues, sameDates,
 	stringAppend, stringIndexOfAny
 } from "@react-simple/react-simple-util";
+import {
+	REACT_SIMPLE_LOCALIZATION, formatValue, getCulture, tryParseBoolean, tryParseDateAnyFormat, tryParseFloat
+} from "@react-simple/react-simple-localization";
 import { getChildMemberValue, isFullQualifiedMemberNameParentChild } from "@react-simple/react-simple-mapping";
 import {
 	ArrayFieldType, ArrayFieldTypeBase, FIELDS, Field, FieldType, FieldTypes, ObjectFieldType, ObjectFieldTypeBase, getChildFieldType
@@ -269,6 +272,73 @@ export function validateObject<Schema extends FieldTypes, Obj extends object = o
 	return REACT_SIMPLE_VALIDATION.DI.validation.validateObject(obj, schema, options || {}, validateObject_default);
 }
 
+const validateFieldType_default = (value: unknown, type: FieldType) => {
+	switch (type.baseType) {
+		case "any":
+			return true;
+
+		case "text":
+			return isString(value);
+
+		case "number":
+			return isNumber(value);
+
+		case "date":
+			return isDate(value);
+
+		case "boolean":
+			return isBoolean(value);
+
+		case "file":
+			return isFile(value);
+
+		case "object":
+			// due to the nature of isFile() we don't check that here
+			return isObject(value);
+
+		case "array":
+			return isArray(value);
+
+		default:
+			logWarning(`[validateRule]: Unsupported field type '${type}'`, { logLevel: REACT_SIMPLE_VALIDATION.LOGGING.logLevel });
+			return false;
+	}
+};
+
+REACT_SIMPLE_VALIDATION.DI.validation.validateFieldType = validateFieldType_default;
+
+export const validateFieldType = (value: unknown, type: FieldType) => {
+	return REACT_SIMPLE_VALIDATION.DI.validation.validateFieldType(value, type, validateFieldType_default);
+};
+
+function tryParseFieldType_default<Value = unknown>(value: unknown, type: FieldType, cultureId?: string): Value | undefined {
+	cultureId ||= REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current.cultureId;
+
+	switch (type.baseType) {
+		case "text":
+			return (isString(value) ? value : formatValue(value, getCulture(cultureId))) as Value;
+
+		case "number":
+			return (isNumber(value) ? value : (tryParseFloat(value, getCulture(cultureId).numberFormat) || value)) as Value;
+
+		case "date":
+			return (isDate(value) ? value : (tryParseDateAnyFormat(value, getCulture(cultureId).dateFormat) || value)) as Value;
+
+		case "boolean":
+			return (isBoolean(value) ? value : (tryParseBoolean(value, getCulture(cultureId).booleanFormat) || value)) as Value;
+
+		// any, file, object, array
+		default:
+			return value as Value;
+	}
+}
+
+REACT_SIMPLE_VALIDATION.DI.validation.tryParseFieldType = tryParseFieldType_default;
+
+export function tryParseFieldType<Value = unknown>(value: unknown, type: FieldType, cultureId?: string): Value | undefined {
+	return REACT_SIMPLE_VALIDATION.DI.validation.tryParseFieldType(value, type, cultureId, tryParseFieldType_default);
+}
+
 // can return multiple rules, if there are child rules ('switch' or 'if-then-else' for example)
 function validateRule_default(
 	rule: FieldValidationRule,
@@ -280,56 +350,18 @@ function validateRule_default(
 	let regExpMatch: RegExpMatchArray | undefined;
 	let details: FieldValidationResultDetails[] = []; // custom info
 
-	const scope = "validateRule";
-	const { value, type, fullQualifiedName } = field;
-
+	let { value } = field;
+	const { type } = field;
 	const errors: FieldRuleValidationResult[] = [];
+
+	// try parse type if it's allowed and it's needed
+	if (context.options?.tryParseValues && !isNullOrUndefined(value)) {
+		value = tryParseFieldType(value, type, context.options.cultureId);
+	}
 
 	switch (rule.ruleType) {
 		case "type":
-			if (isNullOrUndefined(value)) {
-				isValid = true;
-			}
-			else {
-				switch (type.baseType) {
-					case "any":
-						isValid = true;
-						break;
-					
-					case "text":
-						isValid = isString(value);
-						break;
-
-					case "number":
-						isValid = isNumber(value);
-						break;
-
-					case "date":
-						isValid = isDate(value);
-						break;
-
-					case "boolean":
-						isValid = isBoolean(value);
-						break;
-
-					case "file":
-						isValid = isFile(value);
-						break;
-
-					case "object":
-						// due to the nature of isFile() we don't check that here
-						isValid = !isValueType(value) && !isArray(value);
-						break;
-
-					case "array":
-						isValid = isArray(value);
-						break;
-					
-					default:
-						logWarning(`[validateRule]: Unsupported field type '${type}'`, { logLevel: REACT_SIMPLE_VALIDATION.LOGGING.logLevel });
-						break;
-				}
-			}
+			isValid = isNullOrUndefined(value) || validateFieldType(value, type);
 			break;
 
 		case "required":

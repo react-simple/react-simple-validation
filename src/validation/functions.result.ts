@@ -1,8 +1,7 @@
 import { REACT_SIMPLE_LOCALIZATION } from "@react-simple/react-simple-localization";
 import { getChildMemberValue } from "@react-simple/react-simple-mapping";
 import { FieldRuleValidationErrors, FieldRuleValidationResult, FieldValidationResult, ObjectValidationResult } from "./types";
-import { FIELD_VALIDATION_RULE_MESSAGES } from "rules";
-import { ValueOrArray, isArray, mergeDictionaries } from "@react-simple/react-simple-util";
+import { ValueOrArray, getResolvedCallbackValueWithArgs, isArray, mergeDictionaries } from "@react-simple/react-simple-util";
 import { REACT_SIMPLE_VALIDATION } from "data";
 
 function getChildValidationResult_default(
@@ -30,11 +29,15 @@ export function getChildValidationResult(
 }
 
 function getFieldRuleValidationErrorMessage_default(result: Pick<FieldRuleValidationResult, "message" | "rule">, cultureId?: string): string {
+	cultureId ||= REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current.cultureId;
+	const defaultId = REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.default.cultureId;
+
 	return result.message ||
-		(
-			FIELD_VALIDATION_RULE_MESSAGES[cultureId || REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current.cultureId]?.[result.rule.ruleType] ||
-			FIELD_VALIDATION_RULE_MESSAGES.DEFAULT[result.rule.ruleType]
-		)?.(result.rule as any) as string
+		getResolvedCallbackValueWithArgs(
+			REACT_SIMPLE_VALIDATION.MESSAGES.validationRuleMessages[cultureId]?.[result.rule.ruleType] ||
+			REACT_SIMPLE_VALIDATION.MESSAGES.validationRuleMessages[defaultId]?.[result.rule.ruleType] as any,
+			result.rule
+		)
 		|| `${result.rule.ruleType} error`;
 }
 
@@ -42,7 +45,7 @@ REACT_SIMPLE_VALIDATION.DI.validationResult.getFieldRuleValidationErrorMessage =
 
 export function getFieldRuleValidationErrorMessage(result: Pick<FieldRuleValidationResult, "message" | "rule">, cultureId?: string): string {
 	return REACT_SIMPLE_VALIDATION.DI.validationResult.getFieldRuleValidationErrorMessage(
-		result, cultureId || undefined, getFieldRuleValidationErrorMessage_default
+		result, cultureId, getFieldRuleValidationErrorMessage_default
 	);
 }
 
@@ -63,7 +66,7 @@ REACT_SIMPLE_VALIDATION.DI.validationResult.getFieldRuleValidationErrorMessages 
 
 export function getFieldRuleValidationErrorMessages(result: ValueOrArray<FieldRuleValidationResult>, cultureId?: string): string[] {
 	return REACT_SIMPLE_VALIDATION.DI.validationResult.getFieldRuleValidationErrorMessages(
-		result, cultureId || undefined, getFieldRuleValidationErrorMessages_default
+		result, cultureId, getFieldRuleValidationErrorMessages_default
 	);
 }
 
@@ -90,7 +93,7 @@ REACT_SIMPLE_VALIDATION.DI.validationResult.getFieldValidationErrorMessages = ge
 
 export function getFieldValidationErrorMessages(result: ValueOrArray<FieldValidationResult>, cultureId?: string): FieldRuleValidationErrors {
 	return REACT_SIMPLE_VALIDATION.DI.validationResult.getFieldValidationErrorMessages(
-		result, cultureId || undefined, getFieldValidationErrorMessages_default
+		result, cultureId, getFieldValidationErrorMessages_default
 	);
 }
 
@@ -109,7 +112,7 @@ REACT_SIMPLE_VALIDATION.DI.validationResult.getObjectValidationErrorMessages = g
 
 export function getObjectValidationErrorMessages(result: ValueOrArray<ObjectValidationResult>, cultureId?: string): FieldRuleValidationErrors {
 	return REACT_SIMPLE_VALIDATION.DI.validationResult.getObjectValidationErrorMessages(
-		result, cultureId || undefined, getObjectValidationErrorMessages_default
+		result, cultureId, getObjectValidationErrorMessages_default
 	);
 }
 

@@ -1,3 +1,5 @@
+import { getFieldTypeMessages } from "fields/types/messages.internal";
+import { getValidationRuleMessagesENUS, getValidationRuleMessagesHU } from "rules/messages.internal";
 import { ReactSimpleValidation } from "types";
 
 // For depndency injection references. All stub references are set by the respective util files.
@@ -46,8 +48,19 @@ export const REACT_SIMPLE_VALIDATION: ReactSimpleValidation = {
 		}
 	},
 
+	MESSAGES: {
+		// set by messages.ts
+		validationRuleMessages: {
+			'EN-US': getValidationRuleMessagesENUS(() => REACT_SIMPLE_VALIDATION.MESSAGES.fieldTypeNames),
+			HU: getValidationRuleMessagesHU(() => REACT_SIMPLE_VALIDATION.MESSAGES.fieldTypeNames)
+		},
+		fieldTypeNames: getFieldTypeMessages()
+	},
+
 	DI: {
 		validation: {
+			validateFieldType: stub,
+			tryParseFieldType: stub,
 			validateRule: stub,
 			validateField: stub,
 			validateObject: stub

@@ -1,5 +1,5 @@
 import { ValueOrArray } from "@react-simple/react-simple-util";
-import { Field, FieldTypes, ObjectFieldType } from "fields/types";
+import { Field, FieldType, FieldTypes, ObjectFieldType } from "fields/types";
 import { FieldValidationRule } from "rules/types";
 import {
   FieldRuleValidationErrors, FieldRuleValidationResult, FieldValidationContext, FieldValidationOptions, FieldValidationResult,
@@ -8,6 +8,19 @@ import {
 
 export interface ReactSimpleValidationDependencyInjection {
   validation: {
+    validateFieldType: (
+      value: unknown,
+      type: FieldType,
+      defaultImpl: ReactSimpleValidationDependencyInjection["validation"]["validateFieldType"]
+    ) => boolean;
+    
+    tryParseFieldType: <Value = unknown>(
+      value: unknown,
+      type: FieldType,
+      cultureId: string | undefined,
+      defaultImpl: ReactSimpleValidationDependencyInjection["validation"]["tryParseFieldType"]
+    ) => Value | undefined;
+
     validateRule: (
       rule: FieldValidationRule,
       field: Field,

@@ -12,6 +12,7 @@ export interface FieldValidationOptions {
 	// if not set then REACT_SIMPLE_LOCALIZATION.CULTURE_INFO.current is used
 	// used for returning localized error messages
 	readonly cultureId?: string; 
+	readonly tryParseValues?: boolean;
 
 	readonly incrementalValidation?: {
 		readonly filter: string[] | ((field: Field, context: FieldValidationContext) => boolean); // full qualified names or filter callback

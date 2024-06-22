@@ -1,7 +1,8 @@
 import { LogLevel } from "@react-simple/react-simple-util";
+import { BaseFieldType } from "fields";
 import {
 	AnyFieldValidationRules, ArrayFieldValidationRules, BooleanFieldValidationRules, DateFieldValidationRules, FileFieldValidationRules,
-	NumberFieldValidationRules, ObjectFieldValidationRules, TextFieldValidationRules
+	NumberFieldValidationRules, ObjectFieldValidationRules, TextFieldValidationRules,	ValidationRuleMessages
 } from "rules";
 import { ReactSimpleValidationDependencyInjection } from "types.di";
 
@@ -47,6 +48,11 @@ export interface ReactSimpleValidation {
 			[customType: string]: ObjectFieldValidationRules[];
 		};
 	};
+
+	MESSAGES: {
+		validationRuleMessages: { [cultureId: string]: ValidationRuleMessages };
+		fieldTypeNames: { [cultureId: string]: Record<BaseFieldType, string> };
+	},
 
 	DI: ReactSimpleValidationDependencyInjection;
 }
